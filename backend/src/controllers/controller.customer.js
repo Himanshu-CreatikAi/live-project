@@ -270,7 +270,7 @@ export const getCustomerById = async (req, res, next) => {
       ...customer.toObject(),
       Campaign: campaignDoc
         ? { _id: campaignDoc._id, Name: campaignDoc.Name }
-        : { _id: null, Name: contact.Campaign || "" },
+        : { _id: null, Name: customer.Campaign || "" },
       CustomerSubType: customerSubTypeDoc
         ? { _id: customerSubTypeDoc._id, Name: customerSubTypeDoc.Name }
         : { _id: null, Name: customer.CustomerSubType || "" },

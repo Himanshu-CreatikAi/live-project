@@ -1,5 +1,3 @@
-// controllers/contact.controller.js
-
 import Contact from "../models/model.contact.js";
 import Campaign from "../models/model.campaign.js";
 import ContactType from "../models/model.contacttype.js";
