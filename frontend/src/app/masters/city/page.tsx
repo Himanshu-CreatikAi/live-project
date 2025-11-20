@@ -34,7 +34,7 @@ export default function CityPage() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [deleteDialogData, setDeleteDialogData] = useState<DeleteDialogData | null>(null);
   const [currentTablePage, setCurrentTablePage] = useState(1);
-  const rowsPerTablePage = 10;
+  const [rowsPerTablePage, setRowsPerTablePage] = useState(10);
   const router = useRouter();
 
   // Fetch cities

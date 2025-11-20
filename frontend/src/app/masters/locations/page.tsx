@@ -36,20 +36,20 @@ export default function LocationPage() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [deleteDialogData, setDeleteDialogData] = useState<DeleteDialogData | null>(null);
   const [currentTablePage, setCurrentTablePage] = useState(1);
-  const rowsPerTablePage = 10;
+  const [rowsPerTablePage, setRowsPerTablePage] = useState(10);
   const router = useRouter();
 
   // Fetch locations
   const fetchLocations = async () => {
     const data = await getLocation();
-       if (data) setLocations(data);
+    if (data) setLocations(data);
     /* const data = [
       { Name: "Main Warehouse", City: "Jaipur", Status: "Active" },
       { Name: "Secondary Storage", City: "Delhi", Status: "Inactive" },
       { Name: "North Outlet", City: "Mumbai", Status: "Active" },
     ]; */
 
-    const dataFormat = data.map((l:locationAllDataInterface) => ({
+    const dataFormat = data.map((l: locationAllDataInterface) => ({
       ...l,
       Name: l.Name.charAt(0).toUpperCase() + l.Name.slice(1),
       City: l.City.charAt(0).toUpperCase() + l.City.slice(1),
@@ -93,15 +93,15 @@ export default function LocationPage() {
   // Delete location
   const handleDelete = async (data: DeleteDialogData | null) => {
     if (!data) return;
-       const res = await deleteLocation(data.id);
-       if (res) {
-         toast.success("Location deleted successfully!");
-         setIsDeleteDialogOpen(false);
-         setDeleteDialogData(null);
-         fetchLocations();
-         return;
-       }
-       toast.error("Failed to delete location.");
+    const res = await deleteLocation(data.id);
+    if (res) {
+      toast.success("Location deleted successfully!");
+      setIsDeleteDialogOpen(false);
+      setDeleteDialogData(null);
+      fetchLocations();
+      return;
+    }
+    toast.error("Failed to delete location.");
   };
 
   // Edit location
@@ -119,7 +119,7 @@ export default function LocationPage() {
     <MasterProtectedRoute>
       <Toaster position="top-right" />
       <div className="min-h-[calc(100vh-56px)] overflow-auto max-md:py-10">
-        
+
 
         {/* DELETE POPUP */}
         <DeleteDialog<DeleteDialogData>
@@ -138,12 +138,12 @@ export default function LocationPage() {
         <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200 relative">
           <PageHeader title="Dashboard" subtitles={["Locations"]} />
           {/* Add Button */}
-          
+
           <AddButton
-               url="/masters/locations/add"
-               text="Add"
-               icon={<PlusSquare size={18} />}
-             />
+            url="/masters/locations/add"
+            text="Add"
+            icon={<PlusSquare size={18} />}
+          />
 
           {/* Filters */}
           <form className="w-full flex flex-wrap gap-6 items-end mb-6 mt-16">
@@ -246,8 +246,8 @@ export default function LocationPage() {
                         <div className="w-[120px]">
                           <span
                             className={`px-3 py-1 rounded-[2px] text-xs font-semibold ${l.Status === "Active"
-                                ? "bg-[#C8E6C9] text-green-700"
-                                : "bg-red-100 text-red-700"
+                              ? "bg-[#C8E6C9] text-green-700"
+                              : "bg-red-100 text-red-700"
                               }`}
                           >
                             {l.Status}

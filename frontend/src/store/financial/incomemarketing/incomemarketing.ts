@@ -70,21 +70,10 @@ export const addIncomeMarketing = async (data:IncomeMarketingAllDataInterface) =
 export const updateIncomeMarketing = async (id: string, data:IncomeMarketingAllDataInterface) => {
   try {
    
-    // Exclude Status from the data being sent
-     console.log("Updating Income Marketing with ID:", id, "and data:", data);
     const response = await fetch(API_ROUTES.FINANCIAL.INCOMEMARKETING.UPDATE(id), {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        Date:"24-4-2025",
-        PartyName:"asdf",
-        User:"Admin",
-        Income:"Sales",
-        Amount:"879",
-        Status:"Inactive",
-        DueAmount:"300",
-        PaymentMethode:"Cash"
-      }),
+      body: JSON.stringify(data),
       credentials: "include"
     });
 

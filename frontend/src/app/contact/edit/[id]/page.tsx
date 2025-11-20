@@ -115,7 +115,7 @@ export default function ContactEdit() {
     const validateForm = () => {
         const newErrors: ErrorInterface = {};
         if (!contactData.Name.trim()) newErrors.Name = "Name is required";
-        if (!contactData.Email.trim()) {
+        if (!contactData.Email?.trim()) {
             newErrors.Email = "Email is required";
         } else if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(contactData.Email)) {
             newErrors.Email = "Invalid email format";

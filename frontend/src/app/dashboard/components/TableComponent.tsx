@@ -36,7 +36,7 @@ function TableComponent() {
 
       {/* Header */}
       <div className="hidden sm:flex flex-row items-center justify-between text-gray-500 font-semibold text-xs  border-b border-gray-200 pb-2 mb-2">
-        <div className="text-left ">Flag</div>
+        <div className="">Flag</div>
         <div>Country</div>
         <div>Sales</div>
         <div>Average</div>
@@ -47,7 +47,7 @@ function TableComponent() {
         {countryData.map((data, index) => (
           <div
             key={index}
-            className="grid grid-cols-3 max-md:grid-cols-1 md:grid-cols-2 sm:grid-cols-4 items-center bg-gray-50 sm:bg-transparent 
+            className="grid grid-cols-3 sm:grid-cols-4 items-center bg-gray-50 sm:bg-transparent 
               p-2 sm:p-0 rounded-lg sm:rounded-none shadow-sm sm:shadow-none"
           >
             {/* Flag */}

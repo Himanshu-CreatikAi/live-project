@@ -9,6 +9,7 @@ export interface mailGetDataInterface {
     _id: string;
     name: string;
     status?: string;
+    body?:string;
 }
 export interface mailAllCustomerInterface {
     templateId: string,

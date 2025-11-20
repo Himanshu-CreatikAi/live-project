@@ -25,7 +25,7 @@ export default function ExpensesPage() {
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [deleteDialogData, setDeleteDialogData] = useState<expensesDialogDataInterface | null>(null);
     const [currentTablePage, setCurrentTablePage] = useState(1);
-    const rowsPerTablePage = 10;
+    const [rowsPerTablePage, setRowsPerTablePage] = useState(10);
     const router = useRouter();
 
     // Fetch expenses from API
@@ -91,7 +91,7 @@ export default function ExpensesPage() {
         <MasterProtectedRoute>
             <Toaster position="top-right" />
             <div className="min-h-[calc(100vh-56px)] overflow-auto max-md:py-10">
-                
+
 
                 {/* DELETE POPUP */}
                 <DeleteDialog<expensesDialogDataInterface>
@@ -109,7 +109,7 @@ export default function ExpensesPage() {
                 <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200 relative">
                     <PageHeader title="Dashboard" subtitles={["Expenses"]} />
                     {/* Add Button */}
-                    
+
                     <AddButton
                         url="/masters/expenses/add"
                         text="Add"

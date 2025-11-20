@@ -97,21 +97,29 @@ export default function Contacts() {
 
   const getContacts = async () => {
     const data = await getContact();
+    console.log(" contact data ",data)
     if (data) {
       console.log("contact data ", data)
-      setContactData( data.map((item: any) => ({
+      setContactData(data.map((item: any) => {
+        const date = new Date(item.createdAt);
+        const formattedDate =
+          date.getDate().toString().padStart(2, "0") + "-" +
+          (date.getMonth() + 1).toString().padStart(2, "0") + "-" +
+          date.getFullYear();
+        return {
           _id: item._id,
           Name: item.Name,
-          Email:item.Email,
-          Campaign:item.Campaign,
-          Qualifications:item.Qualifications,
-          Location:item.Location,
-          ContactNo:item.ContactNo,
+          Email: item.Email,
+          Campaign: item.Campaign,
+          Qualifications: item.Qualifications,
+          Location: item.Location,
+          ContactNo: item.ContactNo,
           AssignTo: item.AssignTo?.name,
-          date: item.date,
-        })));
+          date: (item.date==="")?formattedDate:item.date,
+        }
+      }));
 
-     
+
       setContactAdv(
         data.map((item: any) => ({
           _id: item._id,
@@ -142,8 +150,8 @@ export default function Contacts() {
   /* ✅ DELETE ALL */
   const handleDeleteAll = async () => {
     if (contactData.length === 0) return;
-    const payload={
-      contactIds:[...selectedContacts]
+    const payload = {
+      contactIds: [...selectedContacts]
     }
     const response = await deleteAllContact(payload);
     if (response) {
@@ -262,6 +270,7 @@ export default function Contacts() {
         mailtemplates.map((item: any): mailGetDataInterface => ({
           _id: item?._id ?? "",
           name: item?.name ?? "",
+          body:item?.body??""
         }))
       );
 
@@ -281,6 +290,7 @@ export default function Contacts() {
         whatsapptemplates.map((item: any): whatsappGetDataInterface => ({
           _id: item?._id ?? "",
           name: item?.name ?? "",
+          body:item?.body??""
         }))
       );
 
@@ -290,7 +300,7 @@ export default function Contacts() {
 
   /*  SELECT ALL CHECKBOX */
   const handleSelectAll = () => {
-    const allIds = currentRows.map((c) => c._id);
+    const allIds = contactData.map((c) => c._id);
 
     setSelectedContacts((prev) =>
       allIds.every((id) => prev.includes(id))
@@ -519,11 +529,11 @@ export default function Contacts() {
           {/* TABLE SECTION */}
           <section className="flex flex-col mt-6 p-2  rounded-md">
             <div className="m-5 relative">
-              <div className="flex justify-between items-center py-1 px-2 border border-gray-800 rounded-md">
+              <div className="flex justify-between cursor-pointer items-center py-1 px-2 border border-gray-800 rounded-md" onClick={() => setToggleSearchDropdown(!toggleSearchDropdown)}>
                 <h3 className="flex items-center gap-1"><CiSearch />Advance Search</h3>
                 <button
                   type="button"
-                  onClick={() => setToggleSearchDropdown(!toggleSearchDropdown)}
+                  
                   className="p-2 hover:bg-gray-200 rounded-md cursor-pointer"
                 >
                   {toggleSearchDropdown ? <IoIosArrowUp /> : <IoIosArrowDown />}
@@ -579,14 +589,7 @@ export default function Contacts() {
             </div>
             <div className=" overflow-auto">
               <div className="flex gap-10 items-center px-3 py-4 min-w-max text-gray-700">
-                <button type="button" className=" relative overflow-hidden py-[2px] group hover:bg-[var(--color-primary-lighter)] hover:text-white text-[var(--color-primary)] bg-[var(--color-primary-lighter)]  rounded-tr-sm rounded-br-sm  border-l-[3px] px-2 border-l-[var(--color-primary)] cursor-pointer" onClick={() => {
-                  if (contactData.length > 0) {
-                    setIsDeleteAllDialogOpen(true);
-                    setDeleteAllDialogData({});
-                  }
-                }}><div className=" absolute top-0 left-0 z-0 h-full bg-[var(--color-primary)] w-0 group-hover:w-full transition-all duration-300 "></div>
-                  <span className="relative ">Delete All</span>
-                </button>
+                
                 <label htmlFor="selectall" className=" relative overflow-hidden py-[2px] group hover:bg-[var(--color-primary-lighter)] hover:text-white text-[var(--color-primary)] bg-[var(--color-primary-lighter)]  rounded-tr-sm rounded-br-sm  border-l-[3px] px-2 border-l-[var(--color-primary)] cursor-pointer">
                   <div className=" absolute top-0 left-0 z-0 h-full bg-[var(--color-primary)] w-0 group-hover:w-full transition-all duration-300 "></div>
                   <span className="relative">Select All</span>
@@ -615,9 +618,17 @@ export default function Contacts() {
                   }
                 }}><div className=" absolute top-0 left-0 z-0 h-full bg-[var(--color-primary)] w-0 group-hover:w-full transition-all duration-300 "></div>
                   <span className="relative">SMS All</span></button>
-                <button type="button" className=" relative overflow-hidden py-[2px] group hover:bg-[var(--color-primary-lighter)] hover:text-white text-[var(--color-primary)] bg-[var(--color-primary-lighter)]  rounded-tr-sm rounded-br-sm  border-l-[3px] px-2 border-l-[var(--color-primary)] cursor-pointer">
+                {/* <button type="button" className=" relative overflow-hidden py-[2px] group hover:bg-[var(--color-primary-lighter)] hover:text-white text-[var(--color-primary)] bg-[var(--color-primary-lighter)]  rounded-tr-sm rounded-br-sm  border-l-[3px] px-2 border-l-[var(--color-primary)] cursor-pointer">
                   <div className=" absolute top-0 left-0 z-0 h-full bg-[var(--color-primary)] w-0 group-hover:w-full transition-all duration-300 "></div>
                   <span className="relative ">Mass Update</span>
+                </button> */}
+                <button type="button" className=" relative overflow-hidden py-[2px] group hover:bg-[var(--color-primary-lighter)] hover:text-white text-[var(--color-primary)] bg-[var(--color-primary-lighter)]  rounded-tr-sm rounded-br-sm  border-l-[3px] px-2 border-l-[var(--color-primary)] cursor-pointer" onClick={() => {
+                  if (contactData.length > 0) {
+                    setIsDeleteAllDialogOpen(true);
+                    setDeleteAllDialogData({});
+                  }
+                }}><div className=" absolute top-0 left-0 z-0 h-full bg-[var(--color-primary)] w-0 group-hover:w-full transition-all duration-300 "></div>
+                  <span className="relative ">Delete All</span>
                 </button>
               </div>
 
@@ -675,7 +686,7 @@ export default function Contacts() {
                         <td className="px-4 py-3 border border-gray-200">{item.Qualifications}</td>
                         <td className="px-4 py-3 border border-gray-200">{item.Location}</td>
                         <td className="px-4 py-3 border border-gray-200">{item.ContactNo}</td>
-                        <td className="px-4 py-3 border border-gray-200">{item.AssignTo?item.AssignTo:"N/A"}</td>
+                        <td className="px-4 py-3 border border-gray-200">{item.AssignTo ? item.AssignTo : "N/A"}</td>
                         <td className="px-4 py-3 border border-gray-200">{item.date}</td>
 
                         <td className="px-4 py-2 border border-gray-200 flex gap-2 items-center">

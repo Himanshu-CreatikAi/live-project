@@ -21,7 +21,7 @@ export default function ContactTypePage() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [deleteDialogData, setDeleteDialogData] = useState<contacttypeDialogDataInterface | null>(null);
   const [currentTablePage, setCurrentTablePage] = useState(1);
-  const rowsPerTablePage = 10;
+  const [rowsPerTablePage, setRowsPerTablePage] = useState(10);
   const router = useRouter();
 
   // Fetch Contact Types
@@ -88,7 +88,7 @@ export default function ContactTypePage() {
       <Toaster position="top-right" />
       <div className="min-h-[calc(100vh-56px)] overflow-auto max-md:py-10">
         {/* Header */}
-        
+
 
         {/* DELETE POPUP */}
         <DeleteDialog<contacttypeDialogDataInterface>
@@ -106,12 +106,12 @@ export default function ContactTypePage() {
         <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200 relative">
           <PageHeader title="Dashboard" subtitles={["Contact Type"]} />
           {/* Add Button */}
-          
+
           <AddButton
-               url="/masters/contact-type/add"
-               text="Add"
-               icon={<PlusSquare size={18} />}
-             />
+            url="/masters/contact-type/add"
+            text="Add"
+            icon={<PlusSquare size={18} />}
+          />
 
           {/* Filter Form */}
           <form className="w-full flex flex-wrap gap-6 items-end mb-6 mt-16">

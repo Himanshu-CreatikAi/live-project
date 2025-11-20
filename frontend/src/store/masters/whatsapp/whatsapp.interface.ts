@@ -8,6 +8,7 @@ export interface whatsappGetDataInterface {
     _id: string;
     name:string;
     status?:string;
+    body?:string;
 }
 
 

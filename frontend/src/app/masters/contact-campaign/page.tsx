@@ -29,7 +29,7 @@ export default function ContactCampaignPage() {
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [deleteDialogData, setDeleteDialogData] = useState<contactcampaignDialogDataInterface | null>(null);
     const [currentTablePage, setCurrentTablePage] = useState(1);
-    const rowsPerTablePage = 10;
+    const [rowsPerTablePage, setRowsPerTablePage] = useState(10);
     const router = useRouter();
 
     // Fetch contact campaigns
@@ -95,8 +95,8 @@ export default function ContactCampaignPage() {
         <MasterProtectedRoute>
             <Toaster position="top-right" />
             <div className="min-h-[calc(100vh-56px)] overflow-auto max-md:py-10">
-               
-                
+
+
 
                 {/* Delete Dialog */}
                 <DeleteDialog<contactcampaignDialogDataInterface>
@@ -114,7 +114,7 @@ export default function ContactCampaignPage() {
                 <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200 relative">
                     <PageHeader title="Dashboard" subtitles={["Contact Campaign"]} />
                     {/* Add Button */}
-                    
+
                     <AddButton
                         url="/masters/contact-campaign/add"
                         text="Add"

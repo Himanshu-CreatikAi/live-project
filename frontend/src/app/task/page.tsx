@@ -22,7 +22,7 @@ export default function TaskPage() {
   const [deleteDialogData, setDeleteDialogData] = useState<DeleteDialogDataInterface | null>(null);
   const [taskIds, setTaskIds] = useState<string[]>([]);
   const [currentTablePage, setCurrentTablePage] = useState(1);
-  const rowsPerTablePage = 10;
+  const [rowsPerTablePage, setRowsPerTablePage] = useState(10);
 
   const router = useRouter();
 
@@ -94,7 +94,7 @@ export default function TaskPage() {
 
   // Row selection
   const handleSelectAll = () => {
-    const allIds = currentRows.map((t) => t._id);
+    const allIds = filteredTask.map((t) => t._id);
     setTaskIds((prev) =>
       allIds.every((id) => prev.includes(id))
         ? prev.filter((id) => !allIds.includes(id)) // unselect all

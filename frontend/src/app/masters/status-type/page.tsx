@@ -8,11 +8,11 @@ import Button from "@mui/material/Button";
 import { PlusSquare } from "lucide-react";
 import { useRouter } from "next/navigation";
 import DeleteDialog from "../../component/popups/DeleteDialog";
-import { 
-  statustypeGetDataInterface, 
-  statustypeDialogDataInterface 
+import {
+  statustypeGetDataInterface,
+  statustypeDialogDataInterface
 } from "@/store/masters/statustype/statustype.interface";
-import {  deleteStatusType, getStatusType } from "@/store/masters/statustype/statustype"; // You'll implement these
+import { deleteStatusType, getStatusType } from "@/store/masters/statustype/statustype"; // You'll implement these
 import PageHeader from "@/app/component/labels/PageHeader";
 import MasterProtectedRoute from "@/app/component/MasterProtectedRoutes";
 
@@ -23,7 +23,7 @@ export default function StatusTypePage() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [deleteDialogData, setDeleteDialogData] = useState<statustypeDialogDataInterface | null>(null);
   const [currentTablePage, setCurrentTablePage] = useState(1);
-  const rowsPerTablePage = 10;
+  const [rowsPerTablePage, setRowsPerTablePage] = useState(10);
   const router = useRouter();
 
   // Fetch status types
@@ -99,7 +99,7 @@ export default function StatusTypePage() {
     <MasterProtectedRoute>
       <Toaster position="top-right" />
       <div className="min-h-[calc(100vh-56px)] overflow-auto max-md:py-10">
-        
+
 
         {/* DELETE DIALOG */}
         <DeleteDialog<statustypeDialogDataInterface>

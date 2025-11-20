@@ -39,9 +39,13 @@ export default function ObjectSelect<T>({
   };
 
   // find selected label
-  const selectedLabel = options.find((item) => getId(item) === value)
-    ? getLabel(options.find((item) => getId(item) === value) as T)
-    : "";
+  const selectedItem = options.find(
+    (item) => getId(item) === value || getLabel(item) === value
+  );
+
+  const selectedLabel = selectedItem ? getLabel(selectedItem) : "";
+
+
 
   const isLabelFloating = Boolean(value) || open;
 
@@ -94,9 +98,8 @@ export default function ObjectSelect<T>({
               <li
                 key={id || idx}
                 onClick={() => handleSelect(id)}
-                className={`px-3 py-2 hover:bg-gray-100 cursor-pointer truncate ${
-                  id === value ? "bg-gray-50 font-semibold" : ""
-                }`}
+                className={`px-3 py-2 hover:bg-gray-100 cursor-pointer truncate ${getId(item) === value || getLabel(item) === value? "bg-gray-50 font-semibold" : ""
+                  }`}
               >
                 {labelText}
               </li>

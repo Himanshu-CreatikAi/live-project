@@ -97,9 +97,6 @@ export default function ContactImport() {
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!importData.Campaign) newErrors.Campaign = "Campaign is required";
-    if (!importData.ContactType) newErrors.ContactType = "Contact Type is required";
-    if (!importData.Range) newErrors.Range = "Range is required";
     if (!importData.file) newErrors.file = "Please upload an Excel file";
 
     return newErrors;
@@ -140,7 +137,7 @@ export default function ContactImport() {
 
 
   return (
-    <div className=" min-h-screen max-md:p-0 flex justify-center">
+    <div className=" min-h-screen max-md:p-0 max-w-[700px] mx-auto flex justify-center">
       <Toaster position="top-right" />
 
       <div className="w-full">
@@ -158,51 +155,8 @@ export default function ContactImport() {
 ">Contacts</span>
           </h1>
 
-          <div className="grid grid-cols-3 gap-6 max-md:grid-cols-1 max-lg:grid-cols-2">
-            <ObjectSelect
-              options={Array.isArray(fieldOptions?.Campaign) ? fieldOptions.Campaign : []}
-              label="Campaign"
-              value={importData.Campaign.id}
-              getLabel={(item) => item?.Name || ""}
-              getId={(item) => item?._id || ""}
-              onChange={(selectedId) => {
-                const selectedObj = fieldOptions.Campaign.find((i) => i._id === selectedId);
-                if (selectedObj) {
-                  setImportData((prev) => ({
-                    ...prev,
-                    Campaign: { id: selectedObj._id, name: selectedObj.Name },
-                    ContactType: { id: "", name: "" }, // reset on change
-                  }));
-                }
-              }}
-              error={errors.Campaign}
-            />
-
-            <ObjectSelect
-              options={Array.isArray(fieldOptions?.ContactType) ? fieldOptions.ContactType : []}
-              label="Contact Type"
-              value={importData.ContactType.id}
-              getLabel={(item) => item?.Name || ""}
-              getId={(item) => item?._id || ""}
-              onChange={(selectedId) => {
-                const selectedObj = fieldOptions.ContactType.find((i) => i._id === selectedId);
-                if (selectedObj) {
-                  setImportData((prev) => ({
-                    ...prev,
-                    ContactType: { id: selectedObj._id, name: selectedObj.Name },
-                  }));
-                }
-              }}
-              error={errors.ContactType}
-            />
-
-            <SingleSelect
-              options={rangeOptions}
-              label="Range"
-              value={importData.Range}
-              onChange={(v) => handleSelectChange("Range", v)}
-              error={errors.Range}
-            />
+          <div className=" w-full">
+           
 
             <FileUpload
               label="Choose Excel File"

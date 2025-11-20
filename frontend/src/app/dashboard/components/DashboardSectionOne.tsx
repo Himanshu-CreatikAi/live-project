@@ -52,7 +52,18 @@ export default function DashboardSectionOne() {
 
   const DashboardSectionOneDataFetch = async () => {
     const LeadsResponse = await getCustomer();
-    const FollowupResponse = await getAllCustomerFollowups();
+    const FollowupResponseRaw = await getAllCustomerFollowups();
+
+    const FollowupResponse = FollowupResponseRaw?.map((item: any) => ({
+      customerid: item.customer._id,
+      StatusType: item.StatusType,
+      Date: item.Date,
+      _id: item._id,
+      Name: item.customer.customerName,
+      ContactNumber: item.customer.ContactNumber,
+      User: item.customer.AssignTo?.name ?? "",
+    }));
+
     const IncomeResponse = await getIncomeMarketing();
 
     if (LeadsResponse && FollowupResponse && IncomeResponse) {

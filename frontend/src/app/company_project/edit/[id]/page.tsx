@@ -42,6 +42,8 @@ export default function CompanyProjectEdit() {
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [sitePlanPreview, setSitePlanPreview] = useState<string>("");
   const [deletedImages, setDeletedImages] = useState<string[]>([]);
+  const [removedCustomerImages, setRemovedCustomerImages] = useState<string[]>([]);
+  const [removedSitePlans, setRemovedSitePlans] = useState<string[]>([]);
   const [errors, setErrors] = useState<ErrorInterface>({});
   const [fieldOptions, setFieldOptions] = useState<Record<string, any[]>>({});
 
@@ -52,7 +54,7 @@ export default function CompanyProjectEdit() {
         if (result) {
           setProjectData(result);
           if (result.CustomerImage) setImagePreviews(result.CustomerImage);
-          if (result.SitePlan) setSitePlanPreview(result.SitePlan);
+          if (result.SitePlan) setSitePlanPreview(result.SitePlan[0]);
         } else {
           toast.error("Failed to load project data");
         }
@@ -111,13 +113,14 @@ export default function CompanyProjectEdit() {
     }));
 
     if (removed && typeof removed === "string" && removed.startsWith("http")) {
-      setDeletedImages(prev => [...prev, removed]);
+      setRemovedCustomerImages(prev => [...prev, removed]);
     }
   };
 
   const handleRemoveSitePlan = () => {
-    if (sitePlanPreview.length > 0 && sitePlanPreview[0]?.startsWith("http")) {
-      setDeletedImages(prev => [...prev, sitePlanPreview]);
+    if (sitePlanPreview.length > 0 && sitePlanPreview?.startsWith("http")) {
+      console.log(" hi ", sitePlanPreview)
+      setRemovedSitePlans((prev) => [...prev, sitePlanPreview]);
     }
     setProjectData(prev => ({ ...prev, SitePlan: {} as File }));
     setSitePlanPreview("");
@@ -154,9 +157,11 @@ export default function CompanyProjectEdit() {
         }
       });
 
-      if (deletedImages.length > 0) {
+      /* if (deletedImages.length > 0) {
         formData.append("deletedImages", JSON.stringify(deletedImages));
-      }
+      } */
+      formData.append("removedCustomerImages", JSON.stringify(removedCustomerImages));
+      formData.append("removedSitePlans", JSON.stringify(removedSitePlans));
 
       const result = await updateCompanyProjects(id as string, formData);
       if (result) {
@@ -227,7 +232,7 @@ export default function CompanyProjectEdit() {
             </div>
 
             <div className="flex justify-end mt-4">
-              
+
               <SaveButton text="Update" onClick={handleSubmit} />
 
             </div>

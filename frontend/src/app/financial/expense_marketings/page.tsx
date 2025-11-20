@@ -198,6 +198,9 @@ export default function FinanceExpense() {
                 onChange={(val) => handleSelectChange("Limit", val)}
               />
 
+              
+            </div>
+            <div className="w-full flex flex-wrap gap-6 items-end mb-6 mt-5">
               <div>
                 <label className="block mb-2 text-sm font-medium text-gray-900">
                   Keyword
@@ -216,7 +219,7 @@ export default function FinanceExpense() {
               <div className="flex items-end gap-3">
                 <button
                   onClick={clearFilter}
-                  className="text-red-500 border border-red-300 hover:bg-red-50 px-4 py-2 rounded-md"
+                  className="text-red-500 cursor-pointer border border-red-300 hover:bg-red-50 px-4 py-2 rounded-md"
                 >
                   Clear Search
                 </button>

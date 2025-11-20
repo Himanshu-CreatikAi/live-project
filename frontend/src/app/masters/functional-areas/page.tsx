@@ -22,7 +22,7 @@ export default function FunctionalAreaPage() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [deleteDialogData, setDeleteDialogData] = useState<functionalareaDialogDataInterface | null>(null);
   const [currentTablePage, setCurrentTablePage] = useState(1);
-  const rowsPerTablePage = 10;
+  const [rowsPerTablePage, setRowsPerTablePage] = useState(10);
   const router = useRouter();
 
   // Fetch functional areas
@@ -88,7 +88,7 @@ export default function FunctionalAreaPage() {
     <MasterProtectedRoute>
       <Toaster position="top-right" />
       <div className="min-h-[calc(100vh-56px)] overflow-auto max-md:py-10">
-        
+
 
         {/* DELETE POPUP */}
         <DeleteDialog<functionalareaDialogDataInterface>
@@ -106,12 +106,12 @@ export default function FunctionalAreaPage() {
         <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200 relative">
           <PageHeader title="Dashboard" subtitles={["Functional Areas"]} />
           {/* Add Button */}
-          
+
           <AddButton
-               url="/masters/functional-areas/add"
-               text="Add"
-               icon={<PlusSquare size={18} />}
-             />
+            url="/masters/functional-areas/add"
+            text="Add"
+            icon={<PlusSquare size={18} />}
+          />
 
           {/* Filter Form */}
           <form className="w-full flex flex-wrap gap-6 items-end mb-6 mt-16">
@@ -189,11 +189,10 @@ export default function FunctionalAreaPage() {
                       <td className="flex items-center gap-10 px-8 py-3 w-1/2 justify-end">
                         <div className="w-[120px]">
                           <span
-                            className={`px-3 py-1 rounded-[2px] text-xs font-semibold ${
-                              fa.Status === "Active"
+                            className={`px-3 py-1 rounded-[2px] text-xs font-semibold ${fa.Status === "Active"
                                 ? "bg-[#C8E6C9] text-green-700"
                                 : "bg-red-100 text-red-700"
-                            }`}
+                              }`}
                           >
                             {fa.Status}
                           </span>

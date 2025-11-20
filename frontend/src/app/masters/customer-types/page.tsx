@@ -26,7 +26,7 @@ export default function CustomerTypePage() {
   const [deleteDialogData, setDeleteDialogData] =
     useState<typesDialogDataInterface | null>(null);
   const [currentTablePage, setCurrentTablePage] = useState(1);
-  const rowsPerTablePage = 10;
+  const [rowsPerTablePage, setRowsPerTablePage] = useState(10);
   const router = useRouter();
 
   const fetchTypes = async () => {
@@ -86,7 +86,7 @@ export default function CustomerTypePage() {
     <MasterProtectedRoute>
       <Toaster position="top-right" />
       <div className="min-h-[calc(100vh-56px)] overflow-auto max-md:py-10">
-        
+
 
         {/* DELETE POPUP */}
         <DeleteDialog<typesDialogDataInterface>
@@ -99,18 +99,18 @@ export default function CustomerTypePage() {
           }}
           onDelete={handleDelete}
         />
-        
+
 
         {/* Card Container */}
         <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200 relative">
           <PageHeader title="Dashboard" subtitles={["Customer Type"]} />
           {/* Add Button */}
-          
+
           <AddButton
-               url="/masters/customer-types/add"
-               text="Add"
-               icon={<PlusSquare size={18} />}
-             />
+            url="/masters/customer-types/add"
+            text="Add"
+            icon={<PlusSquare size={18} />}
+          />
 
           {/* Filter Form */}
           <form className="w-full flex flex-wrap gap-6 items-end mb-6 mt-16">
@@ -195,11 +195,10 @@ export default function CustomerTypePage() {
                       <td className="flex items-center gap-10 px-8 py-3 w-1/2 justify-end">
                         <div className="w-[120px]">
                           <span
-                            className={`px-3 py-1 rounded-[2px] text-xs font-semibold ${
-                              t.Status === "Active"
+                            className={`px-3 py-1 rounded-[2px] text-xs font-semibold ${t.Status === "Active"
                                 ? "bg-[#C8E6C9] text-green-700"
                                 : "bg-red-100 text-red-700"
-                            }`}
+                              }`}
                           >
                             {t.Status}
                           </span>

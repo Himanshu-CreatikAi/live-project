@@ -16,6 +16,7 @@ import { handleFieldOptions } from "@/app/utils/handleFieldOptions";
 import { getPayments } from "@/store/masters/payments/payments";
 import BackButton from "@/app/component/buttons/BackButton";
 import SaveButton from "@/app/component/buttons/SaveButton";
+import { getAllAdmins } from "@/store/auth";
 
 interface ErrorInterface {
   [key: string]: string;
@@ -48,16 +49,21 @@ export default function IncomeMarketingEdit() {
         if (!id) return;
         const data = await getIncomeMarketingById(id as string);
         if (data) {
+
+          const date = new Date(data.createdAt);
+          const formattedDate =
+            date.getFullYear()+"-"+(date.getMonth() + 1).toString().padStart(2, "0")+"-"+date.getDate().toString().padStart(2, "0");
+            console.log(" nice ",formattedDate)
           // Ensure numbers are numbers
           setIncomeData({
-            Date: data.Date ?? "",
-            PartyName: data.PartyName ?? "",
-            User: data.User ?? "",
-            Income: data.Income ?? "",
-            Amount: typeof data.Amount === "number" ? data.Amount : Number(data.Amount) || 0,
-            DueAmount: typeof data.DueAmount === "number" ? data.DueAmount : Number(data.DueAmount) || 0,
-            PaymentMethode: data.PaymentMethode ?? "",
-            Status: data.Status ?? "",
+            Date: data.Date??formattedDate,
+            PartyName: data.PartyName ,
+            User: data.User ,
+            Income: data.Income ,
+            Amount: data.Amount ,
+            DueAmount: data.DueAmount ,
+            PaymentMethode: data.PaymentMethode ,
+            Status: data.Status,
           });
         } else {
           toast.error("Income Marketing not found");
@@ -69,21 +75,18 @@ export default function IncomeMarketingEdit() {
         setLoading(false);
       }
     };
-
-    fetchIncome();
+    if(id){
+      fetchIncome();
+    fetchFields();
+    }
+    
   }, [id]);
 
   // Input change handler (handles numeric fields too)
   const handleInputChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       const { name, value } = e.target;
-      // Convert numeric fields to number
-      if (name === "Amount" || name === "DueAmount") {
-        const numeric = value === "" ? 0 : Number(value);
-        setIncomeData((prev) => ({ ...prev, [name]: numeric }));
-      } else {
-        setIncomeData((prev) => ({ ...prev, [name]: value }));
-      }
+      setIncomeData((prev) => ({ ...prev, [name]: value }));
       setErrors((prev) => ({ ...prev, [name]: "" }));
     },
     []
@@ -117,6 +120,7 @@ export default function IncomeMarketingEdit() {
     }
 
     try {
+      console.log(" response",incomeData)
       const result = await updateIncomeMarketing(id as string, incomeData);
       if (result) {
         toast.success("Income Marketing updated successfully!");
@@ -134,6 +138,7 @@ export default function IncomeMarketingEdit() {
     await handleFieldOptions(
       [
         { key: "PaymentMethods", fetchFn: getPayments },
+        { key: "Users", fetchFn: getAllAdmins },
       ],
       setFieldOptions
     );
@@ -157,8 +162,8 @@ export default function IncomeMarketingEdit() {
       <div className="w-full">
         {/* Back Button */}
         <div className="flex justify-end mb-4">
-          
-         <BackButton
+
+          <BackButton
             url="/financial/income_marketings"
             text="Back"
             icon={<ArrowLeft size={18} />}
@@ -247,12 +252,7 @@ export default function IncomeMarketingEdit() {
 
               {/* Update Button */}
               <div className="flex justify-end mt-4">
-                <button
-                  onClick={handleSubmit}
-                  className="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-2 w-32 rounded-md font-semibold hover:scale-105 transition-all"
-                >
-                  Update
-                </button>
+
                 <SaveButton text="Update" onClick={handleSubmit} />
 
               </div>

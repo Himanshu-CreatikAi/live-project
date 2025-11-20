@@ -121,6 +121,8 @@ export default function CustomerAdd() {
       newErrors.Email = "Invalid email format";
     if (!customerData.ContactNumber.trim())
       newErrors.ContactNumber = "Contact No is required";
+    if (customerData.ContactNumber && customerData.ContactNumber.trim().length<10)
+      newErrors.ContactNumber = "Contact No should atlest be 10 digit";
     return newErrors;
   };
 
@@ -259,7 +261,7 @@ export default function CustomerAdd() {
           />
         </div>
 
-        <div className="bg-white/90 backdrop-blur-lg p-10 w-full rounded-3xl shadow-2xl h-auto">
+        <div className="bg-white backdrop-blur-lg p-10 w-full rounded-3xl shadow-2xl h-auto">
           <form onSubmit={(e) => e.preventDefault()} className="w-full">
             <div className="mb-8 text-left border-b pb-4 border-gray-200">
               <h1 className="text-3xl font-extrabold text-[var(--color-secondary-darker)] leading-tight tracking-tight">
@@ -344,10 +346,13 @@ export default function CustomerAdd() {
               <InputField label="Video" name="Video" value={customerData.Video} onChange={handleInputChange} />
               <InputField label="Google Map" name="GoogleMap" value={customerData.GoogleMap} onChange={handleInputChange} />
               <SingleSelect options={Array.isArray(fieldOptions?.Verified) ? fieldOptions.Verified : []} label="Verified" value={customerData.Verified} onChange={(v) => handleSelectChange("Verified", v)} />
-              <FileUpload label="Customer Images" multiple previews={imagePreviews} onChange={(e) => handleFileChange(e, "CustomerImage")} onRemove={handleRemoveImage} />
-              <FileUpload label="Site Plan" previews={sitePlanPreview ? [sitePlanPreview] : []} onChange={(e) => handleFileChange(e, "SitePlan")} onRemove={handleRemoveSitePlan} />
+              
 
             </div>
+            <div className="flex flex-wrap my-5 gap-5">
+                <FileUpload label="Customer Images" multiple previews={imagePreviews} onChange={(e) => handleFileChange(e, "CustomerImage")} onRemove={handleRemoveImage} />
+              <FileUpload label="Site Plan" previews={sitePlanPreview ? [sitePlanPreview] : []} onChange={(e) => handleFileChange(e, "SitePlan")} onRemove={handleRemoveSitePlan} />
+              </div>
 
             <div className="flex justify-end mt-4">
 

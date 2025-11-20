@@ -34,7 +34,7 @@ export default function FacilitiesPage() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [deleteDialogData, setDeleteDialogData] = useState<DeleteDialogData | null>(null);
   const [currentTablePage, setCurrentTablePage] = useState(1);
-  const rowsPerTablePage = 10;
+  const [rowsPerTablePage, setRowsPerTablePage] = useState(10);
   const router = useRouter();
 
   // Fetch facilities
@@ -105,7 +105,7 @@ export default function FacilitiesPage() {
     <MasterProtectedRoute>
       <Toaster position="top-right" />
       <div className="min-h-[calc(100vh-56px)] overflow-auto max-md:py-10">
-        
+
 
         {/* DELETE POPUP */}
         <DeleteDialog<DeleteDialogData>
@@ -118,18 +118,18 @@ export default function FacilitiesPage() {
           }}
           onDelete={handleDelete}
         />
-        
+
 
         {/* Card Container */}
         <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200 relative">
           <PageHeader title="Dashboard" subtitles={["Facilities"]} />
           {/* Add Button */}
-          
+
           <AddButton
-               url="/masters/facilities/add"
-               text="Add"
-               icon={<PlusSquare size={18} />}
-             />
+            url="/masters/facilities/add"
+            text="Add"
+            icon={<PlusSquare size={18} />}
+          />
 
           {/* Filter Form */}
           <form className="w-full flex flex-wrap gap-6 items-end mb-6 mt-16">
@@ -209,8 +209,8 @@ export default function FacilitiesPage() {
                         <div className="w-[120px]">
                           <span
                             className={`px-3 py-1 rounded-[2px] text-xs font-semibold ${f.Status === "Active"
-                                ? "bg-[#C8E6C9] text-green-700"
-                                : "bg-red-100 text-red-700"
+                              ? "bg-[#C8E6C9] text-green-700"
+                              : "bg-red-100 text-red-700"
                               }`}
                           >
                             {f.Status}

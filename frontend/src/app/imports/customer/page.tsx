@@ -19,17 +19,17 @@ import { useCustomerImport } from "@/context/CustomerImportContext";
 
 export default function CustomerImport() {
   const [importData, setImportData] = useState({
-    Campaign: {id:"",name:""},
-    CustomerType: {id:"",name:""},
-    CustomerSubType: {id:"",name:""},
+    Campaign: { id: "", name: "" },
+    CustomerType: { id: "", name: "" },
+    CustomerSubType: { id: "", name: "" },
     file: null as File | null,
   });
 
   const [fieldOptions, setFieldOptions] = useState<Record<string, any[]>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const router = useRouter();
-  const { setExcelHeaders , setFile } = useCustomerImport();
-  
+  const { setExcelHeaders, setFile } = useCustomerImport();
+
 
   const objectFields = [
     { key: "Campaign", fetchFn: getCampaign },
@@ -50,39 +50,39 @@ export default function CustomerImport() {
     loadFieldOptions();
   }, []);
 
-    useEffect(() => {
-      if (importData.Campaign.id) {
-        fetchCustomerType(importData.Campaign.id);
-      } else {
-        setFieldOptions((prev) => ({ ...prev, CustomerType: [] }));
-      }
-  
-      if (importData.Campaign.id && importData.CustomerType.id) {
-        fetchCustomerSubType(importData.Campaign.id, importData.CustomerType.id);
-      } else {
-        setFieldOptions((prev) => ({ ...prev, CustomerSubtype: [] }));
-      }
-    }, [importData.Campaign.id, importData.CustomerType.id]);
-  
-    const fetchCustomerType = async (campaignId: string) => {
-      try {
-        const res = await getTypesByCampaign(campaignId);
-        setFieldOptions((prev) => ({ ...prev, CustomerType: res || [] }));
-      } catch (error) {
-        console.error("Error fetching types:", error);
-        setFieldOptions((prev) => ({ ...prev, CustomerType: [] }));
-      }
-    };
-  
-    const fetchCustomerSubType = async (campaignId: string, customertypeId: string) => {
-      try {
-        const res = await getSubtypeByCampaignAndType(campaignId, customertypeId);
-        setFieldOptions((prev) => ({ ...prev, CustomerSubtype: res || [] }));
-      } catch (error) {
-        console.error("Error fetching types:", error);
-        setFieldOptions((prev) => ({ ...prev, CustomerSubtype: [] }));
-      }
-    };
+  useEffect(() => {
+    if (importData.Campaign.id) {
+      fetchCustomerType(importData.Campaign.id);
+    } else {
+      setFieldOptions((prev) => ({ ...prev, CustomerType: [] }));
+    }
+
+    if (importData.Campaign.id && importData.CustomerType.id) {
+      fetchCustomerSubType(importData.Campaign.id, importData.CustomerType.id);
+    } else {
+      setFieldOptions((prev) => ({ ...prev, CustomerSubtype: [] }));
+    }
+  }, [importData.Campaign.id, importData.CustomerType.id]);
+
+  const fetchCustomerType = async (campaignId: string) => {
+    try {
+      const res = await getTypesByCampaign(campaignId);
+      setFieldOptions((prev) => ({ ...prev, CustomerType: res || [] }));
+    } catch (error) {
+      console.error("Error fetching types:", error);
+      setFieldOptions((prev) => ({ ...prev, CustomerType: [] }));
+    }
+  };
+
+  const fetchCustomerSubType = async (campaignId: string, customertypeId: string) => {
+    try {
+      const res = await getSubtypeByCampaignAndType(campaignId, customertypeId);
+      setFieldOptions((prev) => ({ ...prev, CustomerSubtype: res || [] }));
+    } catch (error) {
+      console.error("Error fetching types:", error);
+      setFieldOptions((prev) => ({ ...prev, CustomerSubtype: [] }));
+    }
+  };
 
   // Handle select changes
   const handleSelectChange = useCallback(
@@ -107,15 +107,12 @@ export default function CustomerImport() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
     setImportData((prev) => ({ ...prev, file: file }));
-    setFile(file);  
+    setFile(file);
   };
 
   // Validate fields
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-    if (!importData.Campaign) newErrors.Campaign = "Campaign is required";
-    if (!importData.CustomerType) newErrors.CustomerType = "Customer Type is required";
-    if (!importData.CustomerSubType) newErrors.CustomerSubType = "Customer SubType is required";
     if (!importData.file) newErrors.file = "Please choose an Excel file";
     return newErrors;
   };
@@ -137,14 +134,14 @@ export default function CustomerImport() {
 
       console.log(importData)
       // customer import api call
-     /*  const result = await importCustomer(formData); // mock success */
-     /* customer header select api call  */
-     const result = await customerExcelHeaders(formData);
+      /*  const result = await importCustomer(formData); // mock success */
+      /* customer header select api call  */
+      const result = await customerExcelHeaders(formData);
 
       if (result?.headers) {
         console.log(" result ", result)
-       // toast.success(`${result.importedCount} customers imported successfully. ${result.skippedCount} duplicates skipped.`);
-       setExcelHeaders(result.headers);
+        // toast.success(`${result.importedCount} customers imported successfully. ${result.skippedCount} duplicates skipped.`);
+        setExcelHeaders(result.headers);
         router.push("/imports/customer/select-imports/");
       } else {
         toast.error("Failed to import data");
@@ -156,7 +153,7 @@ export default function CustomerImport() {
   };
 
   return (
-    <div className=" min-h-screen max-md:p-0 flex justify-center">
+    <div className=" min-h-screen max-md:p-0 max-w-[700px] mx-auto flex justify-center">
       <Toaster position="top-right" />
       <div className="w-full">
         <div className="flex justify-end mb-4">
@@ -173,65 +170,7 @@ export default function CustomerImport() {
 ">Customers</span>
           </h1>
 
-          <div className="grid grid-cols-3 gap-6  max-md:grid-cols-1 max-lg:grid-cols-2">
-           
-
- <ObjectSelect
-                options={Array.isArray(fieldOptions?.Campaign) ? fieldOptions.Campaign : []}
-                label="Campaign"
-                value={importData.Campaign.id}
-                getLabel={(item) => item?.Name || ""}
-                getId={(item) => item?._id || ""}
-                onChange={(selectedId) => {
-                  const selectedObj = fieldOptions.Campaign.find((i) => i._id === selectedId);
-                  if (selectedObj) {
-                    setImportData((prev) => ({
-                      ...prev,
-                      Campaign: { id: selectedObj._id, name: selectedObj.Name },
-                      CustomerType: { id: "", name: "" }, // reset on change
-                    }));
-                  }
-                }}
-                error={errors.Campaign}
-              />
-
-              <ObjectSelect
-                options={Array.isArray(fieldOptions?.CustomerType) ? fieldOptions.CustomerType : []}
-                label="Customer Type"
-                value={importData.CustomerType.id}
-                getLabel={(item) => item?.Name || ""}
-                getId={(item) => item?._id || ""}
-                onChange={(selectedId) => {
-                  const selectedObj = fieldOptions.CustomerType.find((i) => i._id === selectedId);
-                  if (selectedObj) {
-                    setImportData((prev) => ({
-                      ...prev,
-                      CustomerType: { id: selectedObj._id, name: selectedObj.Name },
-                      CustomerSubtype:{id:"",name:""} // reset on change
-                    }));
-                  }
-                }}
-                error={errors.CustomerType}
-              />
-
-              <ObjectSelect
-                options={Array.isArray(fieldOptions?.CustomerSubtype) ? fieldOptions.CustomerSubtype : []}
-                label="Customer Subtype"
-                value={importData.CustomerSubType.id}
-                getLabel={(item) => item?.Name || ""}
-                getId={(item) => item?._id || ""}
-                onChange={(selectedId) => {
-                  const selectedObj = fieldOptions.CustomerSubtype.find((i) => i._id === selectedId);
-                  if (selectedObj) {
-                    setImportData((prev) => ({
-                      ...prev,
-                      CustomerSubType: { id: selectedObj._id, name: selectedObj.Name },
-                    }));
-                  }
-                }}
-                error={errors.CustomerSubtype}
-              />
-
+          <div className=" w-full">
 
 
             <FileUpload
@@ -280,7 +219,7 @@ const FileUpload = ({ label, onChange, error }: any) => (
       type="file"
       accept=".xlsx, .xls"
       onChange={onChange}
-      className="border border-gray-300 rounded-md p-2"
+      className="border border-gray-300 cursor-pointer rounded-md p-2"
     />
     {error && <span className="text-red-500 text-sm mt-2">{error}</span>}
   </div>

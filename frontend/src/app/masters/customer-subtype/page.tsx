@@ -24,7 +24,7 @@ export default function CustomerSubtypePage() {
   const [deleteDialogData, setDeleteDialogData] =
     useState<subtypeDialogDataInterface | null>(null);
   const [currentTablePage, setCurrentTablePage] = useState(1);
-  const rowsPerTablePage = 10;
+  const [rowsPerTablePage, setRowsPerTablePage] = useState(10);
   const router = useRouter();
 
   const fetchSubtypes = async () => {
@@ -86,7 +86,7 @@ export default function CustomerSubtypePage() {
     <MasterProtectedRoute>
       <Toaster position="top-right" />
       <div className="min-h-[calc(100vh-56px)] overflow-auto max-md:py-10">
-        
+
 
         {/* DELETE POPUP */}
 
@@ -104,10 +104,10 @@ export default function CustomerSubtypePage() {
         <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200 relative">
           <PageHeader title="Dashboard" subtitles={["Customer Subtype"]} />
           <AddButton
-               url="/masters/customer-subtype/add"
-               text="Add"
-               icon={<PlusSquare size={18} />}
-             />
+            url="/masters/customer-subtype/add"
+            text="Add"
+            icon={<PlusSquare size={18} />}
+          />
 
           <form className="w-full flex flex-wrap gap-6 items-end mb-6 mt-16">
             <div className="flex flex-col flex-1 w-60">

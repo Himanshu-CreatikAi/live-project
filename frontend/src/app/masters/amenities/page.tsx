@@ -25,7 +25,7 @@ export default function AmenitiesPage() {
   const [deleteDialogData, setDeleteDialogData] =
     useState<DeleteDialogDataInterface | null>(null);
   const [currentTablePage, setCurrentTablePage] = useState(1);
-  const rowsPerTablePage = 10;
+  const [rowsPerTablePage, setRowsPerTablePage] = useState(10);
   const router = useRouter();
 
   // Fetch amenities
@@ -44,6 +44,11 @@ export default function AmenitiesPage() {
     fetchAmenities();
   }, []);
 
+  useEffect(() => {
+    setRowsPerTablePage(Number(limit));
+    setCurrentTablePage(1);
+  }, [limit])
+
   // Filtered amenities
   const filteredAmenities = useMemo(() => {
     return amenities
@@ -52,7 +57,6 @@ export default function AmenitiesPage() {
           keyword === "" ||
           a.Name.toLowerCase().includes(keyword.toLowerCase())
       )
-      .slice(0, Number(limit));
   }, [amenities, keyword, limit]);
 
   // Delete amenity
@@ -97,8 +101,6 @@ export default function AmenitiesPage() {
       <Toaster position="top-right" />
       <div className="min-h-[calc(100vh-56px)] overflow-auto max-md:py-10">
         {/* Header */}
-        
-        
 
         {/* DELETE POPUP */}
         <DeleteDialog<DeleteDialogDataInterface>
@@ -116,12 +118,12 @@ export default function AmenitiesPage() {
         <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200 relative">
           <PageHeader title="Dashboard" subtitles={["Amenities"]} />
           {/* Add Button */}
-          
+
           <AddButton
-               url="/masters/amenities/add"
-               text="Add"
-               icon={<PlusSquare size={18} />}
-             />
+            url="/masters/amenities/add"
+            text="Add"
+            icon={<PlusSquare size={18} />}
+          />
 
           {/* Filter Form */}
           <form className="w-full flex flex-wrap gap-6 items-end mb-6 mt-16">
@@ -157,9 +159,9 @@ export default function AmenitiesPage() {
                 onChange={(e) => setLimit(e.target.value)}
                 className="h-10 border border-gray-300 rounded-md px-3 py-2 bg-white text-gray-800"
               >
-                <option value="10">10</option>
-                <option value="25">25</option>
-                <option value="50">50</option>
+                <option value="2">10</option>
+                <option value="4">25</option>
+                <option value="6">50</option>
               </select>
             </div>
 
@@ -202,20 +204,19 @@ export default function AmenitiesPage() {
                       className="border-t flex justify-between items-center w-full hover:bg-[#f7f6f3] transition-all duration-200"
                     >
                       {/* Left section (S.No + Name) */}
-                      <td className="flex items-center gap-10 px-8 py-3 border border-gray-200 w-1/2">
-                        <p className="w-[60px]">{i + 1}</p>
+                      <td className="flex items-center gap-10 px-8 py-3  w-1/2">
+                        <p className="w-[60px]">{(currentTablePage - 1) * rowsPerTablePage + (i + 1)}</p>
                         <p className="w-[200px] font-semibold">{a.Name}</p>
                       </td>
 
                       {/* Right section (Status + Action) */}
-                      <td className="flex items-center gap-10 px-8 py-3 border border-gray-200 w-1/2 justify-end">
+                      <td className="flex items-center gap-10 px-8 py-3 w-1/2 justify-end">
                         <div className="w-[120px]">
                           <span
-                            className={`px-3 py-1 rounded-[2px] text-xs font-semibold ${
-                              a.Status === "Active"
-                                ? "bg-[#C8E6C9] text-green-700"
-                                : "bg-red-100 text-red-700"
-                            }`}
+                            className={`px-3 py-1 rounded-[2px] text-xs font-semibold ${a.Status === "Active"
+                              ? "bg-[#C8E6C9] text-green-700"
+                              : "bg-red-100 text-red-700"
+                              }`}
                           >
                             {a.Status}
                           </span>

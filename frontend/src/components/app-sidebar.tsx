@@ -129,10 +129,6 @@ const data = {
           url: "/masters/industries",
         },
         {
-          title: "Roles",
-          url: "/masters/roles",
-        },
-        {
           title: "Contact Campaign",
           url: "/masters/contact-campaign",
         },

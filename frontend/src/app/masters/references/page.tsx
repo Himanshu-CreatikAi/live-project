@@ -29,7 +29,7 @@ export default function ReferencePage() {
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [deleteDialogData, setDeleteDialogData] = useState<referencesDialogDataInterface | null>(null);
     const [currentTablePage, setCurrentTablePage] = useState(1);
-    const rowsPerTablePage = 10;
+    const [rowsPerTablePage, setRowsPerTablePage] = useState(10);
     const router = useRouter();
 
     // Fetch references
@@ -95,7 +95,7 @@ export default function ReferencePage() {
         <MasterProtectedRoute>
             <Toaster position="top-right" />
             <div className="min-h-[calc(100vh-56px)] overflow-auto max-md:py-10">
-                
+
 
                 {/* Delete Dialog */}
                 <DeleteDialog<referencesDialogDataInterface>
@@ -113,7 +113,7 @@ export default function ReferencePage() {
                 <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200 relative">
                     <PageHeader title="Dashboard" subtitles={["Reference"]} />
                     {/* Add Button */}
-                    
+
                     <AddButton
                         url="/masters/references/add"
                         text="Add"

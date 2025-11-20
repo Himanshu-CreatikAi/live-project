@@ -64,7 +64,17 @@ export const addWhatsapp = async (data: whatsappAllDataInterface) => {
       body: JSON.stringify(payload),
       credentials: "include"
     });
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+
+      const message =
+        errorData?.message ||
+        errorData?.error ||
+        `HTTP error! status: ${response.status}`;
+
+      throw new Error(message);
+    }
     response = await response.json();
     return data;
   } catch (error) {
@@ -81,12 +91,21 @@ export const updateWhatsapp = async (id: string, data: whatsappAllDataInterface)
       body: JSON.stringify(data),
       credentials: "include"
     });
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+
+      const message =
+        errorData?.message ||
+        errorData?.error ||
+        `HTTP error! status: ${response.status}`;
+
+      throw new Error(message);
+    }
     response = await response.json();
     return data;
   } catch (error) {
     console.log("SERVER ERROR: ", error);
-    return null;
+    return error;
   }
 };
 

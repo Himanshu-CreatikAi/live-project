@@ -11,7 +11,7 @@ export const InputField: React.FC<{
     <input
       type="text"
       name={name}
-      value={value}
+      value={value??""}
       onChange={onChange}
       placeholder=" "
       className={`peer w-full border rounded-sm bg-transparent py-3 px-4 outline-none 

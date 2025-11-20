@@ -47,7 +47,7 @@ export default function UsersPage() {
     const [deleteId, setDeleteId] = useState<string | null>(null);
     const [errors, setErrors] = useState<ErrorInterface>({});
     const [currentPage, setCurrentPage] = useState(1);
-    const rowsPerPage = 10;
+    const [rowsPerTablePage, setRowsPerTablePage] = useState(10);
     const [passwordData, setPasswordData] = useState({
         currentPassword: "",
         newPassword: ""
@@ -182,9 +182,9 @@ export default function UsersPage() {
     );
 
     // Pagination
-    const totalPages = Math.ceil(adminList.length / rowsPerPage);
-    const startIndex = (currentPage - 1) * rowsPerPage;
-    const currentRows = adminList.slice(startIndex, startIndex + rowsPerPage);
+    const totalPages = Math.ceil(adminList.length / rowsPerTablePage);
+    const startIndex = (currentPage - 1) * rowsPerTablePage;
+    const currentRows = adminList.slice(startIndex, startIndex + rowsPerTablePage);
 
     // Dynamic dropdowns
     const roles = ["administrator", "city_admin", "user"];

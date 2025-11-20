@@ -48,8 +48,12 @@ export default function ExpenseMarketingEdit() {
         if (!id) return;
         const data = await getExpenseMarketingById(id as string);
         if (data) {
+           const date = new Date(data.createdAt);
+          const formattedDate =
+            date.getFullYear()+"-"+(date.getMonth() + 1).toString().padStart(2, "0")+"-"+date.getDate().toString().padStart(2, "0");
+            console.log(" nice ",formattedDate)
           setExpenseData({
-            Date: data.Date ?? "",
+            Date: data.Date ?? formattedDate,
             PartyName: data.PartyName ?? "",
             User: data.User ?? "",
             Expense: data.Expense ?? "",
@@ -174,7 +178,7 @@ export default function ExpenseMarketingEdit() {
               <div className="grid grid-cols-2 gap-6 max-lg:grid-cols-1">
                 {/* User */}
                 <SingleSelect
-                  options={users}
+                  options={Array.isArray(fieldOptions?.Users) ? fieldOptions.Users : []}
                   label="User"
                   value={expenseData.User}
                   onChange={(v) => handleSelectChange("User", v)}
@@ -207,7 +211,7 @@ export default function ExpenseMarketingEdit() {
 
                 {/* Payment Method */}
                 <SingleSelect
-                  options={paymentMethods}
+                  options={Array.isArray(fieldOptions?.PaymentMethods) ? fieldOptions.PaymentMethods : []}
                   label="PaymentMethode"
                   value={expenseData.PaymentMethode}
                   onChange={(v) => handleSelectChange("PaymentMethode", v)}

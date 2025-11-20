@@ -95,17 +95,14 @@ export default function SelectImports() {
     };
 
     const handleSubmit = async () => {
-        const validationErrors = validateForm();
+      /*   const validationErrors = validateForm();
         if (Object.keys(validationErrors).length > 0) {
             setErrors(validationErrors);
             console.log(validationErrors, " error coming")
             return;
-        }
+        } */
 
         const formData = new FormData();
-        formData.append("Campaign", contactData.Campaign.name);
-        formData.append("ContactType", contactData.ContactType.name);
-        formData.append("Range",Range);
         formData.append("fieldMapping", JSON.stringify(fieldMapping))
 
         if (file) {
@@ -171,6 +168,8 @@ export default function SelectImports() {
     };
 
     const mappingFields = [
+        "ContactType",
+        "Campaign",
         "Name",
         "City",
         "ContactNo",
@@ -219,55 +218,7 @@ export default function SelectImports() {
                         </div>
 
                         <div className="flex flex-col space-y-6">
-                            <div className="grid grid-cols-3 gap-6 max-lg:grid-cols-1 w-full">
-                                <ObjectSelect
-                                    options={Array.isArray(fieldOptions?.Campaign) ? fieldOptions.Campaign : []}
-                                    label="Campaign"
-                                    value={contactData.Campaign.id}
-                                    getLabel={(item) => item?.Name || ""}
-                                    getId={(item) => item?._id || ""}
-                                    onChange={(selectedId) => {
-                                        const selectedObj = fieldOptions.Campaign.find((i) => i._id === selectedId);
-                                        if (selectedObj) {
-                                            setContactData((prev) => ({
-                                                ...prev,
-                                                Campaign: { id: selectedObj._id, name: selectedObj.Name },
-                                                ContactType: { id: "", name: "" }, // reset on change
-                                            }));
-                                        }
-                                    }}
-                                    error={errors.Campaign}
-                                />
-
-                                <ObjectSelect
-                                    options={Array.isArray(fieldOptions?.ContactType) ? fieldOptions.ContactType : []}
-                                    label="Contact Type"
-                                    value={contactData.ContactType.id}
-                                    getLabel={(item) => item?.Name || ""}
-                                    getId={(item) => item?._id || ""}
-                                    onChange={(selectedId) => {
-                                        const selectedObj = fieldOptions.ContactType.find((i) => i._id === selectedId);
-                                        if (selectedObj) {
-                                            setContactData((prev) => ({
-                                                ...prev,
-                                                ContactType: { id: selectedObj._id, name: selectedObj.Name },
-                                            }));
-                                        }
-                                    }}
-                                    error={errors.ContactType}
-                                />
-
-                                <SingleSelect
-                                    options={rangeOptions}
-                                    label="Range"
-                                    value={Range}
-                                    onChange={(v) => handleSelectRange("Range", v)}
-                                    error={errors.Range}
-                                />
-
-
-                                
-                            </div>
+                            <h2 className=" text-xl font-semibold text-gray-700 my-5 mt-10">Map Fields</h2>
                             <div className="grid grid-cols-3 max-lg:grid-cols-2 max-md:grid-cols-1 gap-4 w-full">
                                     {excelHeaders.map((header) => (
                                         <div key={header} className="flex flex-col">

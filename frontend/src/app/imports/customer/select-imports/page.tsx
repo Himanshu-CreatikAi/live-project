@@ -94,29 +94,23 @@ export default function SelectImports() {
         const newErrors: ErrorInterface = {};
         if (!customerData.Campaign?.name.trim())
             newErrors.Campaign = "Campaign is required";
-        if (!customerData.customerName.trim())
-            newErrors.customerName = "Customer Name is required";
-        if (customerData.Email.trim() && !/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(customerData.Email))
-            newErrors.Email = "Invalid email format";
-        if (!customerData.ContactNumber.trim())
-            newErrors.ContactNumber = "Contact No is required";
+        if (!customerData.CustomerType?.name.trim())
+            newErrors.CustomerType = "Customer Type is required";
+        if (!customerData.CustomerSubtype?.name.trim())
+            newErrors.CustomerSubtype = "Customer Subtype is required";
         return newErrors;
     };
 
-    // 🟩 Submit Form
+    //Submit Form
     const handleSubmit = async () => {
-        /*  const validationErrors = validateForm();
+/*          const validationErrors = validateForm();
          if (Object.keys(validationErrors).length > 0) {
              setErrors(validationErrors);
              return;
-         }
-  */
+         } */
 
         try {
             const formData = new FormData();
-            formData.append("Campaign", customerData.Campaign.name);
-            formData.append("CustomerType", customerData.CustomerType.name);
-            formData.append("CustomerSubType", customerData.CustomerSubtype.name);
             formData.append("fieldMapping", JSON.stringify(fieldMapping))
 
             if (file) {
@@ -133,7 +127,7 @@ export default function SelectImports() {
             }
         } catch (error) {
             //  toast.error("Error importing customer");
-           // console.error("Customer import Error:", error);
+            // console.error("Customer import Error:", error);
             router.push("/customer");
         }
     };
@@ -202,6 +196,9 @@ export default function SelectImports() {
     };
 
     const mappingFields = [
+        "Campaign",
+        "CustomerType",
+        "CustomerSubType",
         "customerName",
         "ContactNumber",
         "City",
@@ -220,9 +217,6 @@ export default function SelectImports() {
         "GoogleMap",
         "Verified",
     ];
-
-
-
 
 
     return (
@@ -245,107 +239,29 @@ export default function SelectImports() {
                             </h1>
                         </div>
 
-                        <div className="grid grid-cols-3 gap-6 max-lg:grid-cols-1">
-                            {/* <SingleSelect options={Array.isArray(fieldOptions?.Campaign)?fieldOptions.Campaign:[]} label="Campaign" value={customerData.Campaign} onChange={(v) => handleSelectChange("Campaign", v)} error={errors.Campaign} />
-              <SingleSelect options={Array.isArray(fieldOptions?.CustomerType)?fieldOptions.CustomerType:[]} label="Customer Type" value={customerData.CustomerType} onChange={(v) => handleSelectChange("CustomerType", v)} /> */}
-                            <ObjectSelect
-                                options={Array.isArray(fieldOptions?.Campaign) ? fieldOptions.Campaign : []}
-                                label="Campaign"
-                                value={customerData.Campaign.id}
-                                getLabel={(item) => item?.Name || ""}
-                                getId={(item) => item?._id || ""}
-                                onChange={(selectedId) => {
-                                    const selectedObj = fieldOptions.Campaign.find((i) => i._id === selectedId);
-                                    if (selectedObj) {
-                                        setCustomerData((prev) => ({
-                                            ...prev,
-                                            Campaign: { id: selectedObj._id, name: selectedObj.Name },
-                                            CustomerType: { id: "", name: "" }, // reset on change
-                                        }));
-                                    }
-                                }}
-                                error={errors.Campaign}
-                            />
+                        <h2 className=" text-xl font-semibold text-gray-700 my-5 mt-10">Map Fields</h2>
+                        <div className="grid grid-cols-2 gap-4 mt-5">
+                            {excelHeaders.map((header) => {
+                                /* if(header==="Campaign" || header==="Customer Type" || header==="Property Type" || header==="Customer Subtype")
+                                    return null; */
+                                return <div key={header} className="flex flex-col">
+                                    <label className="text-sm font-medium mb-4">{header}</label>
 
-                            <ObjectSelect
-                                options={Array.isArray(fieldOptions?.CustomerType) ? fieldOptions.CustomerType : []}
-                                label="Customer Type"
-                                value={customerData.CustomerType.id}
-                                getLabel={(item) => item?.Name || ""}
-                                getId={(item) => item?._id || ""}
-                                onChange={(selectedId) => {
-                                    const selectedObj = fieldOptions.CustomerType.find((i) => i._id === selectedId);
-                                    if (selectedObj) {
-                                        setCustomerData((prev) => ({
-                                            ...prev,
-                                            CustomerType: { id: selectedObj._id, name: selectedObj.Name },
-                                            CustomerSubtype: { id: "", name: "" } // reset on change
-                                        }));
-                                    }
-                                }}
-                                error={errors.CustomerType}
-                            />
-
-                            <ObjectSelect
-                                options={Array.isArray(fieldOptions?.CustomerSubtype) ? fieldOptions.CustomerSubtype : []}
-                                label="Customer Subtype"
-                                value={customerData.CustomerSubtype.id}
-                                getLabel={(item) => item?.Name || ""}
-                                getId={(item) => item?._id || ""}
-                                onChange={(selectedId) => {
-                                    const selectedObj = fieldOptions.CustomerSubtype.find((i) => i._id === selectedId);
-                                    if (selectedObj) {
-                                        setCustomerData((prev) => ({
-                                            ...prev,
-                                            CustomerSubtype: { id: selectedObj._id, name: selectedObj.Name },
-                                        }));
-                                    }
-                                }}
-                                error={errors.CustomerSubtype}
-                            />
+                                    <SingleSelect
+                                        label="Map To"
+                                        options={mappingFields}
+                                        value={fieldMapping[header] || ""}
+                                        onChange={(value) =>
+                                            setFieldMapping((prev) => ({
+                                                ...prev,
+                                                [header]: value,
+                                            }))
+                                        }
+                                    />
 
 
-                            <div className="grid grid-cols-2 gap-4">
-                                {excelHeaders.map((header) => (
-                                    <div key={header} className="flex flex-col">
-                                        <label className="text-sm font-medium mb-4">{header}</label>
-
-                                        <SingleSelect
-                                            label="Map To"
-                                            options={mappingFields}
-                                            value={fieldMapping[header] || ""}
-                                            onChange={(value) =>
-                                                setFieldMapping((prev) => ({
-                                                    ...prev,
-                                                    [header]: value,
-                                                }))
-                                            }
-                                        />
-
-
-                                    </div>
-                                ))}
-                            </div>
-
-
-                            {/* <InputField label="Customer Name" name="customerName" value={customerData.customerName} onChange={handleInputChange} error={errors.customerName} />
-              <InputField label="Contact No" name="ContactNumber" value={customerData.ContactNumber} onChange={handleInputChange} error={errors.ContactNumber} />
-              <SingleSelect options={Array.isArray(fieldOptions?.City) ? fieldOptions.City : []} label="City" value={customerData.City} onChange={(v) => handleSelectChange("City", v)} />
-              <SingleSelect options={Array.isArray(fieldOptions?.Location) ? fieldOptions.Location : []} label="Location" value={customerData.Location} onChange={(v) => handleSelectChange("Location", v)} />
-              <InputField label="Area" name="Area" value={customerData.Area} onChange={handleInputChange} />
-              <InputField label="Address" name="Address" value={customerData.Address} onChange={handleInputChange} />
-              <InputField label="Email" name="Email" value={customerData.Email} onChange={handleInputChange} error={errors.Email} />
-              <SingleSelect options={Array.isArray(fieldOptions?.Facilities) ? fieldOptions.Facilities : []} label="Facilities" value={customerData.Facilities} onChange={(v) => handleSelectChange("Facilities", v)} />
-              <InputField label="Reference ID" name="ReferenceId" value={customerData.ReferenceId} onChange={handleInputChange} />
-              <InputField label="Customer ID" name="CustomerId" value={customerData.CustomerId} onChange={handleInputChange} />
-              <DateSelector label="Customer Date" value={customerData.CustomerDate} onChange={(val) => handleSelectChange("CustomerDate", val)} />
-              <InputField label="Customer Year" name="CustomerYear" value={customerData.CustomerYear} onChange={handleInputChange} />
-              <InputField label="Others" name="Others" value={customerData.Others} onChange={handleInputChange} />
-              <InputField label="Description" name="Description" value={customerData.Description} onChange={handleInputChange} />
-              <InputField label="Video" name="Video" value={customerData.Video} onChange={handleInputChange} />
-              <InputField label="Google Map" name="GoogleMap" value={customerData.GoogleMap} onChange={handleInputChange} />
-              <SingleSelect options={Array.isArray(fieldOptions?.Verified) ? fieldOptions.Verified : []} label="Verified" value={customerData.Verified} onChange={(v) => handleSelectChange("Verified", v)} /> */}
-
+                                </div>
+                            })}
                         </div>
 
                         <div className="flex justify-end mt-4">

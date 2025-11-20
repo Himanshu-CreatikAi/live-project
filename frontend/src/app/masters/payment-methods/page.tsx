@@ -21,7 +21,7 @@ export default function PaymentMethodPage() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [deleteDialogData, setDeleteDialogData] = useState<paymentsDialogDataInterface | null>(null);
   const [currentTablePage, setCurrentTablePage] = useState(1);
-  const rowsPerTablePage = 10;
+  const [rowsPerTablePage, setRowsPerTablePage] = useState(10);
   const router = useRouter();
 
   // Fetch payments from API
@@ -87,7 +87,7 @@ export default function PaymentMethodPage() {
     <MasterProtectedRoute>
       <Toaster position="top-right" />
       <div className="min-h-[calc(100vh-56px)] overflow-auto max-md:py-10">
-        
+
 
         {/* DELETE POPUP */}
         <DeleteDialog<paymentsDialogDataInterface>
@@ -105,12 +105,12 @@ export default function PaymentMethodPage() {
         <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200 relative">
           <PageHeader title="Dashboard" subtitles={["Payment Methods"]} />
           {/* Add Button */}
-          
+
           <AddButton
-               url="/masters/payment-methods/add"
-               text="Add"
-               icon={<PlusSquare size={18} />}
-             />
+            url="/masters/payment-methods/add"
+            text="Add"
+            icon={<PlusSquare size={18} />}
+          />
 
           {/* Filter Form */}
           <form className="w-full flex flex-wrap gap-6 items-end mb-6 mt-16">

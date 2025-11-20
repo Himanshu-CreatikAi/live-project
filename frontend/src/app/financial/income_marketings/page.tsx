@@ -149,7 +149,7 @@ export default function FinanceIncome() {
         <div className="p-4 w-full bg-white rounded-md">
           {/* HEADER */}
           <div className="flex justify-between items-center">
-           <PageHeader title="Dashboard" subtitles={["Finance","Income"]} />  
+            <PageHeader title="Dashboard" subtitles={["Finance", "Income"]} />
             <AddButton
               url="/financial/income_marketings/add"
               text="Add"
@@ -188,6 +188,9 @@ export default function FinanceIncome() {
                 onChange={(val) => handleSelectChange("Limit", val)}
               />
 
+
+            </div>
+            <div className=" w-full flex flex-wrap gap-6 items-end mb-6 mt-5">
               <div>
                 <label className="block mb-2 text-sm font-medium text-gray-900">
                   Keyword

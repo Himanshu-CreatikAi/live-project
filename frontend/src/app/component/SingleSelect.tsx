@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 
 interface OptionProps {
+  className?:string;
   options: string[];
   label: string;
   value?: string;
@@ -8,7 +9,7 @@ interface OptionProps {
   error?: string;
 }
 
-export default function SingleSelect({ options, label, value, onChange, error }: OptionProps) {
+export default function SingleSelect({className, options, label, value, onChange, error }: OptionProps) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 

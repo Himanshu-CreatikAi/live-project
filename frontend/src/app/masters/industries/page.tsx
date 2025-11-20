@@ -30,7 +30,7 @@ export default function IndustriesPage() {
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [deleteDialogData, setDeleteDialogData] = useState<industriesDialogDataInterface | null>(null);
     const [currentTablePage, setCurrentTablePage] = useState(1);
-    const rowsPerTablePage = 10;
+    const [rowsPerTablePage, setRowsPerTablePage] = useState(10);
     const router = useRouter();
 
     // Fetch industries from API
@@ -96,7 +96,7 @@ export default function IndustriesPage() {
         <MasterProtectedRoute>
             <Toaster position="top-right" />
             <div className="min-h-[calc(100vh-56px)] overflow-auto max-md:py-10">
-                
+
 
                 {/* DELETE POPUP */}
                 <DeleteDialog<industriesDialogDataInterface>

@@ -34,7 +34,7 @@ export default function RequirementsPage() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const rowsPerPage = 10;
+  const [rowsPerTablePage, setRowsPerTablePage] = useState(10);
 
   useEffect(() => {
     getRequirementsList();
@@ -57,9 +57,9 @@ export default function RequirementsPage() {
   };
 
   // Pagination logic
-  const totalPages = Math.ceil(requirementData.length / rowsPerPage);
-  const startIndex = (currentPage - 1) * rowsPerPage;
-  const currentRows = requirementData.slice(startIndex, startIndex + rowsPerPage);
+  const totalPages = Math.ceil(requirementData.length / rowsPerTablePage);
+  const startIndex = (currentPage - 1) * rowsPerTablePage;
+  const currentRows = requirementData.slice(startIndex, startIndex + rowsPerTablePage);
 
   return (
     <ProtectedRoute>

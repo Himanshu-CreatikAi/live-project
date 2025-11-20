@@ -2,6 +2,7 @@
 
 import { BrickWallFire, Podcast, School, Cable,ShieldUser,NotebookTabs } from "lucide-react";
 import ImageSlider from "./ImageSlider";
+import Link from "next/link";
 const SmallScreenData = () => {
 
 
@@ -10,36 +11,40 @@ const SmallScreenData = () => {
       pTag: "Campigns",
       icon: <BrickWallFire />,
       color: "bg-red-500/50",
+      url:"/masters/campaign"
     
     },
     {
       pTag: "Follow Up",
       icon: <Podcast />,
       color: "bg-purple-500/50",
+      url:"/followups/customer"
      
     },
        {
         pTag:"Schedule",
         icon:<School/>,
         color:"bg-teal-500/50",
-      
+        url:"/schedules"
 
     }, {
         pTag:"Task",
         icon: <Cable/>,
         color:"bg-green-500/50",
+        url:"/task"
        
     },
        {
         pTag:"Customers",
         icon:<ShieldUser/>,
         color:"bg-blue-500/50",
+        url:"/customer"
        
     }, {
         pTag:"Contacts",
         icon: <NotebookTabs/>,
         color:"bg-gray-500/50",
-        
+        url:"/contact"
     },
   ];
 
@@ -81,8 +86,9 @@ const SmallScreenData = () => {
         {/* ✅ Button Grid */}
         <div className="grid grid-cols-2 gap-4 mt-4 w-full ">
           {boxeButtons.map((data, index) => (
-            <div
+            <Link
               key={index}
+              href={data?.url??""}
              
               className="rounded-sm bg-cover bg-center bg-no-repeat min-h-[152px] bg-[url(https://i.rtings.com/assets/pages/OICDg5Ss/best-video-editing-laptops-20241015-medium.jpg?format=auto)]"
             >
@@ -92,7 +98,7 @@ const SmallScreenData = () => {
                 <div className="text-white text-4xl">{data.icon}</div>
                 <p className="text-white mt-2 text-center">{data.pTag}</p>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>

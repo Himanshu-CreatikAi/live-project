@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import SingleSelect from "@/app/component/SingleSelect";
@@ -11,6 +11,8 @@ import { addContactFollowup } from "@/store/contactFollowups";
 import { contactFollowupAllDataInterface } from "@/store/contactFollowups.interface";
 import BackButton from "@/app/component/buttons/BackButton";
 import SaveButton from "@/app/component/buttons/SaveButton";
+import { handleFieldOptions } from "@/app/utils/handleFieldOptions";
+import { getStatusType } from "@/store/masters/statustype/statustype";
 
 interface ErrorInterface {
   [key: string]: string;
@@ -28,6 +30,11 @@ export default function ContactFollowupAdd() {
   const router = useRouter();
   const [errors, setErrors] = useState<ErrorInterface>({});
   const [fieldOptions, setFieldOptions] = useState<Record<string, any[]>>({});
+
+  
+      useEffect(() => {
+        fetchFields();
+      }, [])
 
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -83,6 +90,14 @@ export default function ContactFollowupAdd() {
     toast.error("Failed to add Followup!");
   };
 
+   const fetchFields = async () => {
+      await handleFieldOptions(
+        [
+          { key: "StatusType", fetchFn:getStatusType },
+        ],
+        setFieldOptions
+      );
+    }
   
   const statusOptions = ["Active", "Inactive"];
 
@@ -118,7 +133,7 @@ export default function ContactFollowupAdd() {
                   />
 
                   <SingleSelect
-                    options={statusOptions}
+                    options={Array.isArray(fieldOptions?.StatusType) ? fieldOptions.StatusType : []}
                     label="Status Type"
                     value={followupData.StatusType}
                     onChange={(selected) => handleSelectChange("StatusType", selected)}

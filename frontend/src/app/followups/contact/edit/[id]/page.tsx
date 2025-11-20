@@ -11,6 +11,8 @@ import { getFollowupByFollowupId, updateContactFollowup } from "@/store/contactF
 import { contactFollowupAllDataInterface } from "@/store/contactFollowups.interface";
 import BackButton from "@/app/component/buttons/BackButton";
 import SaveButton from "@/app/component/buttons/SaveButton";
+import { handleFieldOptions } from "@/app/utils/handleFieldOptions";
+import { getStatusType } from "@/store/masters/statustype/statustype";
 
 interface ErrorInterface {
   [key: string]: string;
@@ -46,7 +48,10 @@ export default function ContactFollowupEdit() {
         toast.error("No followup found for this contact!");
       }
     };
-    if (id) fetchFollowup();
+    if (id){
+      fetchFields();
+      fetchFollowup();
+    }
   }, [id]);
 
   const handleInputChange = useCallback(
@@ -97,6 +102,15 @@ export default function ContactFollowupEdit() {
 
   const statusOptions = ["Active","Inactive"];
 
+     const fetchFields = async () => {
+        await handleFieldOptions(
+          [
+            { key: "StatusType", fetchFn:getStatusType },
+          ],
+          setFieldOptions
+        );
+      }
+
   return (
     <div className="min-h-screen flex justify-center">
       <Toaster position="top-right" />
@@ -130,7 +144,7 @@ export default function ContactFollowupEdit() {
                   />
 
                   <SingleSelect
-                    options={statusOptions}
+                    options={Array.isArray(fieldOptions?.StatusType) ? fieldOptions.StatusType : []}
                     label="Status Type"
                     value={followupData.StatusType}
                     onChange={(selected) => handleSelectChange("StatusType", selected)}

@@ -25,7 +25,7 @@ export default function IncomesPage() {
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [deleteDialogData, setDeleteDialogData] = useState<incomeDialogDataInterface | null>(null);
     const [currentTablePage, setCurrentTablePage] = useState(1);
-    const rowsPerTablePage = 10;
+    const [rowsPerTablePage, setRowsPerTablePage] = useState(10);
     const router = useRouter();
 
     // Fetch incomes from API
@@ -91,7 +91,7 @@ export default function IncomesPage() {
         <MasterProtectedRoute>
             <Toaster position="top-right" />
             <div className="min-h-[calc(100vh-56px)] overflow-auto max-md:py-10">
-                
+
 
                 {/* Delete Dialog */}
                 <DeleteDialog<incomeDialogDataInterface>
@@ -109,7 +109,7 @@ export default function IncomesPage() {
                 <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200 relative">
                     <PageHeader title="Dashboard" subtitles={["Incomes"]} />
                     {/* Add Button */}
-                    
+
                     <AddButton
                         url="/masters/incomes/add"
                         text="Add"
@@ -199,8 +199,8 @@ export default function IncomesPage() {
                                                 <div className="w-[120px]">
                                                     <span
                                                         className={`px-3 py-1 rounded-[2px] text-xs font-semibold ${i.Status === "Active"
-                                                                ? "bg-[#C8E6C9] text-green-700"
-                                                                : "bg-red-100 text-red-700"
+                                                            ? "bg-[#C8E6C9] text-green-700"
+                                                            : "bg-red-100 text-red-700"
                                                             }`}
                                                     >
                                                         {i.Status}

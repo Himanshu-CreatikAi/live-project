@@ -21,7 +21,7 @@ export default function MailPage() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [deleteDialogData, setDeleteDialogData] = useState<mailDialogDataInterface | null>(null);
   const [currentTablePage, setCurrentTablePage] = useState(1);
-  const rowsPerTablePage = 10;
+  const [rowsPerTablePage, setRowsPerTablePage] = useState(10);
   const router = useRouter();
 
   // Fetch mails from API
@@ -87,7 +87,7 @@ export default function MailPage() {
     <MasterProtectedRoute>
       <Toaster position="top-right" />
       <div className="min-h-[calc(100vh-56px)] overflow-auto max-md:py-10">
-        
+
 
         {/* Delete Dialog */}
         <DeleteDialog<mailDialogDataInterface>
@@ -105,12 +105,12 @@ export default function MailPage() {
         <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200 relative">
           <PageHeader title="Dashboard" subtitles={["Mail"]} />
           {/* Add Button */}
-          
+
           <AddButton
-               url="/masters/mail-templates/add"
-               text="Add"
-               icon={<PlusSquare size={18} />}
-             />
+            url="/masters/mail-templates/add"
+            text="Add"
+            icon={<PlusSquare size={18} />}
+          />
 
           {/* Filters */}
           <form className="w-full flex flex-wrap gap-6 items-end mb-6 mt-16">
@@ -185,11 +185,10 @@ export default function MailPage() {
                       <td className="flex items-center gap-10 px-8 py-3 w-1/2 justify-end">
                         <div className="w-[120px]">
                           <span
-                            className={`px-3 py-1 rounded-[2px] text-xs font-semibold ${
-                              m.status === "Active"
+                            className={`px-3 py-1 rounded-[2px] text-xs font-semibold ${m.status === "Active"
                                 ? "bg-[#C8E6C9] text-green-700"
                                 : "bg-red-100 text-red-700"
-                            }`}
+                              }`}
                           >
                             {m.status}
                           </span>
@@ -222,7 +221,7 @@ export default function MailPage() {
                               setDeleteDialogData({
                                 id: m._id || String(i),
                                 name: m.name,
-                                status: m.status??"Active",
+                                status: m.status ?? "Active",
                               });
                             }}
                           >

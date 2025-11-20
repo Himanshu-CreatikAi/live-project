@@ -26,7 +26,7 @@ export default function CampaignPage() {
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [deleteDialogData, setDeleteDialogData] = useState<DeleteDialogDataInterface | null>(null);
     const [currentTablePage, setCurrentTablePage] = useState(1);
-    const rowsPerTablePage = 10;
+    const [rowsPerTablePage,setRowsPerTablePage]=useState(10);
     const router = useRouter();
 
     // Fetch campaigns from API
@@ -53,8 +53,13 @@ export default function CampaignPage() {
     const filteredCampaigns = useMemo(() => {
         return campaigns
             .filter((c) => keyword === "" || c.Name.toLowerCase().includes(keyword.toLowerCase()))
-            .slice(0, Number(limit));
-    }, [campaigns, keyword, limit]);
+    }, [campaigns, keyword]);
+
+    
+    useEffect(()=>{
+        setRowsPerTablePage(Number(limit));
+        setCurrentTablePage(1); 
+    },[limit])
 
     // Delete campaign
     const handleDelete = async (data: DeleteDialogDataInterface | null) => {

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import SingleSelect from "@/app/component/SingleSelect";
@@ -11,6 +11,8 @@ import { addCustomerFollowup } from "@/store/customerFollowups";
 import { customerFollowupAllDataInterface } from "@/store/customerFollowups.interface";
 import BackButton from "@/app/component/buttons/BackButton";
 import SaveButton from "@/app/component/buttons/SaveButton";
+import { handleFieldOptions } from "@/app/utils/handleFieldOptions";
+import { getStatusType } from "@/store/masters/statustype/statustype";
 
 interface ErrorInterface {
   [key: string]: string;
@@ -18,7 +20,7 @@ interface ErrorInterface {
 
 export default function CustomerFollowupAdd() {
   const [followupData, setFollowupData] = useState<customerFollowupAllDataInterface>({
-    customer:"",
+    customer: "",
     StartDate: "",
     StatusType: "",
     FollowupNextDate: "",
@@ -29,6 +31,11 @@ export default function CustomerFollowupAdd() {
   const [errors, setErrors] = useState<ErrorInterface>({});
   const router = useRouter();
   const [fieldOptions, setFieldOptions] = useState<Record<string, any[]>>({});
+
+
+    useEffect(() => {
+      fetchFields();
+    }, [])
 
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -71,7 +78,7 @@ export default function CustomerFollowupAdd() {
     if (data) {
       toast.success("Customer Followup added successfully!");
       setFollowupData({
-        customer:"",
+        customer: "",
         StartDate: "",
         StatusType: "",
         FollowupNextDate: "",
@@ -88,7 +95,18 @@ export default function CustomerFollowupAdd() {
 
   };
 
-  const statusOptions = ["Active","inactive"];
+
+
+  const statusOptions = ["Active", "inactive"];
+
+  const fetchFields = async () => {
+    await handleFieldOptions(
+      [
+        { key: "StatusType", fetchFn:getStatusType },
+      ],
+      setFieldOptions
+    );
+  }
 
   return (
     <div className="min-h-screen flex justify-center">
@@ -124,7 +142,7 @@ export default function CustomerFollowupAdd() {
                   />
 
                   <SingleSelect
-                    options={statusOptions}
+                    options={Array.isArray(fieldOptions?.StatusType) ? fieldOptions.StatusType : []}
                     label="Status Type"
                     value={followupData.StatusType}
                     onChange={(selected) => handleSelectChange("StatusType", selected)}
@@ -148,7 +166,7 @@ export default function CustomerFollowupAdd() {
               </div>
 
               <div className="flex justify-end mt-6">
-                
+
                 <SaveButton text="Save" onClick={handleSubmit} />
 
               </div>

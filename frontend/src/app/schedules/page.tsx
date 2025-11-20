@@ -34,7 +34,7 @@ export default function SchedulePage() {
 
   const router = useRouter();
   const API_URL = "https://live-project-backend-viiy.onrender.com/api/sch";
-  const rowsPerTablePage = 10;
+  const [rowsPerTablePage, setRowsPerTablePage] = useState(10);
 
   const [scheduleIds, setSchedulesIds] = useState<string[]>([]);
 
@@ -111,7 +111,7 @@ export default function SchedulePage() {
   };
 
   const handleSelectAll = () => {
-    const allIds = currentRows.map((s) => s._id);
+    const allIds = filteredSchedules.map((s) => s._id);
 
     setSchedulesIds((prev) =>
       allIds.every((id) => prev.includes(id))

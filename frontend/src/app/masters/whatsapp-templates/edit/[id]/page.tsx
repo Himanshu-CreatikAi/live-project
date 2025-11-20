@@ -78,7 +78,7 @@ export default function WhatsappEdit() {
       return;
     }
 
-    try {
+
       const result = await updateWhatsapp(id as string, whatsappData);
       if (result) {
         toast.success("WhatsApp Template updated successfully!");
@@ -86,11 +86,8 @@ export default function WhatsappEdit() {
       } else {
         toast.error("Failed to update WhatsApp template");
       }
-    } catch (error) {
-      toast.error("Failed to update WhatsApp template");
-      console.error("Update Whatsapp Error:", error);
-    }
-  };
+    } 
+
 
   const statusOptions = ["Active", "Inactive"];
 

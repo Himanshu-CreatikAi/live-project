@@ -33,7 +33,7 @@ export default function BuilderSlidersPage() {
     useState<DeleteDialogDataInterface | null>(null);
 
   const [currentTablePage, setCurrentTablePage] = useState(1);
-  const rowsPerTablePage = 10;
+  const [rowsPerTablePage, setRowsPerTablePage] = useState(10);
 
   const router = useRouter();
 
@@ -48,6 +48,11 @@ export default function BuilderSlidersPage() {
   useEffect(() => {
     fetchSliders();
   }, []);
+
+  useEffect(() => {
+    setRowsPerTablePage(Number(limit));
+    setCurrentTablePage(1);
+  }, [limit])
 
   // ✅ Filter + limit logic
   const filteredSliders = useMemo(() => {
@@ -111,7 +116,6 @@ export default function BuilderSlidersPage() {
 
       <div className="min-h-[calc(100vh-56px)] overflow-auto max-md:py-10">
         {/* Header */}
-       
 
         {/* Delete Dialog */}
         <DeleteDialog<DeleteDialogDataInterface>
@@ -130,10 +134,10 @@ export default function BuilderSlidersPage() {
           <PageHeader title="Dashboard" subtitles={["Builder Sliders"]} />
           {/* Add Button */}
           <AddButton
-               url="/masters/builder-sliders/add"
-               text="Add"
-               icon={<PlusSquare size={18} />}
-             />
+            url="/masters/builder-sliders/add"
+            text="Add"
+            icon={<PlusSquare size={18} />}
+          />
 
           {/* Filter Form */}
           <form className="w-full flex flex-wrap gap-6 items-end mb-6 mt-16">
@@ -200,7 +204,7 @@ export default function BuilderSlidersPage() {
                       className="border-t flex justify-between items-center w-full hover:bg-gray-100 transition-all"
                     >
                       {/* LEFT */}
-                      <td className="flex items-center gap-10 px-8 py-3 border border-gray-200 w-1/2">
+                      <td className="flex items-center gap-10 px-8 py-3 w-1/2">
                         <p className="w-[60px]">{i + 1}</p>
 
                         {/* Image Preview */}
@@ -212,14 +216,13 @@ export default function BuilderSlidersPage() {
                       </td>
 
                       {/* RIGHT */}
-                      <td className="flex items-center gap-10 px-8 py-3 border border-gray-200 w-1/2 justify-end">
+                      <td className="flex items-center gap-10 px-8 py-3 w-1/2 justify-end">
                         <div className="w-[120px]">
                           <span
-                            className={`px-3 py-1 rounded-[2px] text-xs font-semibold ${
-                              s.Status === "Active"
+                            className={`px-3 py-1 rounded-[2px] text-xs font-semibold ${s.Status === "Active"
                                 ? "bg-green-100 text-green-700"
                                 : "bg-red-100 text-red-700"
-                            }`}
+                              }`}
                           >
                             {s.Status}
                           </span>

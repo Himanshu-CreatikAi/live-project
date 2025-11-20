@@ -20,6 +20,7 @@ import BackButton from "@/app/component/buttons/BackButton";
 import SaveButton from "@/app/component/buttons/SaveButton";
 import { handleFieldOptionsObject } from "@/app/utils/handleFieldOptionsObject";
 import ObjectSelect from "@/app/component/ObjectSelect";
+import { InputField } from "@/app/component/InputField";
 
 interface ErrorInterface {
   [key: string]: string;
@@ -99,7 +100,7 @@ export default function CustomerEdit() {
           SitePlan: {} as File,
         });
 
-        
+
 
 
         // Preview URLs for already existing images
@@ -107,7 +108,7 @@ export default function CustomerEdit() {
 
         // Show site plan if it exists
 
-        setSitePlanPreview(data.SitePlan);
+        setSitePlanPreview(data.SitePlan[0]);
       } catch (error) {
         toast.error("Error fetching customer");
         console.error("Fetch Error:", error);
@@ -170,10 +171,10 @@ export default function CustomerEdit() {
     setImagePreviews((prev) => {
       const removedUrl = prev[index];
 
-      // ✅ Move this OUTSIDE of setImagePreviews callback to avoid double runs
+      // Move this OUTSIDE of setImagePreviews callback to avoid double runs
       if (removedUrl.startsWith("http")) {
         setRemovedCustomerImages((prevDel) => {
-          // ✅ Prevent duplicates explicitly
+          // Prevent duplicates explicitly
           if (!prevDel.includes(removedUrl)) {
             return [...prevDel, removedUrl];
           }
@@ -185,10 +186,10 @@ export default function CustomerEdit() {
     });
   };
 
-  // ✅ Remove site plan
+  // Remove site plan
   const handleRemoveSitePlan = () => {
-    if (sitePlanPreview.length > 0 && sitePlanPreview[0]?.startsWith("http")) {
-      setRemovedSitePlans((prev) => [...prev, sitePlanPreview[0]]);
+    if (sitePlanPreview.length > 0 && sitePlanPreview?.startsWith("http")) {
+      setRemovedSitePlans((prev) => [...prev, sitePlanPreview]);
     }
     setCustomerData((prev) => ({ ...prev, SitePlan: {} as File }));
     setSitePlanPreview("");
@@ -255,6 +256,7 @@ export default function CustomerEdit() {
       // ✅ Add deletion info
       formData.append("removedCustomerImages", JSON.stringify(removedCustomerImages));
       formData.append("removedSitePlans", JSON.stringify(removedSitePlans));
+      console.log(" removed siteplan ", removedSitePlans)
 
       // Handle full deletion (when user removes all)
       /*  if (customerData.CustomerImage.length === 0)
@@ -358,7 +360,7 @@ export default function CustomerEdit() {
 
         </div>
 
-        <div className="bg-white/90 backdrop-blur-lg p-10 w-full rounded-3xl shadow-2xl h-auto">
+        <div className="bg-white backdrop-blur-lg p-10 w-full rounded-3xl shadow-2xl h-auto">
           <form onSubmit={(e) => e.preventDefault()} className="w-full">
             <div className="mb-8 text-left border-b pb-4 border-gray-200">
               <h1 className="text-3xl font-extrabold text-[var(--color-secondary-darker)] leading-tight tracking-tight">
@@ -427,7 +429,7 @@ export default function CustomerEdit() {
 
               <InputField label="Customer Name" name="customerName" value={customerData.customerName} onChange={handleInputChange} error={errors.CustomerName} />
               <InputField label="Contact No" name="ContactNumber" value={customerData.ContactNumber} onChange={handleInputChange} error={errors.ContactNumber} />
-              <SingleSelect options={Array.isArray(fieldOptions?.City) ? fieldOptions.City : []} label="City" value={customerData.City} onChange={(v) => handleSelectChange("City", v)} />
+              <SingleSelect className=" max-md:hidden" options={Array.isArray(fieldOptions?.City) ? fieldOptions.City : []} label="City" value={customerData.City} onChange={(v) => handleSelectChange("City", v)} />
               <SingleSelect options={Array.isArray(fieldOptions?.Location) ? fieldOptions.Location : []} label="Location" value={customerData.Location} onChange={(v) => handleSelectChange("Location", v)} />
               <InputField label="Area" name="Area" value={customerData.Area} onChange={handleInputChange} />
               <InputField label="Address" name="Address" value={customerData.Address} onChange={handleInputChange} />
@@ -443,7 +445,7 @@ export default function CustomerEdit() {
               <InputField label="Google Map" name="GoogleMap" value={customerData.GoogleMap} onChange={handleInputChange} />
               <SingleSelect options={Array.isArray(fieldOptions?.Verified) ? fieldOptions.Verified : []} label="Verified" value={customerData.Verified} onChange={(v) => handleSelectChange("Verified", v)} />
               <FileUpload label="Customer Images" multiple onChange={(e) => handleFileChange(e, "CustomerImage")} previews={imagePreviews} onRemove={handleRemoveImage} />
-              <FileUpload label="Site Plan" onChange={(e) => handleFileChange(e, "SitePlan")} previews={sitePlanPreview.length > 0 ? [sitePlanPreview] : []} onRemove={() => handleRemoveSitePlan()} />
+              <FileUpload label="Site Plan" onChange={(e) => handleFileChange(e, "SitePlan")} previews={sitePlanPreview ? [sitePlanPreview] : []} onRemove={() => handleRemoveSitePlan()} />
             </div>
 
             <div className="flex justify-end mt-4">
@@ -462,30 +464,7 @@ export default function CustomerEdit() {
 
 
 // Input field component
-const InputField: React.FC<{
-  label: string;
-  name: string;
-  value: string;
-  error?: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-}> = ({ label, name, value, onChange, error }) => (
-  <label className="relative block w-full">
-    <input
-      type="text"
-      name={name}
-      value={value}
-      onChange={onChange}
-      placeholder=" "
-      className={`peer w-full border rounded-sm bg-transparent py-3 px-4 outline-none 
-        ${error ? "border-red-500 focus:border-red-500" : "border-gray-400 focus:border-blue-500"}`}
-    />
-    <p className={`absolute left-2 bg-white px-1 text-gray-500 text-sm transition-all duration-300
-      ${value || error ? "-top-2 text-xs text-blue-500" : "peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-500"}`}>
-      {label}
-    </p>
-    {error && <span className="text-red-500 text-sm mt-1 block">{error}</span>}
-  </label>
-);
+
 
 // Textarea field
 const TextareaField: React.FC<{

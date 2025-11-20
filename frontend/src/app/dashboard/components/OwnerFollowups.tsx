@@ -55,7 +55,7 @@ const OwnerFollowups = () => {
             <section className=" mt-6 bg-white p-5">
                 <h2 className=" font-bold text-xl mb-10">OWNER FOLLOWUP</h2>
 
-                <div className=" grid grid-cols-4 md:grid-cols-2 max-md:grid-cols-1 gap-12 px-5">
+                <div className=" grid lg:grid-cols-4 md:grid-cols-2 max-md:grid-cols-1 gap-12 px-5">
 
                     {
                         ownerFollowUpData.map((item, index) => {
