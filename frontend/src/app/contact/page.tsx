@@ -72,7 +72,7 @@ export default function Contacts() {
   const [deleteAllDialogData, setDeleteAllDialogData] =
     useState<DeleteAllDialogDataInterface | null>(null);
 
-  const rowsPerTablePage = 10;
+  const [rowsPerTablePage, setRowsPerTablePage] = useState(10);
 
   const [filters, setFilters] = useState({
     StatusAssign: [] as string[],
@@ -82,7 +82,7 @@ export default function Contacts() {
     Location: [] as string[],
     User: [] as string[],
     Keyword: "" as string,
-    Limit: [] as string[],
+    Limit: ["10"] as string[],
   });
 
   const [contactData, setContactData] = useState<contactGetDataInterface[]>([]);
@@ -97,7 +97,7 @@ export default function Contacts() {
 
   const getContacts = async () => {
     const data = await getContact();
-    console.log(" contact data ",data)
+    console.log(" contact data ", data)
     if (data) {
       console.log("contact data ", data)
       setContactData(data.map((item: any) => {
@@ -115,7 +115,7 @@ export default function Contacts() {
           Location: item.Location,
           ContactNo: item.ContactNo,
           AssignTo: item.AssignTo?.name,
-          date: (item.date==="")?formattedDate:item.date,
+          date: (item.date === "") ? formattedDate : item.date,
         }
       }));
 
@@ -270,7 +270,7 @@ export default function Contacts() {
         mailtemplates.map((item: any): mailGetDataInterface => ({
           _id: item?._id ?? "",
           name: item?.name ?? "",
-          body:item?.body??""
+          body: item?.body ?? ""
         }))
       );
 
@@ -290,7 +290,7 @@ export default function Contacts() {
         whatsapptemplates.map((item: any): whatsappGetDataInterface => ({
           _id: item?._id ?? "",
           name: item?.name ?? "",
-          body:item?.body??""
+          body: item?.body ?? ""
         }))
       );
 
@@ -363,6 +363,12 @@ export default function Contacts() {
   const indexOfFirstRow = indexOfLastRow - rowsPerTablePage;
   const currentRows = contactData.slice(indexOfFirstRow, indexOfLastRow);
 
+  useEffect(() => {
+    const safeLimit = Number(filters.Limit?.[0]);
+    setRowsPerTablePage(safeLimit);
+    setCurrentTablePage(1);
+  }, [filters.Limit]);
+
   const nexttablePage = () => {
     if (currentTablePage !== totalTablePages)
       setCurrentTablePage(currentTablePage + 1);
@@ -405,6 +411,7 @@ export default function Contacts() {
 
     const queryParams = new URLSearchParams();
     Object.entries(updatedFilters).forEach(([key, value]) => {
+      if (key === "Limit") return; // 
       if (Array.isArray(value) && value.length > 0) {
         value.forEach((v) => queryParams.append(key, v));
       } else if (typeof value === "string" && value) {
@@ -413,7 +420,24 @@ export default function Contacts() {
     });
 
     const data = await getFilteredContact(queryParams.toString());
-    if (data) setContactData(data);
+    if (data) setContactData(data.map((item: any) => {
+      const date = new Date(item.createdAt);
+      const formattedDate =
+        date.getDate().toString().padStart(2, "0") + "-" +
+        (date.getMonth() + 1).toString().padStart(2, "0") + "-" +
+        date.getFullYear();
+      return {
+        _id: item._id,
+        Name: item.Name,
+        Email: item.Email,
+        Campaign: item.Campaign,
+        Qualifications: item.Qualifications,
+        Location: item.Location,
+        ContactNo: item.ContactNo,
+        AssignTo: item.AssignTo?.name,
+        date: (item.date === "") ? formattedDate : item.date,
+      }
+    }));
   };
 
   const fetchFields = async () => {
@@ -533,7 +557,7 @@ export default function Contacts() {
                 <h3 className="flex items-center gap-1"><CiSearch />Advance Search</h3>
                 <button
                   type="button"
-                  
+
                   className="p-2 hover:bg-gray-200 rounded-md cursor-pointer"
                 >
                   {toggleSearchDropdown ? <IoIosArrowUp /> : <IoIosArrowDown />}
@@ -589,7 +613,7 @@ export default function Contacts() {
             </div>
             <div className=" overflow-auto">
               <div className="flex gap-10 items-center px-3 py-4 min-w-max text-gray-700">
-                
+
                 <label htmlFor="selectall" className=" relative overflow-hidden py-[2px] group hover:bg-[var(--color-primary-lighter)] hover:text-white text-[var(--color-primary)] bg-[var(--color-primary-lighter)]  rounded-tr-sm rounded-br-sm  border-l-[3px] px-2 border-l-[var(--color-primary)] cursor-pointer">
                   <div className=" absolute top-0 left-0 z-0 h-full bg-[var(--color-primary)] w-0 group-hover:w-full transition-all duration-300 "></div>
                   <span className="relative">Select All</span>

@@ -44,11 +44,15 @@ export default function WhatsappPage() {
     fetchTemplates();
   }, []);
 
+  useEffect(() => {
+    setRowsPerTablePage(Number(limit));
+    setCurrentTablePage(1);
+  }, [limit])
+
   // Filter templates
   const filteredTemplates = useMemo(() => {
     return templates
       .filter((t) => keyword === "" || t.name.toLowerCase().includes(keyword.toLowerCase()))
-      .slice(0, Number(limit));
   }, [templates, keyword, limit]);
 
   // Delete template
@@ -91,7 +95,7 @@ export default function WhatsappPage() {
     <MasterProtectedRoute>
       <Toaster position="top-right" />
       <div className="min-h-[calc(100vh-56px)] overflow-auto max-md:py-10">
-        
+
 
         {/* Delete Dialog */}
         <DeleteDialog<whatsappDialogDataInterface>
@@ -109,12 +113,12 @@ export default function WhatsappPage() {
         <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200 relative">
           <PageHeader title="Dashboard" subtitles={["Whatsapp Templates"]} />
           {/* Add Button */}
-          
+
           <AddButton
-               url="/masters/whatsapp-templates/add"
-               text="Add"
-               icon={<PlusSquare size={18} />}
-             />
+            url="/masters/whatsapp-templates/add"
+            text="Add"
+            icon={<PlusSquare size={18} />}
+          />
 
           {/* Filters */}
           <form className="w-full flex flex-wrap gap-6 items-end mb-6 mt-16">
@@ -183,17 +187,16 @@ export default function WhatsappPage() {
                       className="border-t flex justify-between items-center w-full hover:bg-[#f7f6f3] transition-all duration-200"
                     >
                       <td className="flex items-center gap-10 px-8 py-3 w-1/2">
-                        <p className="w-[60px]">{i + 1}</p>
+                        <p className="w-[60px]">{(currentTablePage - 1) * rowsPerTablePage + (i + 1)}</p>
                         <p className="w-[200px] font-semibold">{t.name}</p>
                       </td>
                       <td className="flex items-center gap-10 px-8 py-3 w-1/2 justify-end">
                         <div className="w-[120px]">
                           <span
-                            className={`px-3 py-1 rounded-[2px] text-xs font-semibold ${
-                              t.status === "Active"
+                            className={`px-3 py-1 rounded-[2px] text-xs font-semibold ${t.status === "Active"
                                 ? "bg-[#C8E6C9] text-green-700"
                                 : "bg-red-100 text-red-700"
-                            }`}
+                              }`}
                           >
                             {t.status}
                           </span>
@@ -226,7 +229,7 @@ export default function WhatsappPage() {
                               setDeleteDialogData({
                                 id: t._id || String(i),
                                 name: t.name,
-                                status: t.status??"Active",
+                                status: t.status ?? "Active",
                               });
                             }}
                           >

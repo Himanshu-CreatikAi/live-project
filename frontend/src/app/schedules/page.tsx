@@ -49,6 +49,8 @@ export default function SchedulePage() {
     fetchSchedules();
   }, []);
 
+  
+
   // Unique users for filter
   const uniqueUsers = useMemo(() => {
     const users = schedules.map((s) => s.User).filter(Boolean);

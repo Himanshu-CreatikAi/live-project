@@ -22,6 +22,7 @@ import { handleFieldOptionsObject } from "@/app/utils/handleFieldOptionsObject";
 import ObjectSelect from "@/app/component/ObjectSelect";
 import CustomerSubtypeAdd from "@/app/masters/customer-subtype/add/page";
 import { useCustomerImport } from "@/context/CustomerImportContext";
+import LoaderCircle from "@/app/component/LoaderCircle";
 
 interface ErrorInterface {
     [key: string]: string;
@@ -52,6 +53,7 @@ export default function SelectImports() {
     });
     const [fieldOptions, setFieldOptions] = useState<Record<string, any[]>>({});
     const [fieldMapping, setFieldMapping] = useState<Record<string, string>>({});
+    const [importLoader, setImportLoader] = useState(false);
 
 
 
@@ -103,33 +105,36 @@ export default function SelectImports() {
 
     //Submit Form
     const handleSubmit = async () => {
-/*          const validationErrors = validateForm();
-         if (Object.keys(validationErrors).length > 0) {
-             setErrors(validationErrors);
-             return;
-         } */
+        /*          const validationErrors = validateForm();
+                 if (Object.keys(validationErrors).length > 0) {
+                     setErrors(validationErrors);
+                     return;
+                 } */
+        setImportLoader(true);
 
-        try {
-            const formData = new FormData();
-            formData.append("fieldMapping", JSON.stringify(fieldMapping))
 
-            if (file) {
-                formData.append("file", file);
-            }
-            //console.log(customerData)
-            const result = await importCustomer(formData);
+        const formData = new FormData();
+        formData.append("fieldMapping", JSON.stringify(fieldMapping))
 
-            if (result) {
-                toast.success("Customer imported successfully!");
-                router.push("/customer");
-            } else {
-                toast.error("Failed to import customer");
-            }
-        } catch (error) {
-            //  toast.error("Error importing customer");
-            // console.error("Customer import Error:", error);
-            router.push("/customer");
+        if (file) {
+            formData.append("file", file);
         }
+        //console.log(customerData)
+        const result = await importCustomer(formData);
+
+        if (result) {
+            toast.success("Customer imported successfully!");
+            setImportLoader(false);
+            router.push("/customer");
+            return;
+        } else {
+            toast.error("Failed to import customer");
+        }
+
+        //  toast.error("Error importing customer");
+        // console.error("Customer import Error:", error);
+        router.push("/customer");
+        setImportLoader(false);
     };
 
     const dropdownOptions = ["Option1", "Option2", "Option3"];
@@ -240,7 +245,7 @@ export default function SelectImports() {
                         </div>
 
                         <h2 className=" text-xl font-semibold text-gray-700 my-5 mt-10">Map Fields</h2>
-                        <div className="grid grid-cols-2 gap-4 mt-5">
+                        <div className="grid grid-cols-2 max-md:grid-cols-1 gap-4 mt-5">
                             {excelHeaders.map((header) => {
                                 /* if(header==="Campaign" || header==="Customer Type" || header==="Property Type" || header==="Customer Subtype")
                                     return null; */
@@ -266,7 +271,7 @@ export default function SelectImports() {
 
                         <div className="flex justify-end mt-4">
 
-                            <SaveButton text="Save Imports" onClick={handleSubmit} />
+                            <SaveButton text={` ${importLoader ? "Saving.." : "Save Import"}`} icon={importLoader&&<LoaderCircle/>} onClick={handleSubmit} />
 
                         </div>
                     </form>

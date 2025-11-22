@@ -25,6 +25,7 @@ import { handleFieldOptionsObject } from "@/app/utils/handleFieldOptionsObject";
 import ObjectSelect from "@/app/component/ObjectSelect";
 import { useCustomerImport } from "@/context/CustomerImportContext";
 import { useContactImport } from "@/context/ContactImportContext";
+import LoaderCircle from "@/app/component/LoaderCircle";
 
 interface ErrorInterface {
     [key: string]: string; // dynamic key type for any field
@@ -34,10 +35,10 @@ export default function SelectImports() {
     const [contactData, setContactData] = useState<contactAllDataInterface>({
         Campaign: { id: "", name: "" },
         Name: "",
-        City: "",
+        City: {id:"", name: ""},
         ContactType: { id: "", name: "" },
         ContactNo: "",
-        Location: "",
+        Location: {id:"", name:""},
         Email: "",
         CompanyName: "",
         Website: "",
@@ -56,6 +57,7 @@ export default function SelectImports() {
     const { excelHeaders, file } = useContactImport();
     const [fieldOptions, setFieldOptions] = useState<Record<string, any[]>>({});
     const [fieldMapping, setFieldMapping] = useState<Record<string, string>>({});
+    const [importLoader, setImportLoader] = useState(false);
 
 
 
@@ -221,7 +223,7 @@ export default function SelectImports() {
                             <h2 className=" text-xl font-semibold text-gray-700 my-5 mt-10">Map Fields</h2>
                             <div className="grid grid-cols-3 max-lg:grid-cols-2 max-md:grid-cols-1 gap-4 w-full">
                                     {excelHeaders.map((header) => (
-                                        <div key={header} className="flex flex-col">
+                                        <div key={header} className="flex flex-col m-4">
                                             <label className="text-sm font-medium mb-4">{header}</label>
 
                                             <SingleSelect
@@ -243,7 +245,7 @@ export default function SelectImports() {
 
                             <div className="flex justify-end mt-4">
 
-                                <SaveButton text="Save" onClick={handleSubmit} />
+                                <SaveButton text={` ${importLoader ? "Saving.." : "Save Import"}`} icon={importLoader&&<LoaderCircle/>} onClick={handleSubmit} />
 
                             </div>
                         </div>

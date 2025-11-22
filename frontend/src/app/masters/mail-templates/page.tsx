@@ -21,7 +21,7 @@ export default function MailPage() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [deleteDialogData, setDeleteDialogData] = useState<mailDialogDataInterface | null>(null);
   const [currentTablePage, setCurrentTablePage] = useState(1);
-  const [rowsPerTablePage, setRowsPerTablePage] = useState(10);
+  const [rowsPerTablePage, setRowsPerTablePage] = useState(20);
   const router = useRouter();
 
   // Fetch mails from API
@@ -40,12 +40,16 @@ export default function MailPage() {
     fetchMails();
   }, []);
 
+  useEffect(() => {
+    setRowsPerTablePage(Number(limit));
+    setCurrentTablePage(1);
+  }, [limit])
+
   // Filter mails
   const filteredMails = useMemo(() => {
     return mails
       .filter((m) => keyword === "" || m.name.toLowerCase().includes(keyword.toLowerCase()))
-      .slice(0, Number(limit));
-  }, [mails, keyword, limit]);
+  }, [mails, keyword]);
 
   // Delete mail
   const handleDelete = async (data: mailDialogDataInterface | null) => {
@@ -71,7 +75,7 @@ export default function MailPage() {
     setLimit("10");
   };
 
-  const totalTablePages = Math.ceil(filteredMails.length / rowsPerTablePage);
+  const totalTablePages = Math.max(1, Math.ceil(filteredMails.length / rowsPerTablePage));
   const indexOfLastRow = currentTablePage * rowsPerTablePage;
   const indexOfFirstRow = indexOfLastRow - rowsPerTablePage;
   const currentRows = filteredMails.slice(indexOfFirstRow, indexOfLastRow);
@@ -179,15 +183,15 @@ export default function MailPage() {
                       className="border-t flex justify-between items-center w-full hover:bg-[#f7f6f3] transition-all duration-200"
                     >
                       <td className="flex items-center gap-10 px-8 py-3 w-1/2">
-                        <p className="w-[60px]">{i + 1}</p>
+                        <p className="w-[60px]">{(currentTablePage - 1) * rowsPerTablePage + (i + 1)}</p>
                         <p className="w-[200px] font-semibold">{m.name}</p>
                       </td>
                       <td className="flex items-center gap-10 px-8 py-3 w-1/2 justify-end">
                         <div className="w-[120px]">
                           <span
                             className={`px-3 py-1 rounded-[2px] text-xs font-semibold ${m.status === "Active"
-                                ? "bg-[#C8E6C9] text-green-700"
-                                : "bg-red-100 text-red-700"
+                              ? "bg-[#C8E6C9] text-green-700"
+                              : "bg-red-100 text-red-700"
                               }`}
                           >
                             {m.status}
@@ -241,7 +245,9 @@ export default function MailPage() {
               </tbody>
             </table>
 
-            {/* Pagination */}
+            
+          </div>
+          {/* Pagination */}
             <div className="flex justify-between items-center mt-3 py-3 px-5">
               <p className="text-sm">
                 Page {currentTablePage} of {totalTablePages}
@@ -265,7 +271,6 @@ export default function MailPage() {
                 </button>
               </div>
             </div>
-          </div>
         </div>
       </div>
     </MasterProtectedRoute>

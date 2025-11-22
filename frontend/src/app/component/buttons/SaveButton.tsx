@@ -1,16 +1,20 @@
+import { ReactNode } from "react";
 interface SaveButtonProps {
   text: string;
+  icon?:ReactNode;
   onClick?: () => void;
 }
 
-export default function SaveButton({ text, onClick }: SaveButtonProps) {
+export default function SaveButton({ text,icon, onClick }: SaveButtonProps) {
   return (
     <button
       onClick={onClick}
-      className="bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-primary-darker)] 
-      hover:from-[var(--color-primary-dark)] hover:to-[var(--color-secondary-darker)] 
-      cursor-pointer text-white p-2 w-32 rounded-md font-semibold transition-all"
+      className="flex items-center float-right gap-2 bg-gradient-to-r cursor-pointer 
+        from-[var(--color-primary-dark)] to-[var(--color-secondary)] 
+        hover:from-[var(--color-primary-darker)] hover:to-[var(--color-secondary-dark)] 
+        text-white px-4 py-2 rounded-md font-semibold"
     >
+      {icon}
       {text}
     </button>
   );

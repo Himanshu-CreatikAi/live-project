@@ -4,6 +4,8 @@ import ContactType from "../models/model.contacttype.js";
 
 import Admin from "../models/model.admin.js";
 import ApiError from "../utils/ApiError.js";
+import City from "../models/model.city.js";
+import Location from "../models/model.location.js";
 
 // ✅ GET CONTACTS (Role-based + Filters)
 export const getContact = async (req, res, next) => {
@@ -20,10 +22,10 @@ export const getContact = async (req, res, next) => {
 
     // 🧠 Query filters
     const {
-      Campaign,
-      ContactType,
-      City,
-      Location,
+      Campaign: qCampaign,
+      ContactType: qContactType,
+      City: qCity,
+      Location: qLocation,
       Keyword,
       StartDate,
       EndDate,
@@ -31,11 +33,13 @@ export const getContact = async (req, res, next) => {
       sort,
     } = req.query;
 
-    if (Campaign) filter.Campaign = { $regex: Campaign.trim(), $options: "i" };
-    if (ContactType)
-      filter.ContactType = { $regex: ContactType.trim(), $options: "i" };
-    if (City) filter.City = { $regex: City.trim(), $options: "i" };
-    if (Location) filter.Location = { $regex: Location.trim(), $options: "i" };
+    if (qCampaign)
+      filter.Campaign = { $regex: qCampaign.trim(), $options: "i" };
+    if (qContactType)
+      filter.ContactType = { $regex: qContactType.trim(), $options: "i" };
+    if (qCity) filter.City = { $regex: qCity.trim(), $options: "i" };
+    if (qLocation)
+      filter.Location = { $regex: qLocation.trim(), $options: "i" };
 
     if (Keyword) {
       filter.$or = [
@@ -196,6 +200,12 @@ export const getContactById = async (req, res, next) => {
     const contactTypeDoc = await ContactType.findOne({
       Name: contact.ContactType,
     }).select("_id Name");
+    const cityDoc = await City.findOne({
+      Name: contact.City,
+    }).select("_id Name");
+    const locationDoc = await Location.findOne({
+      Name: contact.Location,
+    }).select("_id Name");
 
     // 🧠 Prepare structured response
     const response = {
@@ -206,6 +216,12 @@ export const getContactById = async (req, res, next) => {
       ContactType: contactTypeDoc
         ? { _id: contactTypeDoc._id, Name: contactTypeDoc.Name }
         : { _id: null, Name: contact.ContactType || "" },
+      City: cityDoc
+        ? { _id: cityDoc._id, Name: cityDoc.Name }
+        : { _id: null, Name: contact.City || "" },
+      Location: locationDoc
+        ? { _id: locationDoc._id, Name: locationDoc.Name }
+        : { _id: null, Name: contact.Location || "" },
     };
 
     res.status(200).json(response);

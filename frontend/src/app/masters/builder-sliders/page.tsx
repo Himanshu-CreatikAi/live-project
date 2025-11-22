@@ -62,8 +62,7 @@ export default function BuilderSlidersPage() {
           keyword === "" ||
           s.Status.toLowerCase().includes(keyword.toLowerCase())
       )
-      .slice(0, Number(limit));
-  }, [sliders, keyword, limit]);
+  }, [sliders, keyword]);
 
   // ✅ Delete
   const handleDelete = async (data: DeleteDialogDataInterface | null) => {
@@ -205,7 +204,7 @@ export default function BuilderSlidersPage() {
                     >
                       {/* LEFT */}
                       <td className="flex items-center gap-10 px-8 py-3 w-1/2">
-                        <p className="w-[60px]">{i + 1}</p>
+                        <p className="w-[60px]">{(currentTablePage - 1) * rowsPerTablePage + (i + 1)}</p>
 
                         {/* Image Preview */}
                         <img

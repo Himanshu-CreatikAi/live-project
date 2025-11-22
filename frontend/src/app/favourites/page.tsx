@@ -93,6 +93,7 @@ export default function FavouritePage() {
   const indexOfLastRow = currentTablePage * rowsPerTablePage;
   const indexOfFirstRow = indexOfLastRow - rowsPerTablePage;
   const currentRows = favouriteData.slice(indexOfFirstRow, indexOfLastRow);
+  
 
   const nexttablePage = () => {
     if (currentTablePage !== totalTablePages) setCurrentTablePage(currentTablePage + 1);

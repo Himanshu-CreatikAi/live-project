@@ -49,12 +49,16 @@ export default function IndustriesPage() {
         fetchIndustries();
     }, []);
 
+    useEffect(() => {
+        setRowsPerTablePage(Number(limit));
+        setCurrentTablePage(1);
+    }, [limit])
+
     // Filtered industries
     const filteredIndustries = useMemo(() => {
         return industries
             .filter((c) => keyword === "" || c.Name.toLowerCase().includes(keyword.toLowerCase()))
-            .slice(0, Number(limit));
-    }, [industries, keyword, limit]);
+    }, [industries, keyword]);
 
     // Delete industry
     const handleDelete = async (data: industriesDialogDataInterface | null) => {
@@ -195,7 +199,7 @@ export default function IndustriesPage() {
                                         >
                                             {/* Left section (S.No + Name) */}
                                             <td className="flex items-center gap-10 px-8 py-3 w-1/2">
-                                                <p className="w-[60px]">{i + 1}</p>
+                                                <p className="w-[60px]">{(currentTablePage - 1) * rowsPerTablePage + (i + 1)}</p>
                                                 <p className="w-[200px] font-semibold">{c.Name}</p>
                                             </td>
 

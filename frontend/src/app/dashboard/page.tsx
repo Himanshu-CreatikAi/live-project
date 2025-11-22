@@ -19,13 +19,6 @@ export default function Dashboard() {
           <DashboardSectionOne />
         </div>
 
-        <div className=" p-4">
-          <OwnerFollowups />
-        </div>
-
-        <div className=" p-4">
-          <TenantFollowups />
-        </div>
         
         <div className=" ">
           <div className="flex sm:flex-col lg:flex-row p-4  gap-4 ">
@@ -40,6 +33,13 @@ export default function Dashboard() {
           <DonutChart />
           <RadarChart />
 
+        </div>
+        <div className=" p-4">
+          <OwnerFollowups />
+        </div>
+
+        <div className=" p-4">
+          <TenantFollowups />
         </div>
       </div>
       <div className=" md:hidden">

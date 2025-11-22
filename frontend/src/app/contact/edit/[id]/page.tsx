@@ -12,7 +12,7 @@ import { contactAllDataInterface } from "@/store/contact.interface";
 import { getCampaign } from "@/store/masters/campaign/campaign";
 import { getContactType, getContactTypeByCampaign } from "@/store/masters/contacttype/contacttype";
 import { getCity } from "@/store/masters/city/city";
-import { getLocation } from "@/store/masters/location/location";
+import { getLocation, getLocationByCity } from "@/store/masters/location/location";
 import { getIndustries } from "@/store/masters/industries/industries";
 import { getFunctionalAreas } from "@/store/masters/functionalarea/functionalarea";
 import { getReferences } from "@/store/masters/references/references";
@@ -37,10 +37,10 @@ export default function ContactEdit() {
     const [contactData, setContactData] = useState<contactAllDataInterface>({
         Campaign: { id: "", name: "" },
         Name: "",
-        City: "",
+        City: { id: "", name: "" },
         ContactType: { id: "", name: "" },
         ContactNo: "",
-        Location: "",
+        Location: { id: "", name: "" },
         Email: "",
         CompanyName: "",
         Website: "",
@@ -63,12 +63,12 @@ export default function ContactEdit() {
             console.log(data)
             if (data) {
                 setContactData({
-                    Campaign: {id:data.Campaign?._id,name:data.Campaign?.Name},
+                    Campaign: { id: data.Campaign?._id, name: data.Campaign?.Name },
                     Name: data.Name,
-                    City: data.City,
-                    ContactType: {id:data.ContactType?._id,name:data.ContactType?.Name},
+                    City: { id: data.City?._id, name: data.City?.Name },
+                    ContactType: { id: data.ContactType?._id, name: data.ContactType?.Name },
                     ContactNo: data.ContactNo,
-                    Location: data.Location,
+                    Location: { id: data.Location?._id, name: data.Location?.Name },
                     Email: data.Email,
                     CompanyName: data.CompanyName,
                     Website: data.Website,
@@ -131,11 +131,11 @@ export default function ContactEdit() {
             return;
         }
 
-        const payload = { 
+        const payload = {
             ...contactData,
-            Campaign:contactData.Campaign?.name,
-            ContactType:contactData.ContactType?.name
-         };
+            Campaign: contactData.Campaign?.name,
+            ContactType: contactData.ContactType?.name
+        };
         if (contactData.date == "") delete (payload as any).date;
 
         const data = await updateContact(id as string, payload)
@@ -153,14 +153,14 @@ export default function ContactEdit() {
     const objectFields = [
         { key: "Campaign", fetchFn: getCampaign },
         { key: "ContactType", staticData: [] },
+        { key: "City", fetchFn: getCity },
+        { key: "Location", staticData: [] }
 
     ];
 
     // Simple array fields (for normal Select)
     const arrayFields = [
         { key: "Status", staticData: ["Active", "Inactive"] },
-        { key: "City", fetchFn: getCity },
-        { key: "Location", fetchFn: getLocation },
         { key: "ContactIndustry", fetchFn: getIndustries },
         { key: "ContactFunctionalArea", fetchFn: getFunctionalAreas },
         { key: "ReferenceId", fetchFn: getReferences },
@@ -181,8 +181,13 @@ export default function ContactEdit() {
             setFieldOptions((prev) => ({ ...prev, ContactType: [] }));
         }
 
+        if (contactData.City.id) {
+            fetchLocation(contactData.City.id);
+        } else {
+            setFieldOptions((prev) => ({ ...prev, Location: [] }));
+        }
 
-    }, [contactData.Campaign.id]);
+    }, [contactData.Campaign.id, contactData.City.id]);
 
     const fetchContactType = async (campaignId: string) => {
         try {
@@ -192,6 +197,17 @@ export default function ContactEdit() {
         } catch (error) {
             console.error("Error fetching types:", error);
             setFieldOptions((prev) => ({ ...prev, ContactType: [] }));
+        }
+    };
+
+    const fetchLocation = async (cityId: string) => {
+        try {
+
+            const res = await getLocationByCity(cityId);
+            setFieldOptions((prev) => ({ ...prev, Location: res || [] }));
+        } catch (error) {
+            console.error("Error fetching location:", error);
+            setFieldOptions((prev) => ({ ...prev, Location: [] }));
         }
     };
 
@@ -267,9 +283,42 @@ export default function ContactEdit() {
                                     error={errors.ContactType}
                                 />
                                 <InputField label="Contact Name" name="Name" value={contactData.Name} onChange={handleInputChange} error={errors.Name} />
-                                <SingleSelect options={Array.isArray(fieldOptions?.City) ? fieldOptions.City : []} value={contactData.City} label="City" onChange={(val) => handleSelectChange("City", val)} />
                                 <InputField label="Contact No" name="ContactNo" value={contactData.ContactNo} onChange={handleInputChange} />
-                                <SingleSelect options={Array.isArray(fieldOptions?.Location) ? fieldOptions.Location : []} value={contactData.Location} label="Location" onChange={(val) => handleSelectChange("Location", val)} />
+                                <ObjectSelect
+                                    options={Array.isArray(fieldOptions?.City) ? fieldOptions.City : []}
+                                    label="City"
+                                    value={contactData.City.id}
+                                    getLabel={(item) => item?.Name || ""}
+                                    getId={(item) => item?._id || ""}
+                                    onChange={(selectedId) => {
+                                        const selectedObj = fieldOptions.City.find((i) => i._id === selectedId);
+                                        if (selectedObj) {
+                                            setContactData((prev) => ({
+                                                ...prev,
+                                                City: { id: selectedObj._id, name: selectedObj.Name },
+                                                Location: { id: "", name: "" }, // reset on change
+                                            }));
+                                        }
+                                    }}
+                                    error={errors.City}
+                                />
+                                <ObjectSelect
+                                    options={Array.isArray(fieldOptions?.Location) ? fieldOptions.Location : []}
+                                    label="Location"
+                                    value={contactData.Location.name}
+                                    getLabel={(item) => item?.Name || ""}
+                                    getId={(item) => item?._id || ""}
+                                    onChange={(selectedId) => {
+                                        const selectedObj = fieldOptions.Location.find((i) => i._id === selectedId);
+                                        if (selectedObj) {
+                                            setContactData((prev) => ({
+                                                ...prev,
+                                                Location: { id: selectedObj._id, name: selectedObj.Name },
+                                            }));
+                                        }
+                                    }}
+                                    error={errors.Location}
+                                />
                                 <InputField label="Email" name="Email" value={contactData.Email} onChange={handleInputChange} error={errors.Email} />
                                 <InputField label="Company Name" name="CompanyName" value={contactData.CompanyName} onChange={handleInputChange} />
                                 <InputField label="Website" name="Website" value={contactData.Website} onChange={handleInputChange} />

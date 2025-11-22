@@ -4,8 +4,8 @@ export interface customerAllDataInterface {
   customerName: string;
   CustomerSubtype: { id: string; name: string };
   ContactNumber: string;
-  City: string;
-  Location: string;
+  City: {id:string; name:string};
+  Location:{id:string; name:string};
   Area: string;
   Address: string;
   Email: string;

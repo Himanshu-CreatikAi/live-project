@@ -44,12 +44,16 @@ export default function ExpensesPage() {
         fetchExpenses();
     }, []);
 
+    useEffect(() => {
+        setRowsPerTablePage(Number(limit));
+        setCurrentTablePage(1);
+    }, [limit])
+
     // Filtered expenses
     const filteredExpenses = useMemo(() => {
         return expenses
             .filter((c) => keyword === "" || c.Name.toLowerCase().includes(keyword.toLowerCase()))
-            .slice(0, Number(limit));
-    }, [expenses, keyword, limit]);
+    }, [expenses, keyword]);
 
     // Delete expense
     const handleDelete = async (data: expensesDialogDataInterface | null) => {
@@ -183,7 +187,7 @@ export default function ExpensesPage() {
                                             className="border-t flex justify-between items-center w-full hover:bg-[#f7f6f3] transition-all duration-200"
                                         >
                                             <td className="flex items-center gap-10 px-8 py-3 w-1/2">
-                                                <p className="w-[60px]">{i + 1}</p>
+                                                <p className="w-[60px]">{(currentTablePage - 1) * rowsPerTablePage + (i + 1)}</p>
                                                 <p className="w-[200px] font-semibold">{c.Name}</p>
                                             </td>
                                             <td className="flex items-center gap-10 px-8 py-3 w-1/2 justify-end">

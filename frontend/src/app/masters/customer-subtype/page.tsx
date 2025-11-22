@@ -43,6 +43,11 @@ export default function CustomerSubtypePage() {
     fetchSubtypes();
   }, []);
 
+  useEffect(() => {
+    setRowsPerTablePage(Number(limit));
+    setCurrentTablePage(1);
+  }, [limit])
+
   const filtered = useMemo(() => {
     return subtypes
       .filter(
@@ -52,8 +57,7 @@ export default function CustomerSubtypePage() {
           s.Campaign?.Name.toLowerCase().includes(keyword.toLowerCase()) ||
           s.CustomerType?.Name.toLowerCase().includes(keyword.toLowerCase())
       )
-      .slice(0, Number(limit));
-  }, [subtypes, keyword, limit]);
+  }, [subtypes, keyword]);
 
   const handleDelete = async (data: subtypeDialogDataInterface | null) => {
     if (!data) return;

@@ -41,14 +41,14 @@ export default function FinanceExpense() {
     Expense: [] as string[],
     PaymentMethode: [] as string[],
     Keyword: "" as string,
-    Limit: [] as string[],
+    Limit: ["10"] as string[],
   });
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [deleteDialogData, setDeleteDialogData] = useState<ExpenseMarketingDialogDataInterface | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const rowsPerPage = 10;
+  const [rowsPerTablePage, setRowsPerTablePage] = useState(10);
   const [fieldOptions, setFieldOptions] = useState<Record<string, any[]>>({});
 
   useEffect(() => {
@@ -114,9 +114,9 @@ export default function FinanceExpense() {
   };
 
   // Pagination logic
-  const totalPages = Math.ceil(expenseData.length / rowsPerPage) || 1;
-  const startIndex = (currentPage - 1) * rowsPerPage;
-  const currentRows = expenseData.slice(startIndex, startIndex + rowsPerPage);
+  const totalPages = Math.ceil(expenseData.length / rowsPerTablePage) || 1;
+  const startIndex = (currentPage - 1) * rowsPerTablePage;
+  const currentRows = expenseData.slice(startIndex, startIndex + rowsPerTablePage);
 
   // Dummy dropdown options (replace with dynamic adv API if available)
 
@@ -131,6 +131,11 @@ export default function FinanceExpense() {
       setFieldOptions
     );
   }
+
+  useEffect(() => {
+    setRowsPerTablePage(Number(filters.Limit));
+    setCurrentPage(1);
+  }, [filters.Limit])
   const users = ["Admin", "Staff1", "Staff2"];
   const expenses = ["Purchase", "Salary", "Utility"];
   const paymentMethods = ["Cash", "UPI", "Bank Transfer"];
@@ -157,9 +162,9 @@ export default function FinanceExpense() {
         <div className="p-4 w-full bg-white rounded-md">
           {/* HEADER */}
           <div className="flex justify-between items-center">
-            <PageHeader title="Dashboard" subtitles={["Finance","Expense"]} />
+            <PageHeader title="Dashboard" subtitles={["Finance", "Expense"]} />
 
-            
+
             <AddButton
               url="/financial/expense_marketings/add"
               text="Add"
@@ -198,7 +203,7 @@ export default function FinanceExpense() {
                 onChange={(val) => handleSelectChange("Limit", val)}
               />
 
-              
+
             </div>
             <div className="w-full flex flex-wrap gap-6 items-end mb-6 mt-5">
               <div>

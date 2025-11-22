@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { CiSearch } from "react-icons/ci";
 import { IoIosArrowUp, IoIosArrowDown } from "react-icons/io";
 import { MdEdit, MdDelete, MdAdd, MdFavorite, MdFavoriteBorder } from "react-icons/md";
@@ -30,6 +30,7 @@ import FavouriteDialog from "../component/popups/FavouriteDialog";
 import AddButton from "../component/buttons/AddButton";
 import PageHeader from "../component/labels/PageHeader";
 import ListPopup from "../component/popups/ListPopup";
+import LoaderCircle from "../component/LoaderCircle";
 
 
 interface DeleteAllDialogDataInterface { }
@@ -64,7 +65,7 @@ export default function Customer() {
   const [deleteAllDialogData, setDeleteAllDialogData] =
     useState<DeleteAllDialogDataInterface | null>(null);
 
-  const rowsPerTablePage = 10;
+  const [rowsPerTablePage, setRowsPerTablePage] = useState(10);
   const [filters, setFilters] = useState({
     StatusAssign: [] as string[],
     Campaign: [] as string[],
@@ -74,7 +75,7 @@ export default function Customer() {
     Location: [] as string[],
     User: [] as string[],
     Keyword: "" as string,
-    Limit: [] as string[],
+    Limit: ["10"] as string[],
   });
 
   const [customerData, setCustomerData] = useState<customerGetDataInterface[]>([]);
@@ -169,21 +170,53 @@ export default function Customer() {
   const handleSelectChange = async (field: keyof typeof filters, selected: string | string[]) => {
     const updatedFilters = {
       ...filters,
-      [field]: Array.isArray(selected) ? selected : selected ? [selected] : [],
+      [field]: Array.isArray(selected)
+        ? selected
+        : selected
+          ? [selected]
+          : [],
     };
     setFilters(updatedFilters);
 
+
+
     const queryParams = new URLSearchParams();
     Object.entries(updatedFilters).forEach(([key, value]) => {
+      if (key === "Limit") return; // 
       if (Array.isArray(value) && value.length > 0) {
-        value.forEach(v => queryParams.append(key, v));
+        value.forEach((v) => queryParams.append(key, v));
       } else if (typeof value === "string" && value) {
         queryParams.append(key, value);
       }
     });
 
+
+
     const data = await getFilteredCustomer(queryParams.toString());
-    if (data) setCustomerData(data);
+    if (data) {
+      setCustomerData(data.map((item: any) => {
+        const date = new Date(item.createdAt);
+        const formattedDate =
+          date.getDate().toString().padStart(2, "0") + "-" +
+          (date.getMonth() + 1).toString().padStart(2, "0") + "-" +
+          date.getFullYear();
+        return {
+          _id: item._id,
+          Campaign: item.Campaign,
+          Type: item.CustomerType,
+          SubType: item.CustomerSubType,
+          Name: item.customerName,
+          Email: item.Email,
+          City: item.City,
+          Location: item.Location,
+          ContactNumber: item.ContactNumber,
+          AssignTo: item.AssignTo?.name,
+          isFavourite: item.isFavourite,
+          Date: item.date ?? formattedDate,
+        }
+      }))
+      setCurrentTablePage(1);
+    }
   };
 
   const clearFilter = async () => {
@@ -201,10 +234,24 @@ export default function Customer() {
     await getCustomers();
   };
 
-  const totalTablePages = Math.ceil(customerData.length / rowsPerTablePage);
-  const indexOfLastRow = currentTablePage * rowsPerTablePage;
-  const indexOfFirstRow = indexOfLastRow - rowsPerTablePage;
-  const currentRows = customerData.slice(indexOfFirstRow, indexOfLastRow);
+  const totalTablePages = useMemo(() => {
+    return Math.ceil(customerData.length / rowsPerTablePage) || 1;
+  }, [customerData, rowsPerTablePage]);
+
+  const startIndex = (currentTablePage - 1) * rowsPerTablePage;
+  const currentRows = customerData.slice(startIndex, startIndex + rowsPerTablePage);
+
+
+  useEffect(() => {
+    const safeLimit = Number(filters.Limit?.[0]);
+    setRowsPerTablePage(safeLimit);
+    setCurrentTablePage(1);
+  }, [filters.Limit]);
+
+
+
+
+
 
   const nexttablePage = () => {
     if (currentTablePage !== totalTablePages)
@@ -419,6 +466,8 @@ export default function Customer() {
   };
 
 
+
+
   return (
     <ProtectedRoute>
       <div className=" min-h-[calc(100vh-56px)] overflow-auto max-md:py-10">
@@ -501,6 +550,7 @@ export default function Customer() {
 
 
         {/* ---------- TABLE START ---------- */}
+        <LoaderCircle />
         <div className="p-4 max-md:p-3 w-full rounded-md bg-white">
           <div className="flex justify-between items-center p-2">
             <PageHeader title="Dashboard" subtitles={["Customer"]} />
@@ -512,11 +562,11 @@ export default function Customer() {
             />
 
           </div>
-          
+
           {/* TABLE */}
           <section className="flex flex-col mt-6 p-2 rounded-md">
-            <div className="m-5 relative cursor-pointer" onClick={() => setToggleSearchDropdown(!toggleSearchDropdown)}>
-              <div className="flex justify-between items-center py-1 px-2 border border-gray-800 rounded-md">
+            <div className="m-5 relative ">
+              <div className="flex justify-between cursor-pointer items-center py-1 px-2 border border-gray-800 rounded-md" onClick={() => setToggleSearchDropdown(!toggleSearchDropdown)}>
                 <h3 className="flex items-center gap-1"><CiSearch />Advance Search</h3>
                 <button
                   type="button"
@@ -543,7 +593,7 @@ export default function Customer() {
 
                     <SingleSelect options={Array.isArray(fieldOptions?.User) ? fieldOptions.User : []} value={filters.User[0]} label="User" onChange={(v) => handleSelectChange("User", v)} />
 
-                    <SingleSelect options={Array.isArray(["10", "25", "50", "100"]) ? ["10", "25", "50", "100"] : []} value={filters.Limit[0]} label="Limit" onChange={(v) => handleSelectChange("Limit", v)} />
+                    <SingleSelect options={["10", "25", "50", "100"]} value={filters.Limit[0]} label="Limit" onChange={(v) => handleSelectChange("Limit", v)} />
 
                   </div>
 
@@ -663,7 +713,7 @@ export default function Customer() {
                           />
                         </td>
 
-                        <td className="px-4 py-3 border border-gray-200">{indexOfFirstRow + index + 1}</td>
+                        <td className="px-4 py-3 border border-gray-200">{(currentTablePage - 1) * rowsPerTablePage + (index + 1)}</td>
                         <td className="px-4 py-3 border border-gray-200">{item.Campaign}</td>
                         <td className="px-4 py-3 border border-gray-200">{item.Type}</td>
                         <td className="px-4 py-3 border border-gray-200">{item.SubType}</td>
@@ -738,19 +788,21 @@ export default function Customer() {
               </p>
               <div className="flex gap-3">
                 <button
-                  type="button"
-                  onClick={prevtablePage}
+                  onClick={() =>
+                    setCurrentTablePage((prev) => Math.max(prev - 1, 1))
+                  }
                   disabled={currentTablePage === 1}
                   className="px-3 py-1 bg-gray-200 border border-gray-300 rounded disabled:opacity-50"
                 >
                   Prev
                 </button>
                 <button
-                  type="button"
-                  onClick={nexttablePage}
-                  disabled={
-                    currentTablePage === totalTablePages || currentRows.length <= 0
+                  onClick={() =>
+                    setCurrentTablePage((prev) =>
+                      prev < totalTablePages ? prev + 1 : prev
+                    )
                   }
+                  disabled={currentTablePage === totalTablePages}
                   className="px-3 py-1 bg-gray-200 border border-gray-300 rounded disabled:opacity-50"
                 >
                   Next

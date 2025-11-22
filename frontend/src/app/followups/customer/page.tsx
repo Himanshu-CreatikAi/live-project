@@ -35,6 +35,7 @@ import { getCity } from "@/store/masters/city/city";
 import { getLocation } from "@/store/masters/location/location";
 import { getAllAdmins } from "@/store/auth";
 import PageHeader from "@/app/component/labels/PageHeader";
+import { getTypes } from "@/store/masters/types/types";
 
 export default function CustomerFollowups() {
     const router = useRouter();
@@ -51,7 +52,7 @@ export default function CustomerFollowups() {
     const [followupDialogData, setFollowupDialogData] = useState<customerFollowupAllDataInterface[] | null>([]);
     const [fieldOptions, setFieldOptions] = useState<Record<string, any[]>>({});
 
-    const rowsPerTablePage = 10;
+    const [rowsPerTablePage, setRowsPerTablePage] = useState(10);
 
     const [filters, setFilters] = useState({
         Campaign: [] as string[],
@@ -63,7 +64,7 @@ export default function CustomerFollowups() {
         Keyword: "" as string,
         StartDate: "",
         EndDate: "",
-        Limit: [] as string[],
+        Limit: ["10"] as string[],
     });
 
     // 🔹 Fetch All Followups
@@ -72,9 +73,10 @@ export default function CustomerFollowups() {
         fetchFields();
     }, []);
 
+
     const getFollowups = async () => {
         const data = await getAllCustomerFollowups();
-       // console.log(" data of luffy , ", data)
+        // console.log(" data of luffy , ", data)
         if (data) {
             setFollowupData(data.map((item: any) => {
                 const date = new Date(item.updatedAt);
@@ -87,7 +89,7 @@ export default function CustomerFollowups() {
                     customerid: item.customer._id,
                     Name: item.customer.customerName,
                     ContactNumber: item.customer.ContactNumber,
-                    User: item.customer.AssignTo?.name??"",
+                    User: item.customer.AssignTo?.name ?? "",
                     Date: formattedDate,
                 }
             }));
@@ -95,7 +97,7 @@ export default function CustomerFollowups() {
                 data.map((item: any) => ({
                     _id: [item._id],
                     Campaign: item.Campaign || [],
-                    PropertyType: item.PropertyType || [],
+                    PropertyType: item.CustomerType || [],
                     StatusType: item.StatusType || [],
                     City: item.City || [],
                     Location: item.Location || [],
@@ -135,6 +137,12 @@ export default function CustomerFollowups() {
     const nexttablePage = () => { if (currentTablePage !== totalTablePages) setCurrentTablePage(currentTablePage + 1); };
     const prevtablePage = () => { if (currentTablePage !== 1) setCurrentTablePage(currentTablePage - 1); };
 
+    useEffect(() => {
+        const safeLimit = Number(filters.Limit?.[0]);
+        setRowsPerTablePage(safeLimit);
+        setCurrentTablePage(1);
+    }, [filters.Limit]);
+
     // 🔹 Filters
     const handleSelectChange = async (field: keyof typeof filters, selected: string | string[]) => {
         const updatedFilters = {
@@ -151,7 +159,21 @@ export default function CustomerFollowups() {
 
         const data = await getFilteredFollowups(queryParams.toString());
         console.log("filtered followups ", data)
-        if (data) setFollowupData(data);
+        if (data) setFollowupData(data.map((item: any) => {
+            const date = new Date(item.updatedAt);
+            const formattedDate =
+                date.getDate().toString().padStart(2, "0") + "-" +
+                (date.getMonth() + 1).toString().padStart(2, "0") + "-" +
+                date.getFullYear();
+            return {
+                _id: item._id,
+                customerid: item.customer._id,
+                Name: item.customer.customerName,
+                ContactNumber: item.customer.ContactNumber,
+                User: item.customer.AssignTo?.name ?? "",
+                Date: formattedDate,
+            }
+        }));
     };
 
     const clearFilter = async () => {
@@ -190,7 +212,6 @@ export default function CustomerFollowups() {
     }
 
     const deleteThisFollowup = async (data: FollowupDeleteDialogDataInterface) => {
-
         //alert(id)
         if (!data) return;
         const response = await deleteFollowup(data.id);
@@ -219,7 +240,7 @@ export default function CustomerFollowups() {
             [
                 { key: "StatusTypes", staticData: ["Active", "Inactive"] },
                 { key: "Campaign", fetchFn: getCampaign },
-                { key: "PropertyTypes", staticData: ["Flat", "Villa", "Plot", "Coomercial"] },
+                { key: "PropertyTypes", fetchFn: getTypes },
                 { key: "City", fetchFn: getCity },
                 { key: "Location", fetchFn: getLocation },
                 { key: "Users", fetchFn: getAllAdmins },
@@ -338,9 +359,9 @@ export default function CustomerFollowups() {
                     {/* Advanced Search */}
                     <section className="flex flex-col mt-6 p-2 bg-white rounded-md">
                         <div className="m-5 relative">
-                            <div className="flex justify-between items-center py-1 px-2 border border-gray-800 rounded-md">
+                            <div className="flex justify-between items-center py-1 px-2 border border-gray-800 rounded-md cursor-pointer" onClick={() => setToggleSearchDropdown(!toggleSearchDropdown)}>
                                 <h3 className="flex items-center gap-1"><CiSearch />Advance Search</h3>
-                                <button type="button" onClick={() => setToggleSearchDropdown(!toggleSearchDropdown)} className="p-2 hover:bg-gray-200 rounded-md cursor-pointer">
+                                <button type="button" className="p-2 hover:bg-gray-200 rounded-md cursor-pointer">
                                     {toggleSearchDropdown ? <IoIosArrowUp /> : <IoIosArrowDown />}
                                 </button>
                             </div>

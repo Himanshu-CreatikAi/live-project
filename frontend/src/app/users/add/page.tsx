@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import SingleSelect from "@/app/component/SingleSelect";
@@ -9,6 +9,8 @@ import { useRouter } from "next/navigation";
 import { createAdmin } from "@/store/auth"; // ✅ import your API call
 import { CreateAdminData } from "@/store/auth.interface"; // ✅ types
 import BackButton from "@/app/component/buttons/BackButton";
+import { handleFieldOptions } from "@/app/utils/handleFieldOptions";
+import { getCity } from "@/store/masters/city/city";
 
 interface ErrorInterface {
   [key: string]: string;
@@ -28,7 +30,12 @@ export default function AdminCreatePage() {
 
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<ErrorInterface>({});
+  const [fieldOptions, setFieldOptions] = useState<Record<string, any[]>>({});
   const router = useRouter();
+
+  useEffect(()=>{
+    fetchFields();
+  },[])
 
   // ✅ Handle input change
   const handleInputChange = useCallback(
@@ -79,14 +86,14 @@ export default function AdminCreatePage() {
         userData.Role === "administrator"
           ? "administrator"
           : userData.Role === "city_admin"
-          ? "city_admin"
-          : "user",
-      city:  userData.City, // hide for admin
+            ? "city_admin"
+            : "user",
+      city: userData.City, // hide for admin
       phone: userData.MobileNumber,
       AddressLine1: userData.AddressLine1,
       AddressLine2: userData.AddressLine2,
     };
-   
+
     console.log("📦 Sending adminPayload:", adminPayload);
 
     try {
@@ -120,6 +127,16 @@ export default function AdminCreatePage() {
   const roles = ["administrator", "city_admin", "user"];
   const statusOptions = ["active", "inactive"];
   const cities = ["Jaipur", "Ajmer", "Udaipur"];
+
+  const fetchFields = async () => {
+    await handleFieldOptions(
+      [
+
+        { key: "City", fetchFn: getCity },
+      ],
+      setFieldOptions
+    );
+  }
 
   return (
     <div className=" min-h-screen flex justify-center">
@@ -189,19 +206,15 @@ export default function AdminCreatePage() {
                     value={userData.MobileNumber}
                     onChange={handleInputChange}
                   />
-                  
 
-                
-                
-                    <SingleSelect
-                      options={cities}
-                      label="City"
-                      value={userData.City}
-                      onChange={(selected) =>
-                        handleSelectChange("City", selected)
-                      }
-                    />
-                 
+                  <SingleSelect
+                    options={Array.isArray(fieldOptions?.City) ? fieldOptions.City : []}
+                    label="City"
+                    value={userData.City}
+                    onChange={(selected) =>
+                      handleSelectChange("City", selected)
+                    }
+                  />
 
                   <InputField
                     label="Password"
@@ -239,9 +252,8 @@ export default function AdminCreatePage() {
                 <button
                   onClick={handleSubmit}
                   disabled={loading}
-                  className={`bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-primary-darker)] hover:from-[var(--color-primary-dark)] hover:to-[var(--color-secondary-darker)] cursor-pointer text-white p-2 w-32 rounded-md font-semibold  transition-all ${
-                    loading ? "opacity-70 cursor-not-allowed" : ""
-                  }`}
+                  className={`bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-primary-darker)] hover:from-[var(--color-primary-dark)] hover:to-[var(--color-secondary-darker)] cursor-pointer text-white p-2 w-32 rounded-md font-semibold  transition-all ${loading ? "opacity-70 cursor-not-allowed" : ""
+                    }`}
                 >
                   {loading ? "Saving..." : "Save"}
                 </button>
@@ -272,19 +284,17 @@ const InputField: React.FC<{
       onChange={onChange}
       placeholder=" "
       className={`peer w-full border rounded-sm bg-transparent py-3 px-4 outline-none 
-        ${
-          error
-            ? "border-red-500 focus:border-red-500"
-            : "border-gray-400 focus:border-blue-500"
+        ${error
+          ? "border-red-500 focus:border-red-500"
+          : "border-gray-400 focus:border-blue-500"
         }`}
     />
     <p
       className={`absolute left-2 bg-white px-1 text-gray-500 text-sm transition-all duration-300
-      ${
-        value || error
+      ${value || error
           ? "-top-2 text-xs text-blue-500"
           : "peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-500"
-      }`}
+        }`}
     >
       {label}
     </p>

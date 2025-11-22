@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import SingleSelect from "@/app/component/SingleSelect";
 import toast, { Toaster } from "react-hot-toast";
@@ -11,6 +11,9 @@ import { addLocation } from "@/store/masters/location/location";
 import BackButton from "@/app/component/buttons/BackButton";
 import SaveButton from "@/app/component/buttons/SaveButton";
 import MasterProtectedRoute from "@/app/component/MasterProtectedRoutes";
+import { handleFieldOptionsObject } from "@/app/utils/handleFieldOptionsObject";
+import { getCity } from "@/store/masters/city/city";
+import ObjectSelect from "@/app/component/ObjectSelect";
 
 interface ErrorInterface {
   [key: string]: string;
@@ -18,14 +21,20 @@ interface ErrorInterface {
 
 export default function LocationAdd() {
   const [locationData, setLocationData] = useState<locationAllDataInterface>(() => ({
-  Name: "" as string,
-  Status: "" as string,
-  City: "" as string,
-}));
-;
+    Name: "" as string,
+    Status: "" as string,
+    City: "" as string,
+  }));
+  ;
+
+  const [fieldOptions, setFieldOptions] = useState<Record<string, any[]>>({});
 
   const [errors, setErrors] = useState<ErrorInterface>({});
   const router = useRouter();
+
+  useEffect(() => {
+    fetchFields();
+  }, [])
 
   // Handle text input changes
   const handleInputChange = useCallback(
@@ -72,71 +81,86 @@ export default function LocationAdd() {
     }
   };
 
+  const fetchFields = async () => {
+    await handleFieldOptionsObject(
+      [
+        { key: "Status", staticData: ["Active", "Inactive"] },
+        { key: "City", fetchFn: getCity },
+      ],
+      setFieldOptions
+    );
+  };
+
   const statusOptions = ["Active", "Inactive"];
 
   return (
     <MasterProtectedRoute>
-    <div className=" min-h-screen flex justify-center">
-      <Toaster position="top-right" />
-      <div className="w-full">
-        {/* Back Button */}
-        <div className="flex justify-end mb-4">
-          
-          <BackButton
-            url="/masters/locations"
-            text="Back"
-            icon={<ArrowLeft size={18} />}
-          />
-        </div>
+      <div className=" min-h-screen flex justify-center">
+        <Toaster position="top-right" />
+        <div className="w-full">
+          {/* Back Button */}
+          <div className="flex justify-end mb-4">
 
-        {/* Form Card */}
-        <div className="bg-white/90 backdrop-blur-lg p-10 w-full rounded-3xl shadow-2xl">
-          <form onSubmit={(e) => e.preventDefault()} className="w-full">
-            <div className="mb-8 text-left border-b pb-4 border-gray-200">
-              <h1 className="text-3xl font-extrabold text-[var(--color-secondary-darker)] leading-tight tracking-tight">
-                Add <span className="text-[var(--color-primary)]">Location</span>
-              </h1>
-            </div>
+            <BackButton
+              url="/masters/locations"
+              text="Back"
+              icon={<ArrowLeft size={18} />}
+            />
+          </div>
 
-            <div className="flex flex-col space-y-6">
-              <div className="grid grid-cols-2 gap-6 max-lg:grid-cols-1">
-                {/* Location Name */}
-                <InputField
-                  label="Location Name"
-                  name="Name"
-                  value={locationData.Name}
-                  onChange={handleInputChange}
-                  error={errors.Name}
-                />
-
-                {/* City Name */}
-                <InputField
-                  label="City"
-                  name="City"
-                  value={locationData.City}
-                  onChange={handleInputChange}
-                  error={errors.City}
-                />
-
-                {/* Status Dropdown */}
-                <SingleSelect
-                  options={statusOptions}
-                  label="Status"
-                  value={locationData.Status}
-                  onChange={(v) => handleSelectChange("Status", v)}
-                />
+          {/* Form Card */}
+          <div className="bg-white/90 backdrop-blur-lg p-10 w-full rounded-3xl shadow-2xl">
+            <form onSubmit={(e) => e.preventDefault()} className="w-full">
+              <div className="mb-8 text-left border-b pb-4 border-gray-200">
+                <h1 className="text-3xl font-extrabold text-[var(--color-secondary-darker)] leading-tight tracking-tight">
+                  Add <span className="text-[var(--color-primary)]">Location</span>
+                </h1>
               </div>
 
-              {/* Save Button */}
-              <div className="flex justify-end mt-4">
-                
-                <SaveButton text="Save" onClick={handleSubmit} />
+              <div className="flex flex-col space-y-6">
+                <div className="grid grid-cols-2 gap-6 max-lg:grid-cols-1">
+                  {/* Location Name */}
+                  <InputField
+                    label="Location Name"
+                    name="Name"
+                    value={locationData.Name}
+                    onChange={handleInputChange}
+                    error={errors.Name}
+                  />
+
+                  {/* City Name */}
+                  <ObjectSelect
+                    options={Array.isArray(fieldOptions?.City) ? fieldOptions.City : []}
+                    label="City"
+                    value={locationData.City}
+                    getLabel={(item) => item?.Name || ""}
+                    getId={(item) => item?._id || ""}
+                    onChange={(selected) => {
+                      setLocationData((prev) => ({ ...prev, City: selected }));
+                      setErrors((prev) => ({ ...prev, City: "" }));
+                    }}
+                    error={errors.City}
+                  />
+
+                  {/* Status Dropdown */}
+                  <SingleSelect
+                    options={statusOptions}
+                    label="Status"
+                    value={locationData.Status}
+                    onChange={(v) => handleSelectChange("Status", v)}
+                  />
+                </div>
+
+                {/* Save Button */}
+                <div className="flex justify-end mt-4">
+
+                  <SaveButton text="Save" onClick={handleSubmit} />
+                </div>
               </div>
-            </div>
-          </form>
+            </form>
+          </div>
         </div>
       </div>
-    </div>
     </MasterProtectedRoute>
   );
 }
@@ -157,19 +181,17 @@ const InputField: React.FC<{
       onChange={onChange}
       placeholder=" "
       className={`peer w-full border rounded-sm bg-transparent py-3 px-4 outline-none 
-        ${
-          error
-            ? "border-red-500 focus:border-red-500"
-            : "border-gray-400 focus:border-blue-500"
+        ${error
+          ? "border-red-500 focus:border-red-500"
+          : "border-gray-400 focus:border-blue-500"
         }`}
     />
     <p
       className={`absolute left-2 bg-white px-1 text-gray-500 text-sm transition-all duration-300
-      ${
-        value || error
+      ${value || error
           ? "-top-2 text-xs text-blue-500"
           : "peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-500"
-      }`}
+        }`}
     >
       {label}
     </p>

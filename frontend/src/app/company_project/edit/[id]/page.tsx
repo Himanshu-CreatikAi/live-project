@@ -11,6 +11,11 @@ import { getCompanyProjectsById, updateCompanyProjects } from "@/store/companypr
 import { handleFieldOptions } from "@/app/utils/handleFieldOptions";
 import BackButton from "@/app/component/buttons/BackButton";
 import SaveButton from "@/app/component/buttons/SaveButton";
+import { getCity } from "@/store/masters/city/city";
+import { getAmenities } from "@/store/masters/amenities/amenities";
+import { handleFieldOptionsObject } from "@/app/utils/handleFieldOptionsObject";
+import { getLocationByCity } from "@/store/masters/location/location";
+import ObjectSelect from "@/app/component/ObjectSelect";
 
 
 interface ErrorInterface {
@@ -25,8 +30,8 @@ export default function CompanyProjectEdit() {
     ProjectName: "",
     ProjectType: "",
     ProjectStatus: "",
-    City: "",
-    Location: "",
+    City: {id:"",name:""},
+    Location: {id:"",name:""},
     Area: "",
     Range: "",
     Adderess: "",
@@ -52,7 +57,11 @@ export default function CompanyProjectEdit() {
       try {
         const result = await getCompanyProjectsById(id as string);
         if (result) {
-          setProjectData(result);
+          setProjectData({
+            ...result,
+            City:{id:result.City?._id,name:result.City?.Name},
+            Location:{id:result.Location?._id,name:result.Location?.Name}
+          });
           if (result.CustomerImage) setImagePreviews(result.CustomerImage);
           if (result.SitePlan) setSitePlanPreview(result.SitePlan[0]);
         } else {
@@ -66,7 +75,6 @@ export default function CompanyProjectEdit() {
 
     if (id) {
       fetchData();
-      fetchFields();
     }
   }, [id]);
 
@@ -157,6 +165,9 @@ export default function CompanyProjectEdit() {
         }
       });
 
+      formData.append("City",projectData.City?.name);
+      formData.append("Location",projectData.Location?.name);
+
       /* if (deletedImages.length > 0) {
         formData.append("deletedImages", JSON.stringify(deletedImages));
       } */
@@ -176,15 +187,46 @@ export default function CompanyProjectEdit() {
     }
   };
 
-  const fetchFields = async () => {
-    await handleFieldOptions(
-      [
-        { key: "ProjectType", staticData: ["Residential", "Commercial", "Industrial"] },
-        { key: "ProjectStatus", staticData: ["Active", "Inactive"] },
-      ],
-      setFieldOptions
-    );
-  }
+  const objectFields = [
+    { key: "City", fetchFn: getCity }
+  ];
+
+  // Simple array fields (for normal Select)
+  const arrayFields = [
+    { key: "ProjectType", staticData: ["Villa", "Apartment", "Township"] },
+    { key: "ProjectStatus", staticData: ["Ready to Move", "Under Construction"] },
+    { key: "Amenities", fetchFn: getAmenities }
+  ];
+
+  useEffect(() => {
+    const loadFieldOptions = async () => {
+      await handleFieldOptionsObject(objectFields, setFieldOptions);
+      await handleFieldOptions(arrayFields, setFieldOptions);
+    };
+    loadFieldOptions();
+  }, []);
+
+  useEffect(() => {
+
+    if (projectData.City.id) {
+      fetchLocation(projectData.City.id);
+    } else {
+      setFieldOptions((prev) => ({ ...prev, Location: [] }));
+    }
+    console.log("nicename", fieldOptions.Amenities)
+
+  }, [projectData.City.id]);
+
+  const fetchLocation = async (cityId: string) => {
+    try {
+
+      const res = await getLocationByCity(cityId);
+      setFieldOptions((prev) => ({ ...prev, Location: res || [] }));
+    } catch (error) {
+      console.error("Error fetching location:", error);
+      setFieldOptions((prev) => ({ ...prev, Location: [] }));
+    }
+  };
 
   const dropdownOptions = ["Residential", "Commercial", "Industrial"];
 
@@ -214,15 +256,49 @@ export default function CompanyProjectEdit() {
               <SingleSelect options={Array.isArray(fieldOptions?.ProjectType) ? fieldOptions.ProjectType : []} label="Project Type" value={projectData.ProjectType} onChange={v => handleSelectChange("ProjectType", v)} error={errors.ProjectType} />
               <SingleSelect options={Array.isArray(fieldOptions?.ProjectStatus) ? fieldOptions.ProjectStatus : []} label="Project Status" value={projectData.ProjectStatus} onChange={v => handleSelectChange("ProjectStatus", v)} error={errors.ProjectStatus} />
 
-              <InputField label="City" name="City" value={projectData.City} onChange={handleInputChange} />
-              <InputField label="Location" name="Location" value={projectData.Location} onChange={handleInputChange} />
+              <ObjectSelect
+                options={Array.isArray(fieldOptions?.City) ? fieldOptions.City : []}
+                label="City"
+                value={projectData.City.id}
+                getLabel={(item) => item?.Name || ""}
+                getId={(item) => item?._id || ""}
+                onChange={(selectedId) => {
+                  const selectedObj = fieldOptions.City.find((i) => i._id === selectedId);
+                  if (selectedObj) {
+                    setProjectData((prev) => ({
+                      ...prev,
+                      City: { id: selectedObj._id, name: selectedObj.Name },
+                      Location: { id: "", name: "" }, // reset on change
+                    }));
+                  }
+                }}
+                error={errors.City}
+              />
+              <ObjectSelect
+                options={Array.isArray(fieldOptions?.Location) ? fieldOptions.Location : []}
+                label="Location"
+                value={projectData.Location.id}
+                getLabel={(item) => item?.Name || ""}
+                getId={(item) => item?._id || ""}
+                onChange={(selectedId) => {
+                  const selectedObj = fieldOptions.Location.find((i) => i._id === selectedId);
+                  if (selectedObj) {
+                    setProjectData((prev) => ({
+                      ...prev,
+                      Location: { id: selectedObj._id, name: selectedObj.Name },
+                    }));
+                  }
+                }}
+                error={errors.Location}
+              />
               <InputField label="Area" name="Area" value={projectData.Area} onChange={handleInputChange} />
 
               <InputField label="Range" name="Range" value={projectData.Range} onChange={handleInputChange} />
               <InputField label="Address" name="Adderess" value={projectData.Adderess} onChange={handleInputChange} />
               <InputField label="Facilities" name="Facillities" value={projectData.Facillities} onChange={handleInputChange} />
 
-              <InputField label="Amenities" name="Amenities" value={projectData.Amenities} onChange={handleInputChange} />
+              <SingleSelect options={Array.isArray(fieldOptions?.Amenities) ? fieldOptions.Amenities : []} label="Amenities" value={projectData.Amenities} onChange={v => handleSelectChange("Amenities", v)} error={errors.Amenities} />
+              
               <TextareaField label="Description" name="Description" value={projectData.Description} onChange={handleInputChange} />
               <InputField label="Video URL" name="Video" value={projectData.Video} onChange={handleInputChange} />
               <InputField label="Google Map URL" name="GoogleMap" value={projectData.GoogleMap} onChange={handleInputChange} />

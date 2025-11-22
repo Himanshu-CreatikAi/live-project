@@ -15,6 +15,7 @@ import {
 import { deleteStatusType, getStatusType } from "@/store/masters/statustype/statustype"; // You'll implement these
 import PageHeader from "@/app/component/labels/PageHeader";
 import MasterProtectedRoute from "@/app/component/MasterProtectedRoutes";
+import AddButton from "@/app/component/buttons/AddButton";
 
 export default function StatusTypePage() {
   const [statusTypes, setStatusTypes] = useState<statustypeGetDataInterface[]>([]);
@@ -47,11 +48,15 @@ export default function StatusTypePage() {
     fetchStatusTypes();
   }, []);
 
+  useEffect(() => {
+    setRowsPerTablePage(Number(limit));
+    setCurrentTablePage(1);
+  }, [limit])
+
   // Filtered Data
   const filteredStatusTypes = useMemo(() => {
     return statusTypes
       .filter(s => keyword === "" || s.Name.toLowerCase().includes(keyword.toLowerCase()))
-      .slice(0, Number(limit));
   }, [statusTypes, keyword, limit]);
 
   // Delete Status Type
@@ -114,11 +119,12 @@ export default function StatusTypePage() {
         <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200 relative">
           <PageHeader title="Dashboard" subtitles={["Status Type"]} />
           {/* Add Button */}
-          <Link href="/masters/status-type/add">
-            <button className="flex items-center gap-2 bg-gradient-to-r from-gray-900 to-[#4e6787] text-white px-4 py-2 rounded-md absolute right-4 top-4 hover:cursor-pointer font-semibold">
-              <PlusSquare size={18} /> Add
-            </button>
-          </Link>
+
+          <AddButton
+            url="/masters/status-type/add"
+            text="Add"
+            icon={<PlusSquare size={18} />}
+          />
 
           {/* Filter Form */}
           <form className="w-full flex flex-wrap gap-6 items-end mb-6 mt-16">
@@ -176,7 +182,7 @@ export default function StatusTypePage() {
                   currentRows.map((s, i) => (
                     <tr key={s._id || i} className="border-t flex justify-between items-center w-full hover:bg-[#f7f6f3] transition-all duration-200">
                       <td className="flex items-center gap-10 px-8 py-3 w-1/2">
-                        <p className="w-[60px]">{i + 1}</p>
+                        <p className="w-[60px]">{(currentTablePage - 1) * rowsPerTablePage + (i + 1)}</p>
                         <p className="w-[200px] font-semibold">{s.Name}</p>
                       </td>
                       <td className="flex items-center gap-10 px-8 py-3 w-1/2 justify-end">

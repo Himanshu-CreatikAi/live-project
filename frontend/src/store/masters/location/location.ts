@@ -41,6 +41,25 @@ export const getLocationById = async (id: string) => {
     }
 };
 
+export const getLocationByCity = async (id: string) => {
+    try {
+        const response = await fetch(API_ROUTES.MASTERS.LOCATION.GET_ALL_BY_CITY(id), {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            credentials: "include"
+        });
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.json();
+        return data.data;
+    }
+    catch (error) {
+        console.log("SERVER ERROR: ", error)
+        return null;
+    }
+}
+
 export const getFilteredLocation = async (params: string) => {
     try {
         const response = await fetch(API_ROUTES.MASTERS.LOCATION.GET_BY_PARAMS(params), {

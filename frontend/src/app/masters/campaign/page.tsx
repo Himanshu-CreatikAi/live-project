@@ -55,7 +55,7 @@ export default function CampaignPage() {
             .filter((c) => keyword === "" || c.Name.toLowerCase().includes(keyword.toLowerCase()))
     }, [campaigns, keyword]);
 
-    
+
     useEffect(()=>{
         setRowsPerTablePage(Number(limit));
         setCurrentTablePage(1); 
@@ -101,9 +101,6 @@ export default function CampaignPage() {
             <Toaster position="top-right" />
             <div className="min-h-[calc(100vh-56px)] overflow-auto max-md:py-10">
                 {/* Header */}
-                
-                
-
 
                 {/* DELETE POPUP */}
 

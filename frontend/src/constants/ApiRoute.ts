@@ -110,6 +110,7 @@ export const API_ROUTES = {
     LOCATION: {
       GET_ALL: `${BASE_URL}/mas/loc`,
       GET_BY_ID: (id: string) => `${BASE_URL}/mas/loc/${id}`,
+      GET_ALL_BY_CITY: (id: string) => `${BASE_URL}/mas/loc/city/${id}`,
       GET_BY_PARAMS: (params: string) => `${BASE_URL}/mas/loc?${params}`,
       ADD: `${BASE_URL}/mas/loc`,
       UPDATE: (id: string) => `${BASE_URL}/mas/loc/${id}`,

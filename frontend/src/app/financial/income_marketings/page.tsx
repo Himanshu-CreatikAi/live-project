@@ -35,14 +35,14 @@ export default function FinanceIncome() {
     Income: [] as string[],
     PaymentMethode: [] as string[],
     Keyword: "" as string,
-    Limit: [] as string[],
+    Limit: ["10"] as string[],
   });
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [deleteDialogData, setDeleteDialogData] = useState<IncomeMarketingDialogDataInterface | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const rowsPerPage = 10;
+  const [rowsPerTablePage, setRowsPerTablePage] = useState(10);
   const [fieldOptions, setFieldOptions] = useState<Record<string, any[]>>({});
 
   useEffect(() => {
@@ -105,9 +105,9 @@ export default function FinanceIncome() {
   };
 
   // Pagination logic
-  const totalPages = Math.ceil(incomeData.length / rowsPerPage);
-  const startIndex = (currentPage - 1) * rowsPerPage;
-  const currentRows = incomeData.slice(startIndex, startIndex + rowsPerPage);
+  const totalPages = Math.ceil(incomeData.length / rowsPerTablePage);
+  const startIndex = (currentPage - 1) * rowsPerTablePage;
+  const currentRows = incomeData.slice(startIndex, startIndex + rowsPerTablePage);
 
 
   const fetchFields = async () => {
@@ -121,6 +121,11 @@ export default function FinanceIncome() {
       setFieldOptions
     );
   }
+
+    useEffect(() => {
+      setRowsPerTablePage(Number(filters.Limit));
+      setCurrentPage(1);
+    }, [filters.Limit])
 
   // Dummy dropdown options
   const users = ["Admin", "Staff1", "Staff2"];

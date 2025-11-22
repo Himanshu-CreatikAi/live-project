@@ -40,13 +40,16 @@ export default function FunctionalAreaPage() {
   useEffect(() => {
     fetchFunctionalAreas();
   }, []);
+  useEffect(() => {
+    setRowsPerTablePage(Number(limit));
+    setCurrentTablePage(1);
+  }, [limit])
 
   // Filtered functional areas
   const filteredFunctionalAreas = useMemo(() => {
     return functionalAreas
       .filter((fa) => keyword === "" || fa.Name.toLowerCase().includes(keyword.toLowerCase()))
-      .slice(0, Number(limit));
-  }, [functionalAreas, keyword, limit]);
+  }, [functionalAreas, keyword]);
 
   // Delete functional area
   const handleDelete = async (data: functionalareaDialogDataInterface | null) => {
@@ -183,15 +186,15 @@ export default function FunctionalAreaPage() {
                       className="border-t flex justify-between items-center w-full hover:bg-[#f7f6f3] transition-all duration-200"
                     >
                       <td className="flex items-center gap-10 px-8 py-3 w-1/2">
-                        <p className="w-[60px]">{i + 1}</p>
+                        <p className="w-[60px]">{(currentTablePage - 1) * rowsPerTablePage + (i + 1)}</p>
                         <p className="w-[200px] font-semibold">{fa.Name}</p>
                       </td>
                       <td className="flex items-center gap-10 px-8 py-3 w-1/2 justify-end">
                         <div className="w-[120px]">
                           <span
                             className={`px-3 py-1 rounded-[2px] text-xs font-semibold ${fa.Status === "Active"
-                                ? "bg-[#C8E6C9] text-green-700"
-                                : "bg-red-100 text-red-700"
+                              ? "bg-[#C8E6C9] text-green-700"
+                              : "bg-red-100 text-red-700"
                               }`}
                           >
                             {fa.Status}

@@ -12,7 +12,7 @@ import { customerAllDataInterface } from "@/store/customer.interface";
 import { handleFieldOptions } from "@/app/utils/handleFieldOptions";
 import { getCampaign } from "@/store/masters/campaign/campaign";
 import { getTypes, getTypesByCampaign } from "@/store/masters/types/types";
-import { getLocation } from "@/store/masters/location/location";
+import { getLocation, getLocationByCity } from "@/store/masters/location/location";
 import { getCity } from "@/store/masters/city/city";
 import { getFacilities } from "@/store/masters/facilities/facilities";
 import { getSubtype, getSubtypeByCampaignAndType } from "@/store/masters/subtype/subtype";
@@ -36,8 +36,8 @@ export default function CustomerEdit() {
     customerName: "",
     CustomerSubtype: { id: "", name: "" },
     ContactNumber: "",
-    City: "",
-    Location: "",
+    City: { id: "", name: "" },
+    Location: { id: "", name: "" },
     Area: "",
     Address: "",
     Email: "",
@@ -95,6 +95,14 @@ export default function CustomerEdit() {
           CustomerSubtype: {
             id: data?.CustomerSubType?._id || "",  // map the backend typo
             name: data?.CustomerSubType?.Name || ""
+          },
+          City:{
+            id:data?.City?._id||"",
+            name:data.City?.Name||""
+          },
+          Location:{
+            id:data.Location?._id||"",
+            name:data.Location?.Name||""
           },
           CustomerImage: [],
           SitePlan: {} as File,
@@ -228,8 +236,8 @@ export default function CustomerEdit() {
       if (customerData.customerName) formData.append("customerName", customerData.customerName);
       if (customerData.CustomerSubtype) formData.append("CustomerSubType", customerData.CustomerSubtype?.name);
       if (customerData.ContactNumber) formData.append("ContactNumber", customerData.ContactNumber);
-      if (customerData.City) formData.append("City", customerData.City);
-      if (customerData.Location) formData.append("Location", customerData.Location);
+      if (customerData.City) formData.append("City", customerData.City?.name);
+      if (customerData.Location) formData.append("Location", customerData.Location?.name);
       if (customerData.Area) formData.append("Area", customerData.Area);
       if (customerData.Address) formData.append("Adderess", customerData.Address);
       if (customerData.Email) formData.append("Email", customerData.Email);
@@ -289,7 +297,9 @@ export default function CustomerEdit() {
   const objectFields = [
     { key: "Campaign", fetchFn: getCampaign },
     { key: "CustomerType", staticData: [] },
-    { key: "CustomerSubtype", staticData: [] } // dependent
+    { key: "CustomerSubtype", staticData: [] },
+    { key: "City", fetchFn: getCity },
+    { key: "Location", staticData: [] }  // dependent
 
   ];
 
@@ -297,9 +307,7 @@ export default function CustomerEdit() {
   const arrayFields = [
     { key: "Verified", staticData: ["yes", "no"] },
     { key: "Gender", staticData: ["male", "female", "other"] },
-    { key: "City", fetchFn: getCity },
     { key: "Facilities", fetchFn: getFacilities },
-    { key: "Location", fetchFn: getLocation },
   ];
 
 
@@ -324,7 +332,13 @@ export default function CustomerEdit() {
     } else {
       setFieldOptions((prev) => ({ ...prev, CustomerSubtype: [] }));
     }
-  }, [customerData.Campaign.id, customerData.CustomerType.id]);
+
+    if (customerData.City.id) {
+      fetchLocation(customerData.City.id);
+    } else {
+      setFieldOptions((prev) => ({ ...prev, Location: [] }));
+    }
+  }, [customerData.Campaign.id, customerData.CustomerType.id, customerData.City.id]);
 
   const fetchCustomerType = async (campaignId: string) => {
     try {
@@ -333,6 +347,17 @@ export default function CustomerEdit() {
     } catch (error) {
       console.error("Error fetching types:", error);
       setFieldOptions((prev) => ({ ...prev, CustomerType: [] }));
+    }
+  };
+
+  const fetchLocation = async (cityId: string) => {
+    try {
+
+      const res = await getLocationByCity(cityId);
+      setFieldOptions((prev) => ({ ...prev, Location: res || [] }));
+    } catch (error) {
+      console.error("Error fetching location:", error);
+      setFieldOptions((prev) => ({ ...prev, Location: [] }));
     }
   };
 
@@ -429,8 +454,41 @@ export default function CustomerEdit() {
 
               <InputField label="Customer Name" name="customerName" value={customerData.customerName} onChange={handleInputChange} error={errors.CustomerName} />
               <InputField label="Contact No" name="ContactNumber" value={customerData.ContactNumber} onChange={handleInputChange} error={errors.ContactNumber} />
-              <SingleSelect className=" max-md:hidden" options={Array.isArray(fieldOptions?.City) ? fieldOptions.City : []} label="City" value={customerData.City} onChange={(v) => handleSelectChange("City", v)} />
-              <SingleSelect options={Array.isArray(fieldOptions?.Location) ? fieldOptions.Location : []} label="Location" value={customerData.Location} onChange={(v) => handleSelectChange("Location", v)} />
+              <ObjectSelect
+                options={Array.isArray(fieldOptions?.City) ? fieldOptions.City : []}
+                label="City"
+                value={customerData.City.id}
+                getLabel={(item) => item?.Name || ""}
+                getId={(item) => item?._id || ""}
+                onChange={(selectedId) => {
+                  const selectedObj = fieldOptions.City.find((i) => i._id === selectedId);
+                  if (selectedObj) {
+                    setCustomerData((prev) => ({
+                      ...prev,
+                      City: { id: selectedObj._id, name: selectedObj.Name },
+                      Location: { id: "", name: "" }, // reset on change
+                    }));
+                  }
+                }}
+                error={errors.City}
+              />
+              <ObjectSelect
+                options={Array.isArray(fieldOptions?.Location) ? fieldOptions.Location : []}
+                label="Location"
+                value={customerData.Location.id}
+                getLabel={(item) => item?.Name || ""}
+                getId={(item) => item?._id || ""}
+                onChange={(selectedId) => {
+                  const selectedObj = fieldOptions.Location.find((i) => i._id === selectedId);
+                  if (selectedObj) {
+                    setCustomerData((prev) => ({
+                      ...prev,
+                      Location: { id: selectedObj._id, name: selectedObj.Name },
+                    }));
+                  }
+                }}
+                error={errors.Location}
+              />
               <InputField label="Area" name="Area" value={customerData.Area} onChange={handleInputChange} />
               <InputField label="Address" name="Address" value={customerData.Address} onChange={handleInputChange} />
               <InputField label="Email" name="Email" value={customerData.Email} onChange={handleInputChange} error={errors.Email} />

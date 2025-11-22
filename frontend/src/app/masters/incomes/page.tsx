@@ -44,12 +44,16 @@ export default function IncomesPage() {
         fetchIncomes();
     }, []);
 
+    useEffect(() => {
+        setRowsPerTablePage(Number(limit));
+        setCurrentTablePage(1);
+    }, [limit])
+
     // Filtered incomes
     const filteredIncomes = useMemo(() => {
         return incomes
             .filter(i => keyword === "" || i.Name.toLowerCase().includes(keyword.toLowerCase()))
-            .slice(0, Number(limit));
-    }, [incomes, keyword, limit]);
+    }, [incomes, keyword,limit]);
 
     // Delete income
     const handleDelete = async (data: incomeDialogDataInterface | null) => {
@@ -190,7 +194,7 @@ export default function IncomesPage() {
                                         >
                                             {/* Left section (S.No + Name) */}
                                             <td className="flex items-center gap-10 px-8 py-3 w-1/2">
-                                                <p className="w-[60px]">{index + 1}</p>
+                                                <p className="w-[60px]">{(currentTablePage - 1) * rowsPerTablePage + (index + 1)}</p>
                                                 <p className="w-[200px] font-semibold">{i.Name}</p>
                                             </td>
 

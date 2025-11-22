@@ -11,6 +11,11 @@ import { addCompanyProjects } from "@/store/companyproject/companyproject";
 import { handleFieldOptions } from "@/app/utils/handleFieldOptions";
 import BackButton from "@/app/component/buttons/BackButton";
 import SaveButton from "@/app/component/buttons/SaveButton";
+import { handleFieldOptionsObject } from "@/app/utils/handleFieldOptionsObject";
+import { getCity } from "@/store/masters/city/city";
+import { getLocationByCity } from "@/store/masters/location/location";
+import ObjectSelect from "@/app/component/ObjectSelect";
+import { getAmenities } from "@/store/masters/amenities/amenities";
 
 
 interface ErrorInterface {
@@ -22,8 +27,8 @@ export default function CompanyProjectAdd() {
     ProjectName: "",
     ProjectType: "",
     ProjectStatus: "",
-    City: "",
-    Location: "",
+    City: { id: "", name: "" },
+    Location: { id: "", name: "" },
     Area: "",
     Range: "",
     Adderess: "",
@@ -42,9 +47,7 @@ export default function CompanyProjectAdd() {
   const [fieldOptions, setFieldOptions] = useState<Record<string, any[]>>({});
   const router = useRouter();
 
-  useEffect(() => {
-    fetchFields();
-  }, [])
+
 
   // Input change
   const handleInputChange = useCallback(
@@ -120,6 +123,9 @@ export default function CompanyProjectAdd() {
         }
       });
 
+      formData.append("City",projectData.City?.name);
+      formData.append("Location",projectData.Location?.name);
+
       const result = await addCompanyProjects(formData);
       if (result) {
         toast.success("Company project added successfully!");
@@ -133,15 +139,46 @@ export default function CompanyProjectAdd() {
     }
   };
 
-  const fetchFields = async () => {
-    await handleFieldOptions(
-      [
-        { key: "ProjectType", staticData: ["Residential", "Commercial", "Industrial"] },
-        { key: "ProjectStatus", staticData: ["Active", "Inactive"] },
-      ],
-      setFieldOptions
-    );
-  }
+  const objectFields = [
+    { key: "City", fetchFn: getCity }
+  ];
+
+  // Simple array fields (for normal Select)
+  const arrayFields = [
+    { key: "ProjectType", staticData: ["Villa", "Apartment", "Township"] },
+    { key: "ProjectStatus", staticData: ["Ready to Move", "Under Construction"] },
+    { key: "Amenities", fetchFn: getAmenities}
+  ];
+
+  useEffect(() => {
+    const loadFieldOptions = async () => {
+      await handleFieldOptionsObject(objectFields, setFieldOptions);
+      await handleFieldOptions(arrayFields, setFieldOptions);
+    };
+    loadFieldOptions();
+  }, []);
+
+  useEffect(() => {
+
+    if (projectData.City.id) {
+      fetchLocation(projectData.City.id);
+    } else {
+      setFieldOptions((prev) => ({ ...prev, Location: [] }));
+    }
+    console.log("nicename",fieldOptions.Amenities)
+
+  }, [projectData.City.id]);
+
+  const fetchLocation = async (cityId: string) => {
+    try {
+
+      const res = await getLocationByCity(cityId);
+      setFieldOptions((prev) => ({ ...prev, Location: res || [] }));
+    } catch (error) {
+      console.error("Error fetching location:", error);
+      setFieldOptions((prev) => ({ ...prev, Location: [] }));
+    }
+  };
 
   const dropdownOptions = ["Residential", "Commercial", "Industrial"];
 
@@ -150,7 +187,7 @@ export default function CompanyProjectAdd() {
       <Toaster position="top-right" />
       <div className="w-full">
         <div className="flex justify-end mb-4">
-          
+
           <BackButton
             url="/company_project"
             text="Back"
@@ -171,15 +208,49 @@ export default function CompanyProjectAdd() {
               <SingleSelect options={Array.isArray(fieldOptions?.ProjectType) ? fieldOptions.ProjectType : []} label="Project Type" value={projectData.ProjectType} onChange={v => handleSelectChange("ProjectType", v)} error={errors.ProjectType} />
               <SingleSelect options={Array.isArray(fieldOptions?.ProjectStatus) ? fieldOptions.ProjectStatus : []} label="Project Status" value={projectData.ProjectStatus} onChange={v => handleSelectChange("ProjectStatus", v)} error={errors.ProjectStatus} />
 
-              <InputField label="City" name="City" value={projectData.City} onChange={handleInputChange} />
-              <InputField label="Location" name="Location" value={projectData.Location} onChange={handleInputChange} />
+              <ObjectSelect
+                options={Array.isArray(fieldOptions?.City) ? fieldOptions.City : []}
+                label="City"
+                value={projectData.City.id}
+                getLabel={(item) => item?.Name || ""}
+                getId={(item) => item?._id || ""}
+                onChange={(selectedId) => {
+                  const selectedObj = fieldOptions.City.find((i) => i._id === selectedId);
+                  if (selectedObj) {
+                    setProjectData((prev) => ({
+                      ...prev,
+                      City: { id: selectedObj._id, name: selectedObj.Name },
+                      Location: { id: "", name: "" }, // reset on change
+                    }));
+                  }
+                }}
+                error={errors.City}
+              />
+              <ObjectSelect
+                options={Array.isArray(fieldOptions?.Location) ? fieldOptions.Location : []}
+                label="Location"
+                value={projectData.Location.id}
+                getLabel={(item) => item?.Name || ""}
+                getId={(item) => item?._id || ""}
+                onChange={(selectedId) => {
+                  const selectedObj = fieldOptions.Location.find((i) => i._id === selectedId);
+                  if (selectedObj) {
+                    setProjectData((prev) => ({
+                      ...prev,
+                      Location: { id: selectedObj._id, name: selectedObj.Name },
+                    }));
+                  }
+                }}
+                error={errors.Location}
+              />
               <InputField label="Area" name="Area" value={projectData.Area} onChange={handleInputChange} />
 
               <InputField label="Range" name="Range" value={projectData.Range} onChange={handleInputChange} />
               <InputField label="Address" name="Adderess" value={projectData.Adderess} onChange={handleInputChange} />
               <InputField label="Facilities" name="Facillities" value={projectData.Facillities} onChange={handleInputChange} />
+              <SingleSelect options={Array.isArray(fieldOptions?.Amenities) ? fieldOptions.Amenities : []} label="Amenities" value={projectData.Amenities} onChange={v => handleSelectChange("Amenities", v)} error={errors.Amenities} />
 
-              <InputField label="Amenities" name="Amenities" value={projectData.Amenities} onChange={handleInputChange} />
+             
               <TextareaField label="Description" name="Description" value={projectData.Description} onChange={handleInputChange} />
               <InputField label="Video URL" name="Video" value={projectData.Video} onChange={handleInputChange} />
               <InputField label="Google Map URL" name="GoogleMap" value={projectData.GoogleMap} onChange={handleInputChange} />
@@ -189,7 +260,7 @@ export default function CompanyProjectAdd() {
             </div>
 
             <div className="flex justify-end mt-4">
-              
+
               <SaveButton text="Save" onClick={handleSubmit} />
 
             </div>

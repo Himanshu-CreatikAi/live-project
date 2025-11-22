@@ -45,7 +45,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                   <SidebarInset className="flex flex-col flex-1 min-h-screen overflow-hidden">
                     {/* Navbar */}
                     <header className="flex items-center gap-2 shrink-0 bg-white text-gray-800 px-4 shadow-sm z-10">
-                      <div className="flex items-center gap-2 max-md:hidden">
+                      <div className="flex items-center gap-2 ">
                         <SidebarTrigger className="-ml-1 cursor-pointer" />
                         <Separator
                           orientation="vertical"
@@ -61,7 +61,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                     {/* Page Content */}
                     <main className="flex-1 overflow-y-auto bg-violet-100">
                       {/* Mobile Sidebar Trigger */}
-                      <div className="flex items-center gap-2 max-w-[100px] md:hidden mt-4 ml-2">
+                      <div className="flex items-center gap-2 max-w-[100px] max-md:hidden md:hidden mt-4 ml-2">
                         <SidebarTrigger className="-ml-1" />
                         <Separator
                           orientation="vertical"

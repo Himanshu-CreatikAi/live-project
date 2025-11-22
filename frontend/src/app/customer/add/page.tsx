@@ -12,7 +12,7 @@ import { customerAllDataInterface } from "@/store/customer.interface";
 import { getCampaign } from "@/store/masters/campaign/campaign";
 import { getTypes, getTypesByCampaign } from "@/store/masters/types/types";
 import { getCity } from "@/store/masters/city/city";
-import { getLocation } from "@/store/masters/location/location";
+import { getLocation, getLocationByCity } from "@/store/masters/location/location";
 import { handleFieldOptions } from "@/app/utils/handleFieldOptions";
 import { getSubtype, getSubtypeByCampaignAndType } from "@/store/masters/subtype/subtype";
 import { getFacilities } from "@/store/masters/facilities/facilities";
@@ -31,10 +31,10 @@ export default function CustomerAdd() {
     Campaign: { id: "", name: "" },
     CustomerType: { id: "", name: "" },
     customerName: "",
-    CustomerSubtype: {id:"",name:""},
+    CustomerSubtype: { id: "", name: "" },
     ContactNumber: "",
-    City: "",
-    Location: "",
+    City: { id: "", name: "" },
+    Location: { id: "", name: "" },
     Area: "",
     Address: "",
     Email: "",
@@ -52,7 +52,6 @@ export default function CustomerAdd() {
     SitePlan: {} as File
   });
   const [fieldOptions, setFieldOptions] = useState<Record<string, any[]>>({});
-
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [sitePlanPreview, setSitePlanPreview] = useState<string>("");
   const [errors, setErrors] = useState<ErrorInterface>({});
@@ -121,7 +120,7 @@ export default function CustomerAdd() {
       newErrors.Email = "Invalid email format";
     if (!customerData.ContactNumber.trim())
       newErrors.ContactNumber = "Contact No is required";
-    if (customerData.ContactNumber && customerData.ContactNumber.trim().length<10)
+    if (customerData.ContactNumber && customerData.ContactNumber.trim().length < 10)
       newErrors.ContactNumber = "Contact No should atlest be 10 digit";
     return newErrors;
   };
@@ -144,8 +143,8 @@ export default function CustomerAdd() {
       if (customerData.customerName) formData.append("customerName", customerData.customerName);
       if (customerData.CustomerSubtype) formData.append("CustomerSubType", customerData.CustomerSubtype?.name);
       if (customerData.ContactNumber) formData.append("ContactNumber", customerData.ContactNumber);
-      if (customerData.City) formData.append("City", customerData.City);
-      if (customerData.Location) formData.append("Location", customerData.Location);
+      if (customerData.City) formData.append("City", customerData.City.name);
+      if (customerData.Location) formData.append("Location", customerData.Location?.name);
       if (customerData.Area) formData.append("Area", customerData.Area);
       if (customerData.Address) formData.append("Adderess", customerData.Address);
       if (customerData.Email) formData.append("Email", customerData.Email);
@@ -189,7 +188,9 @@ export default function CustomerAdd() {
   const objectFields = [
     { key: "Campaign", fetchFn: getCampaign },
     { key: "CustomerType", staticData: [] },
-    { key: "CustomerSubtype", staticData: [] } // dependent
+    { key: "CustomerSubtype", staticData: [] },
+    { key: "City", fetchFn: getCity },
+    { key: "Location", staticData: [] } // dependent
 
   ];
 
@@ -197,9 +198,8 @@ export default function CustomerAdd() {
   const arrayFields = [
     { key: "Verified", staticData: ["yes", "no"] },
     { key: "Gender", staticData: ["male", "female", "other"] },
-    { key: "City", fetchFn: getCity },
     { key: "Facilities", fetchFn: getFacilities },
-    { key: "Location", fetchFn: getLocation },
+    /*     { key: "Location", fetchFn: getLocation }, */
   ];
 
 
@@ -224,7 +224,13 @@ export default function CustomerAdd() {
     } else {
       setFieldOptions((prev) => ({ ...prev, CustomerSubtype: [] }));
     }
-  }, [customerData.Campaign.id, customerData.CustomerType.id]);
+
+    if (customerData.City.id) {
+      fetchLocation(customerData.City.id);
+    } else {
+      setFieldOptions((prev) => ({ ...prev, Location: [] }));
+    }
+  }, [customerData.Campaign.id, customerData.CustomerType.id,customerData.City.id]);
 
   const fetchCustomerType = async (campaignId: string) => {
     try {
@@ -235,6 +241,18 @@ export default function CustomerAdd() {
       setFieldOptions((prev) => ({ ...prev, CustomerType: [] }));
     }
   };
+
+  const fetchLocation = async (cityId: string) => {
+    try {
+      
+      const res = await getLocationByCity(cityId);
+      setFieldOptions((prev) => ({ ...prev, Location: res || [] }));
+    } catch (error) {
+      console.error("Error fetching location:", error);
+      setFieldOptions((prev) => ({ ...prev, Location: [] }));
+    }
+  };
+
 
   const fetchCustomerSubType = async (campaignId: string, customertypeId: string) => {
     try {
@@ -303,7 +321,7 @@ export default function CustomerAdd() {
                     setCustomerData((prev) => ({
                       ...prev,
                       CustomerType: { id: selectedObj._id, name: selectedObj.Name },
-                      CustomerSubtype:{id:"",name:""} // reset on change
+                      CustomerSubtype: { id: "", name: "" } // reset on change
                     }));
                   }
                 }}
@@ -328,11 +346,44 @@ export default function CustomerAdd() {
                 error={errors.CustomerSubtype}
               />
 
-                           
+
               <InputField label="Customer Name" name="customerName" value={customerData.customerName} onChange={handleInputChange} error={errors.customerName} />
               <InputField label="Contact No" name="ContactNumber" value={customerData.ContactNumber} onChange={handleInputChange} error={errors.ContactNumber} />
-              <SingleSelect options={Array.isArray(fieldOptions?.City) ? fieldOptions.City : []} label="City" value={customerData.City} onChange={(v) => handleSelectChange("City", v)} />
-              <SingleSelect options={Array.isArray(fieldOptions?.Location) ? fieldOptions.Location : []} label="Location" value={customerData.Location} onChange={(v) => handleSelectChange("Location", v)} />
+              <ObjectSelect
+                options={Array.isArray(fieldOptions?.City) ? fieldOptions.City : []}
+                label="City"
+                value={customerData.City.id}
+                getLabel={(item) => item?.Name || ""}
+                getId={(item) => item?._id || ""}
+                onChange={(selectedId) => {
+                  const selectedObj = fieldOptions.City.find((i) => i._id === selectedId);
+                  if (selectedObj) {
+                    setCustomerData((prev) => ({
+                      ...prev,
+                      City: { id: selectedObj._id, name: selectedObj.Name },
+                      Location: { id: "", name: "" }, // reset on change
+                    }));
+                  }
+                }}
+                error={errors.City}
+              />
+              <ObjectSelect
+                options={Array.isArray(fieldOptions?.Location) ? fieldOptions.Location : []}
+                label="Location"
+                value={customerData.Location.id}
+                getLabel={(item) => item?.Name || ""}
+                getId={(item) => item?._id || ""}
+                onChange={(selectedId) => {
+                  const selectedObj = fieldOptions.Location.find((i) => i._id === selectedId);
+                  if (selectedObj) {
+                    setCustomerData((prev) => ({
+                      ...prev,
+                      Location: { id: selectedObj._id, name: selectedObj.Name },
+                    }));
+                  }
+                }}
+                error={errors.Location}
+              />
               <InputField label="Area" name="Area" value={customerData.Area} onChange={handleInputChange} />
               <InputField label="Address" name="Address" value={customerData.Address} onChange={handleInputChange} />
               <InputField label="Email" name="Email" value={customerData.Email} onChange={handleInputChange} error={errors.Email} />
@@ -346,13 +397,13 @@ export default function CustomerAdd() {
               <InputField label="Video" name="Video" value={customerData.Video} onChange={handleInputChange} />
               <InputField label="Google Map" name="GoogleMap" value={customerData.GoogleMap} onChange={handleInputChange} />
               <SingleSelect options={Array.isArray(fieldOptions?.Verified) ? fieldOptions.Verified : []} label="Verified" value={customerData.Verified} onChange={(v) => handleSelectChange("Verified", v)} />
-              
+
 
             </div>
             <div className="flex flex-wrap my-5 gap-5">
-                <FileUpload label="Customer Images" multiple previews={imagePreviews} onChange={(e) => handleFileChange(e, "CustomerImage")} onRemove={handleRemoveImage} />
+              <FileUpload label="Customer Images" multiple previews={imagePreviews} onChange={(e) => handleFileChange(e, "CustomerImage")} onRemove={handleRemoveImage} />
               <FileUpload label="Site Plan" previews={sitePlanPreview ? [sitePlanPreview] : []} onChange={(e) => handleFileChange(e, "SitePlan")} onRemove={handleRemoveSitePlan} />
-              </div>
+            </div>
 
             <div className="flex justify-end mt-4">
 

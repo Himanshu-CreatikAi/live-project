@@ -57,6 +57,7 @@ export default function CompanyProjects() {
   const indexOfLastRow = currentTablePage * rowsPerTablePage;
   const indexOfFirstRow = indexOfLastRow - rowsPerTablePage;
   const currentRows = projectsData.slice(indexOfFirstRow, indexOfLastRow);
+  
 
   const nextTablePage = () => {
     if (currentTablePage !== totalTablePages) setCurrentTablePage(currentTablePage + 1);

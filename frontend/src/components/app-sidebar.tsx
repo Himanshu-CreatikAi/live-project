@@ -157,10 +157,6 @@ const data = {
           url: "/masters/payment-methods",
         },
         {
-          title: "Sms Templates",
-          url: "/masters/sms-templates",
-        },
-        {
           title: "Mail Templates",
           url: "/masters/mail-templates",
         },

@@ -10,6 +10,8 @@ import { useRouter, useParams } from "next/navigation";
 import { getAdminById, updateAdminDetails } from "@/store/auth";
 import { Admin, UpdateAdminDetailsData } from "@/store/auth.interface";
 import BackButton from "@/app/component/buttons/BackButton";
+import { handleFieldOptions } from "@/app/utils/handleFieldOptions";
+import { getCity } from "@/store/masters/city/city";
 
 interface ErrorInterface {
   [key: string]: string;
@@ -30,11 +32,13 @@ export default function AdminEditPage() {
   });
 
   const [loading, setLoading] = useState(false);
+  const [fieldOptions, setFieldOptions] = useState<Record<string, any[]>>({});
   const [errors, setErrors] = useState<ErrorInterface>({});
 
   // ✅ Fetch user data
   useEffect(() => {
     loadUserDetails();
+    fetchFields();
   }, []);
 
   const loadUserDetails = async () => {
@@ -114,6 +118,16 @@ export default function AdminEditPage() {
     setLoading(false);
   };
 
+  const fetchFields = async () => {
+    await handleFieldOptions(
+      [
+
+        { key: "City", fetchFn: getCity },
+      ],
+      setFieldOptions
+    );
+  }
+
   // ✅ Dropdown values
   const roles = ["administrator", "city_admin", "user"];
   const cities = ["Jaipur", "Ajmer", "Udaipur"];
@@ -191,7 +205,7 @@ export default function AdminEditPage() {
                   />
 
                   <SingleSelect
-                    options={cities}
+                    options={Array.isArray(fieldOptions?.City) ? fieldOptions.City : []}
                     label="City"
                     value={userData.City}
                     onChange={(selected) =>

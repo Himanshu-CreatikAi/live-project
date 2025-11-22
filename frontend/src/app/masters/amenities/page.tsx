@@ -57,7 +57,7 @@ export default function AmenitiesPage() {
           keyword === "" ||
           a.Name.toLowerCase().includes(keyword.toLowerCase())
       )
-  }, [amenities, keyword, limit]);
+  }, [amenities, keyword]);
 
   // Delete amenity
   const handleDelete = async (data: DeleteDialogDataInterface | null) => {
@@ -159,9 +159,9 @@ export default function AmenitiesPage() {
                 onChange={(e) => setLimit(e.target.value)}
                 className="h-10 border border-gray-300 rounded-md px-3 py-2 bg-white text-gray-800"
               >
-                <option value="2">10</option>
-                <option value="4">25</option>
-                <option value="6">50</option>
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
               </select>
             </div>
 

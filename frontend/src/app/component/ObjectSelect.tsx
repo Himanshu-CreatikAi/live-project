@@ -53,7 +53,7 @@ export default function ObjectSelect<T>({
     <div
       ref={containerRef}
       className="relative w-full"
-      style={{ minWidth: "200px" }} // same width as SingleSelect
+      style={{ minWidth: "170px" }} // same width as SingleSelect
     >
       {/* Floating Label */}
       <label
@@ -98,7 +98,7 @@ export default function ObjectSelect<T>({
               <li
                 key={id || idx}
                 onClick={() => handleSelect(id)}
-                className={`px-3 py-2 hover:bg-gray-100 cursor-pointer truncate ${getId(item) === value || getLabel(item) === value? "bg-gray-50 font-semibold" : ""
+                className={`px-3 py-2 hover:bg-gray-100 cursor-pointer truncate ${getId(item) === value || getLabel(item) === value? "bg-gray-100 font-semibold" : ""
                   }`}
               >
                 {labelText}

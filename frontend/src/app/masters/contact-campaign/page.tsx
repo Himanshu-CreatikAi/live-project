@@ -48,12 +48,17 @@ export default function ContactCampaignPage() {
         fetchContactCampaigns();
     }, []);
 
+    useEffect(() => {
+        setRowsPerTablePage(Number(limit));
+        setCurrentTablePage(1);
+    }, [limit])
+
     // Filtered campaigns
     const filteredCampaigns = useMemo(() => {
         return contactCampaigns
             .filter((c) => keyword === "" || c.Name.toLowerCase().includes(keyword.toLowerCase()))
-            .slice(0, Number(limit));
-    }, [contactCampaigns, keyword, limit]);
+    }, [contactCampaigns, keyword]);
+
 
     // Delete contact campaign
     const handleDelete = async (data: contactcampaignDialogDataInterface | null) => {
@@ -188,7 +193,7 @@ export default function ContactCampaignPage() {
                                             className="border-t flex justify-between items-center w-full hover:bg-[#f7f6f3] transition-all duration-200"
                                         >
                                             <td className="flex items-center gap-10 px-8 py-3 w-1/2">
-                                                <p className="w-[60px]">{i + 1}</p>
+                                                <p className="w-[60px]">{(currentTablePage - 1) * rowsPerTablePage + (i + 1)}</p>
                                                 <p className="w-[200px] font-semibold">{c.Name}</p>
                                             </td>
                                             <td className="flex items-center gap-10 px-8 py-3 w-1/2 justify-end">

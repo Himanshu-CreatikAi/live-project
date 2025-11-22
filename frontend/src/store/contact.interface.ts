@@ -1,10 +1,10 @@
 export interface contactAllDataInterface {
     Campaign: { id: string, name: string };
     Name: string;
-    City: string;
+    City: { id:string, name:string};
     ContactType: { id: string, name: string };
     ContactNo: string;
-    Location: string;
+    Location: {id: string, name:string};
     Email: string;
     CompanyName: string;
     Website: string;

@@ -32,6 +32,7 @@ import { getCity } from "@/store/masters/city/city";
 import { getLocation } from "@/store/masters/location/location";
 import { getAllAdmins } from "@/store/auth";
 import PageHeader from "@/app/component/labels/PageHeader";
+import { getContactType } from "@/store/masters/contacttype/contacttype";
 
 export default function ContactFollowups() {
     const router = useRouter();
@@ -47,7 +48,7 @@ export default function ContactFollowups() {
     const [followupDialogData, setFollowupDialogData] = useState<contactFollowupAllDataInterface[] | null>([]);
     const [fieldOptions, setFieldOptions] = useState<Record<string, any[]>>({});
 
-    const rowsPerTablePage = 10;
+    const [rowsPerTablePage, setRowsPerTablePage] = useState(10);
 
     const [filters, setFilters] = useState({
         Campaign: [] as string[],
@@ -59,7 +60,7 @@ export default function ContactFollowups() {
         Keyword: "" as string,
         StartDate: "",
         EndDate: "",
-        Limit: [] as string[],
+        Limit: ["10"] as string[],
     });
 
     // 🔹 Fetch All Followups
@@ -83,7 +84,7 @@ export default function ContactFollowups() {
                     contactid: item.contact._id,
                     Name: item.contact.Name,
                     ContactNumber: item.contact.ContactNo,
-                    User: item.contact.AssignTo?.name??"",
+                    User: item.contact.AssignTo?.name ?? "",
                     Date: formattedDate,
                 }
             }));
@@ -131,6 +132,12 @@ export default function ContactFollowups() {
     const nexttablePage = () => { if (currentTablePage !== totalTablePages) setCurrentTablePage(currentTablePage + 1); };
     const prevtablePage = () => { if (currentTablePage !== 1) setCurrentTablePage(currentTablePage - 1); };
 
+      useEffect(() => {
+        const safeLimit = Number(filters.Limit?.[0]);
+        setRowsPerTablePage(safeLimit);
+        setCurrentTablePage(1);
+      }, [filters.Limit]);
+
     // 🔹 Filters
     const handleSelectChange = async (field: keyof typeof filters, selected: string | string[]) => {
         const updatedFilters = {
@@ -146,7 +153,21 @@ export default function ContactFollowups() {
         });
 
         const data = await getFilteredContactFollowups(queryParams.toString());
-        if (data) setFollowupData(data);
+        if (data) setFollowupData(data.map((item: any) => {
+                const date = new Date(item.updatedAt);
+                const formattedDate =
+                    date.getDate().toString().padStart(2, "0") + "-" +
+                    (date.getMonth() + 1).toString().padStart(2, "0") + "-" +
+                    date.getFullYear();
+                return {
+                    _id: item._id,
+                    contactid: item.contact._id,
+                    Name: item.contact.Name,
+                    ContactNumber: item.contact.ContactNo,
+                    User: item.contact.AssignTo?.name ?? "",
+                    Date: formattedDate,
+                }
+            }));
     };
 
     const clearFilter = async () => {
@@ -207,7 +228,7 @@ export default function ContactFollowups() {
             [
                 { key: "StatusTypes", staticData: ["Active", "Inactive"] },
                 { key: "Campaign", fetchFn: getCampaign },
-                { key: "PropertyTypes", staticData: ["Flat", "Villa", "Plot", "Coomercial"] },
+                { key: "PropertyTypes", fetchFn:getContactType },
                 { key: "City", fetchFn: getCity },
                 { key: "Location", fetchFn: getLocation },
                 { key: "Users", fetchFn: getAllAdmins },
@@ -300,9 +321,9 @@ export default function ContactFollowups() {
 
                     <section className="flex flex-col mt-6 p-2 bg-white rounded-md">
                         <div className="m-5 relative">
-                            <div className="flex justify-between items-center py-1 px-2 border border-gray-800 rounded-md">
+                            <div className="flex justify-between items-center py-1 px-2 border border-gray-800 rounded-md cursor-pointer" onClick={() => setToggleSearchDropdown(!toggleSearchDropdown)}>
                                 <h3 className="flex items-center gap-1"><CiSearch />Advance Search</h3>
-                                <button type="button" onClick={() => setToggleSearchDropdown(!toggleSearchDropdown)} className="p-2 hover:bg-gray-200 rounded-md cursor-pointer">
+                                <button type="button"  className="p-2 hover:bg-gray-200 rounded-md cursor-pointer">
                                     {toggleSearchDropdown ? <IoIosArrowUp /> : <IoIosArrowDown />}
                                 </button>
                             </div>

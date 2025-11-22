@@ -40,12 +40,16 @@ export default function PaymentMethodPage() {
     fetchPayments();
   }, []);
 
+  useEffect(() => {
+    setRowsPerTablePage(Number(limit));
+    setCurrentTablePage(1);
+  }, [limit])
+
   // Filtered payments
   const filteredPayments = useMemo(() => {
     return payments
       .filter((p) => keyword === "" || p.Name.toLowerCase().includes(keyword.toLowerCase()))
-      .slice(0, Number(limit));
-  }, [payments, keyword, limit]);
+  }, [payments, keyword]);
 
   // Delete payment method
   const handleDelete = async (data: paymentsDialogDataInterface | null) => {
@@ -182,7 +186,7 @@ export default function PaymentMethodPage() {
                       className="border-t flex justify-between items-center w-full hover:bg-[#f7f6f3] transition-all duration-200"
                     >
                       <td className="flex items-center gap-10 px-8 py-3 w-1/2">
-                        <p className="w-[60px]">{i + 1}</p>
+                        <p className="w-[60px]">{(currentTablePage - 1) * rowsPerTablePage + (i + 1)}</p>
                         <p className="w-[200px] font-semibold">{p.Name}</p>
                       </td>
 
