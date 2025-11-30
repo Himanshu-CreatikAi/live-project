@@ -253,7 +253,7 @@ export default function LocationPage() {
                         <div className="w-[120px]">
                           <span
                             className={`px-3 py-1 rounded-[2px] text-xs font-semibold ${l.Status === "Active"
-                              ? "bg-[#C8E6C9] text-green-700"
+                              ? "bg-[#E8F5E9] text-green-700"
                               : "bg-red-100 text-red-700"
                               }`}
                           >
@@ -263,7 +263,7 @@ export default function LocationPage() {
                         <div className="w-[120px] flex gap-2 items-center justify-start">
                           <Button
                             sx={{
-                              backgroundColor: "#C8E6C9",
+                              backgroundColor: "#E8F5E9",
                               color: "var(--color-primary)",
                               minWidth: "32px",
                               height: "32px",
@@ -275,7 +275,7 @@ export default function LocationPage() {
                           </Button>
                           <Button
                             sx={{
-                              backgroundColor: "#F9D0C4",
+                              backgroundColor: "#FDECEA",
                               color: "#C62828",
                               minWidth: "32px",
                               height: "32px",

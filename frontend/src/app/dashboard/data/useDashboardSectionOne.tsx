@@ -12,6 +12,17 @@ export interface DashboardCard {
   footerlineColor: string;
 }
 
+
+interface User {
+  id: string;
+  name: string;
+  customers: number;
+}
+
+export interface UserFollowupsInterface {
+  users: User[];
+}
+
 export function useDashboardData() {
   const [dashboardSectionOneCardData, setDashboardSectionOneCardData] = useState<DashboardCard[]>([
     {
@@ -45,5 +56,16 @@ export function useDashboardData() {
     },
   ]);
 
-  return { dashboardSectionOneCardData, setDashboardSectionOneCardData };
+  // Mock data structure - replace with your actual backend data
+  const [userCustomers, setUserCustomers] =
+    useState<UserFollowupsInterface>({
+      users: [],
+    });
+
+  return {
+    dashboardSectionOneCardData,
+    setDashboardSectionOneCardData,
+    userCustomers,
+    setUserCustomers
+  };
 }

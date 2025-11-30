@@ -83,7 +83,7 @@ export default function IncomeMarketingAdd() {
 
       if (result) {
         toast.success("Income Marketing added successfully!");
-        // router.push("/financial/income_marketings");
+         router.push("/financial/income_marketings");
       }
     } catch (error) {
       toast.error("Failed to add Income Marketing");

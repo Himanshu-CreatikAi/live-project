@@ -13,6 +13,7 @@ import BackButton from "@/app/component/buttons/BackButton";
 import SaveButton from "@/app/component/buttons/SaveButton";
 import { handleFieldOptions } from "@/app/utils/handleFieldOptions";
 import { getStatusType } from "@/store/masters/statustype/statustype";
+import dayjs from "dayjs";
 
 interface ErrorInterface {
   [key: string]: string;
@@ -21,7 +22,7 @@ interface ErrorInterface {
 export default function CustomerFollowupAdd() {
   const [followupData, setFollowupData] = useState<customerFollowupAllDataInterface>({
     customer: "",
-    StartDate: "",
+    StartDate: dayjs().format("YYYY-MM-DD"),
     StatusType: "",
     FollowupNextDate: "",
     Description: "",
@@ -139,7 +140,9 @@ export default function CustomerFollowupAdd() {
                     label="Start Date"
                     value={followupData.StartDate}
                     onChange={(val) => handleSelectChange("StartDate", val)}
+                    error={errors.StartDate}
                   />
+                  {errors.StartDate && <p className="text-red-500 text-sm mt-1">{errors.StartDate}</p>}
 
                   <SingleSelect
                     options={Array.isArray(fieldOptions?.StatusType) ? fieldOptions.StatusType : []}

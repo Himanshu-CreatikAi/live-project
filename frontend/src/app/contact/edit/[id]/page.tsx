@@ -23,6 +23,7 @@ import BackButton from "@/app/component/buttons/BackButton";
 import SaveButton from "@/app/component/buttons/SaveButton";
 import { handleFieldOptionsObject } from "@/app/utils/handleFieldOptionsObject";
 import ObjectSelect from "@/app/component/ObjectSelect";
+import { getContactCampaign } from "@/store/masters/contactcampaign/contactcampaign";
 
 
 interface ErrorInterface {
@@ -134,7 +135,9 @@ export default function ContactEdit() {
         const payload = {
             ...contactData,
             Campaign: contactData.Campaign?.name,
-            ContactType: contactData.ContactType?.name
+            ContactType: contactData.ContactType?.name,
+            City: contactData.City?.name,
+            Location: contactData.Location?.name
         };
         if (contactData.date == "") delete (payload as any).date;
 
@@ -151,7 +154,7 @@ export default function ContactEdit() {
 
     // Object-based fields (for ObjectSelect)
     const objectFields = [
-        { key: "Campaign", fetchFn: getCampaign },
+        { key: "Campaign", fetchFn: getContactCampaign },
         { key: "ContactType", staticData: [] },
         { key: "City", fetchFn: getCity },
         { key: "Location", staticData: [] }
@@ -249,7 +252,7 @@ export default function ContactEdit() {
                                 <ObjectSelect
                                     options={Array.isArray(fieldOptions?.Campaign) ? fieldOptions.Campaign : []}
                                     label="Campaign"
-                                    value={contactData.Campaign.id}
+                                    value={contactData.Campaign.name}
                                     getLabel={(item) => item?.Name || ""}
                                     getId={(item) => item?._id || ""}
                                     onChange={(selectedId) => {
@@ -268,7 +271,7 @@ export default function ContactEdit() {
                                 <ObjectSelect
                                     options={Array.isArray(fieldOptions?.ContactType) ? fieldOptions.ContactType : []}
                                     label="Contact Type"
-                                    value={contactData.ContactType.id}
+                                    value={contactData.ContactType.name}
                                     getLabel={(item) => item?.Name || ""}
                                     getId={(item) => item?._id || ""}
                                     onChange={(selectedId) => {
@@ -320,18 +323,20 @@ export default function ContactEdit() {
                                     error={errors.Location}
                                 />
                                 <InputField label="Email" name="Email" value={contactData.Email} onChange={handleInputChange} error={errors.Email} />
-                                <InputField label="Company Name" name="CompanyName" value={contactData.CompanyName} onChange={handleInputChange} />
-                                <InputField label="Website" name="Website" value={contactData.Website} onChange={handleInputChange} />
-                                <SingleSelect options={Array.isArray(fieldOptions?.Status) ? fieldOptions.Status : []} value={contactData.Status} label="Status" onChange={(val) => handleSelectChange("Status", val)} />
-                                <InputField label="Address" name="Address" value={contactData.Address} onChange={handleInputChange} />
-                                <DateSelector
-                                    label="Date"
-                                    value={contactData.date} // pass current state
-                                    onChange={(val) => handleSelectChange("date", val)} // update state on change
-                                />
-                                <SingleSelect options={Array.isArray(fieldOptions?.ContactIndustry) ? fieldOptions.ContactIndustry : []} value={contactData.ContactIndustry} label="Contact Industry" onChange={(val) => handleSelectChange("ContactIndustry", val)} />
-                                <SingleSelect options={Array.isArray(fieldOptions?.ContactFunctionalArea) ? fieldOptions.ContactFunctionalArea : []} value={contactData.ContactFunctionalArea} label="Contact Functional Area" onChange={(val) => handleSelectChange("ContactFunctionalArea", val)} />
-                                <SingleSelect options={Array.isArray(fieldOptions?.ReferenceId) ? fieldOptions.ReferenceId : []} value={contactData.ReferenceId} label="Reference Id" onChange={(val) => handleSelectChange("ReferenceId", val)} />
+                                <InputField className=" max-sm:hidden" label="Company Name" name="CompanyName" value={contactData.CompanyName} onChange={handleInputChange} />
+                                <InputField className=" max-sm:hidden" label="Website" name="Website" value={contactData.Website} onChange={handleInputChange} />
+                                <SingleSelect className=" max-sm:hidden" options={Array.isArray(fieldOptions?.Status) ? fieldOptions.Status : []} value={contactData.Status} label="Status" onChange={(val) => handleSelectChange("Status", val)} />
+                                <InputField className=" max-sm:hidden" label="Address" name="Address" value={contactData.Address} onChange={handleInputChange} />
+                                <div className=" max-sm:hidden">
+                                    <DateSelector
+                                        label="Date"
+                                        value={contactData.date} // pass current state
+                                        onChange={(val) => handleSelectChange("date", val)} // update state on change
+                                    />
+                                </div>
+                                <SingleSelect className=" max-sm:hidden" options={Array.isArray(fieldOptions?.ContactIndustry) ? fieldOptions.ContactIndustry : []} value={contactData.ContactIndustry} label="Contact Industry" onChange={(val) => handleSelectChange("ContactIndustry", val)} />
+                                <SingleSelect className=" max-sm:hidden" options={Array.isArray(fieldOptions?.ContactFunctionalArea) ? fieldOptions.ContactFunctionalArea : []} value={contactData.ContactFunctionalArea} label="Contact Functional Area" onChange={(val) => handleSelectChange("ContactFunctionalArea", val)} />
+                                <SingleSelect className=" max-sm:hidden" options={Array.isArray(fieldOptions?.ReferenceId) ? fieldOptions.ReferenceId : []} value={contactData.ReferenceId} label="Reference Id" onChange={(val) => handleSelectChange("ReferenceId", val)} />
                                 <TextareaField label="Notes" name="Notes" value={contactData.Notes} onChange={handleInputChange} />
                             </div>
 

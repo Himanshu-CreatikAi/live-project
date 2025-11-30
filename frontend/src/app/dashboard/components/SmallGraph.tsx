@@ -2,11 +2,11 @@ import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const data = [
-  { name: 'UI', projects: 10, earnings: 10.6 },
-  { name: 'UX', projects: 14, earnings: 14.2 },
-  { name: 'Web', projects: 15, earnings: 20.5 },
-  { name: 'App', projects: 16, earnings: 18.3 },
-  { name: 'SEO', projects: 8, earnings: 13 },
+  { name: 'Sep', projects: 10, earnings: 10.6 },
+  { name: 'Oct', projects: 14, earnings: 14.2 },
+  { name: 'Nov', projects: 15, earnings: 20.5 },
+  { name: 'Dec', projects: 16, earnings: 18.3 },
+  
 ];
 
 const Dashboard = () => {
@@ -71,17 +71,17 @@ const Dashboard = () => {
       {/* Info Footer */}
       <div className="bg-white p-4 ">
         <h2 className="text-sm text-neutral-600 mb-4 text-center sm:text-left">
-          Total completed projects and earnings
+          Followups by months
         </h2>
         <div className="flex flex-col sm:flex-row justify-between items-center sm:items-start gap-4 sm:gap-0 px-3 py-5">
           <div className="border-b sm:border-b-0  border-neutral-400 pb-2 sm:pb-0  text-center sm:text-left">
-            <p className="text-xs text-gray-500">Completed Projects</p>
-            <p className="text-lg font-bold">175</p>
+            <p className="text-xs text-gray-500">This Month</p>
+            <p className="text-lg font-bold">2</p>
           </div>
           <div className='border-r py-6'></div>
           <div className="text-center sm:text-left">
-            <p className="text-xs text-gray-500 whitespace-nowrap">Total Earnings</p>
-            <p className="text-lg font-bold">$76.6M</p>
+            <p className="text-xs text-gray-500 whitespace-nowrap">Next Month</p>
+            <p className="text-lg font-bold">1</p>
           </div>
         </div>
       </div>

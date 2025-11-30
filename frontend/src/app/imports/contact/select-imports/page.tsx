@@ -35,10 +35,10 @@ export default function SelectImports() {
     const [contactData, setContactData] = useState<contactAllDataInterface>({
         Campaign: { id: "", name: "" },
         Name: "",
-        City: {id:"", name: ""},
+        City: { id: "", name: "" },
         ContactType: { id: "", name: "" },
         ContactNo: "",
-        Location: {id:"", name:""},
+        Location: { id: "", name: "" },
         Email: "",
         CompanyName: "",
         Website: "",
@@ -50,7 +50,7 @@ export default function SelectImports() {
         Notes: "",
         date: ""
     });
-    const [Range,setRange]=useState("")
+    const [Range, setRange] = useState("")
 
     const [errors, setErrors] = useState<ErrorInterface>({});
     const router = useRouter();
@@ -79,10 +79,10 @@ export default function SelectImports() {
         },
         []
     );
-    const handleSelectRange= useCallback((label: string, selected: string) => {
-            setRange((prev) => (selected));
-            setErrors((prev) => ({ ...prev, [label]: "" }));
-        },
+    const handleSelectRange = useCallback((label: string, selected: string) => {
+        setRange((prev) => (selected));
+        setErrors((prev) => ({ ...prev, [label]: "" }));
+    },
         [])
 
     const validateForm = () => {
@@ -97,12 +97,13 @@ export default function SelectImports() {
     };
 
     const handleSubmit = async () => {
-      /*   const validationErrors = validateForm();
-        if (Object.keys(validationErrors).length > 0) {
-            setErrors(validationErrors);
-            console.log(validationErrors, " error coming")
-            return;
-        } */
+        /*   const validationErrors = validateForm();
+          if (Object.keys(validationErrors).length > 0) {
+              setErrors(validationErrors);
+              console.log(validationErrors, " error coming")
+              return;
+          } */
+        setImportLoader(true);
 
         const formData = new FormData();
         formData.append("fieldMapping", JSON.stringify(fieldMapping))
@@ -112,11 +113,13 @@ export default function SelectImports() {
         }
         const data = await importContact(formData);
         if (data) {
-
+            toast.success("Contact imported successfully!");
+            setImportLoader(false);
             router.push("/contact");
             return;
         }
-        toast.error("Failed to add contact");
+        toast.error("Failed to import contact");
+        setImportLoader(false);
     };
 
 
@@ -222,30 +225,30 @@ export default function SelectImports() {
                         <div className="flex flex-col space-y-6">
                             <h2 className=" text-xl font-semibold text-gray-700 my-5 mt-10">Map Fields</h2>
                             <div className="grid grid-cols-3 max-lg:grid-cols-2 max-md:grid-cols-1 gap-4 w-full">
-                                    {excelHeaders.map((header) => (
-                                        <div key={header} className="flex flex-col m-4">
-                                            <label className="text-sm font-medium mb-4">{header}</label>
+                                {excelHeaders.map((header) => (
+                                    <div key={header} className="flex flex-col m-4">
+                                        <label className="text-sm font-medium mb-4">{header}</label>
 
-                                            <SingleSelect
-                                                label="Map To"
-                                                options={mappingFields}
-                                                value={fieldMapping[header] || ""}
-                                                onChange={(value) =>
-                                                    setFieldMapping((prev) => ({
-                                                        ...prev,
-                                                        [header]: value,
-                                                    }))
-                                                }
-                                            />
+                                        <SingleSelect
+                                            label="Map To"
+                                            options={mappingFields}
+                                            value={fieldMapping[header] || ""}
+                                            onChange={(value) =>
+                                                setFieldMapping((prev) => ({
+                                                    ...prev,
+                                                    [header]: value,
+                                                }))
+                                            }
+                                        />
 
 
-                                        </div>
-                                    ))}
-                                </div>
+                                    </div>
+                                ))}
+                            </div>
 
                             <div className="flex justify-end mt-4">
 
-                                <SaveButton text={` ${importLoader ? "Saving.." : "Save Import"}`} icon={importLoader&&<LoaderCircle/>} onClick={handleSubmit} />
+                                <SaveButton text={` ${importLoader ? "Saving.." : "Save Import"}`} icon={importLoader && <LoaderCircle />} onClick={handleSubmit} />
 
                             </div>
                         </div>

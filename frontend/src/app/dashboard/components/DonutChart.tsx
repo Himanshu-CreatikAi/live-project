@@ -9,9 +9,9 @@ import {
 } from "recharts";
 
 const data = [
-  { name: "Satisfied", value: 25 },
-  { name: "Unsatisfied", value: 75 },
-  { name: "Neutral", value: 40 },
+  { name: "Interested", value: 25 },
+  { name: "Not Interested", value: 75 },
+  { name: "", value: 40 },
   { name: "Happy", value: 55 },
 ];
 
@@ -21,7 +21,7 @@ const DonutChart = () => {
   return (
     <div className="w-full max-w-md mx-auto p-4 bg-white  shadow-md">
       <h2 className="text-base sm:text-lg font-bold  text-blue-600 text-center">
-        New Users
+        Status Type
       </h2>
 
       <ResponsiveContainer

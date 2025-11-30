@@ -35,64 +35,70 @@ export const createConFollowup = async (req, res, next) => {
 
 // ✅ Get all contact follow-ups with pagination and filters
 // ✅ Get all contact follow-ups with pagination and full AssignTo details
+
 export const getConFollowups = async (req, res, next) => {
   try {
     const {
       page = 1,
       limit = 10,
       keyword = "",
-      status,
-      campaign,
-      propertyType,
-      city,
-      location,
-      user,
+      StatusType,
+      Campaign,
+      PropertyType,
+      City,
+      Location,
+      User,
     } = req.query;
 
     const pageNum = Math.max(1, parseInt(page));
     const perPage = Math.max(1, parseInt(limit));
     const skip = (pageNum - 1) * perPage;
 
-    // ✅ Follow-up filters
+    // -----------------------------------------------------
+    // 1️⃣ FOLLOW-UP FILTERS
+    // -----------------------------------------------------
     const followupFilters = {};
-    if (status) followupFilters.StatusType = status;
+    if (StatusType) followupFilters.StatusType = StatusType;
 
-    // ✅ Contact filters
+    // -----------------------------------------------------
+    // 2️⃣ CONTACT FILTERS
+    // -----------------------------------------------------
     const contactFilters = {};
-    if (campaign)
-      contactFilters["contact.Campaign"] = { $regex: campaign, $options: "i" };
-    if (propertyType)
-      contactFilters["contact.ContactType"] = {
-        $regex: propertyType,
-        $options: "i",
-      };
-    if (city) contactFilters["contact.City"] = { $regex: city, $options: "i" };
-    if (location)
-      contactFilters["contact.Location"] = { $regex: location, $options: "i" };
-    if (user) contactFilters["contact.User"] = { $regex: user, $options: "i" };
+    if (Campaign) contactFilters.Campaign = { $regex: Campaign, $options: "i" };
+    if (PropertyType)
+      contactFilters.ContactType = { $regex: PropertyType, $options: "i" };
+    if (City) contactFilters.City = { $regex: City, $options: "i" };
+    if (Location) contactFilters.Location = { $regex: Location, $options: "i" };
+    if (User) contactFilters.User = { $regex: User, $options: "i" };
 
-    // ✅ Keyword search
-    const keywordRegex = keyword ? { $regex: keyword, $options: "i" } : null;
-    const keywordMatch = keyword
+    // -----------------------------------------------------
+    // 3️⃣ KEYWORD FILTERS
+    // -----------------------------------------------------
+    const keywordFilters = keyword
       ? {
           $or: [
-            { "contact.Name": keywordRegex },
-            { "contact.Email": keywordRegex },
-            { "contact.CompanyName": keywordRegex },
-            { "contact.City": keywordRegex },
-            { "contact.Location": keywordRegex },
+            { Name: { $regex: keyword, $options: "i" } },
+            { Email: { $regex: keyword, $options: "i" } },
+            { CompanyName: { $regex: keyword, $options: "i" } },
+            { City: { $regex: keyword, $options: "i" } },
+            { Location: { $regex: keyword, $options: "i" } },
           ],
         }
-      : null;
+      : {};
 
-    // ✅ Aggregation pipeline
+    // -----------------------------------------------------
+    // 4️⃣ START PIPELINE
+    // -----------------------------------------------------
     const pipeline = [];
 
-    // Follow-up filters
-    if (Object.keys(followupFilters).length)
+    // Match follow-up filters
+    if (Object.keys(followupFilters).length > 0) {
       pipeline.push({ $match: followupFilters });
+    }
 
-    // ✅ Lookup contact data with nested AssignTo admin details
+    // -----------------------------------------------------
+    // 5️⃣ LOOKUP CONTACT + ADMIN
+    // -----------------------------------------------------
     pipeline.push({
       $lookup: {
         from: "contacts",
@@ -106,43 +112,80 @@ export const getConFollowups = async (req, res, next) => {
               localField: "AssignTo",
               foreignField: "_id",
               as: "AssignTo",
-              pipeline: [
-                {
-                  $project: {
-                    _id: 1,
-                    name: 1,
-                    email: 1,
-                    role: 1,
-                    city: 1,
-                    status: 1,
-                  },
-                },
-              ],
+              pipeline: [{ $project: { _id: 1, name: 1, email: 1, role: 1 } }],
             },
           },
-          {
-            $unwind: {
-              path: "$AssignTo",
-              preserveNullAndEmptyArrays: true,
-            },
-          },
+          { $unwind: { path: "$AssignTo", preserveNullAndEmptyArrays: true } },
         ],
       },
     });
 
+    // Unwind single contact
     pipeline.push({
       $unwind: { path: "$contact", preserveNullAndEmptyArrays: false },
     });
 
-    // ✅ Apply contact and keyword filters
-    const combinedMatch = {
-      ...(Object.keys(contactFilters).length ? contactFilters : {}),
-      ...(keywordMatch ? keywordMatch : {}),
-    };
-    if (Object.keys(combinedMatch).length)
-      pipeline.push({ $match: combinedMatch });
+    // -----------------------------------------------------
+    // 6️⃣ FLATTEN FIELDS
+    // -----------------------------------------------------
+    pipeline.push({
+      $addFields: {
+        Campaign: "$contact.Campaign",
+        ContactType: "$contact.ContactType",
+        City: "$contact.City",
+        Location: "$contact.Location",
+        User: "$contact.User",
+        Name: "$contact.Name",
+        Email: "$contact.Email",
+        CompanyName: "$contact.CompanyName",
+        AssignTo: "$contact.AssignTo",
+        ContactId: "$contact._id",
+      },
+    });
 
-    // ✅ Sort & paginate
+    // -----------------------------------------------------
+    // 7️⃣ APPLY CONTACT FILTERS + KEYWORD
+    // -----------------------------------------------------
+    const finalFilters = {};
+    if (Object.keys(contactFilters).length > 0)
+      Object.assign(finalFilters, contactFilters);
+
+    if (keyword) Object.assign(finalFilters, keywordFilters);
+
+    if (Object.keys(finalFilters).length > 0) {
+      pipeline.push({ $match: finalFilters });
+    }
+
+    // -----------------------------------------------------
+    // 8️⃣ FINAL PROJECT (KEEP FILTERABLE FIELDS)
+    // -----------------------------------------------------
+    pipeline.push({
+      $project: {
+        contact: 1,
+        StartDate: 1,
+        StatusType: 1,
+        FollowupNextDate: 1,
+        Description: 1,
+        createdAt: 1,
+        updatedAt: 1,
+
+        Campaign: 1,
+        ContactType: 1,
+        City: 1,
+        Location: 1,
+        User: 1,
+
+        Name: 1,
+        Email: 1,
+        CompanyName: 1,
+        AssignTo: 1,
+        ContactId: 1,
+      },
+    });
+
+    // -----------------------------------------------------
+    // 9️⃣ SORT + PAGINATION
+    // -----------------------------------------------------
     pipeline.push({ $sort: { createdAt: -1 } });
 
     pipeline.push({
@@ -152,12 +195,17 @@ export const getConFollowups = async (req, res, next) => {
       },
     });
 
+    // -----------------------------------------------------
+    // 🔟 EXECUTE
+    // -----------------------------------------------------
     const aggResult = await ConFollowup.aggregate(pipeline);
 
-    const metadata = aggResult[0]?.metadata?.[0] || { total: 0 };
-    const total = metadata.total || 0;
-    const data = aggResult[0]?.data || [];
+    const total = aggResult?.[0]?.metadata?.[0]?.total || 0;
+    const data = aggResult?.[0]?.data || [];
 
+    // -----------------------------------------------------
+    // ✅ RESPONSE
+    // -----------------------------------------------------
     res.status(200).json({
       success: true,
       total,
@@ -169,6 +217,176 @@ export const getConFollowups = async (req, res, next) => {
     next(new ApiError(500, error.message));
   }
 };
+
+// export const getConFollowups = async (req, res, next) => {
+//   try {
+//     const {
+//       page = 1,
+//       limit = 10,
+//       keyword = "",
+//       status,
+//       campaign,
+//       propertyType,
+//       city,
+//       location,
+//       user,
+//     } = req.query;
+
+//     const pageNum = Math.max(1, parseInt(page));
+//     const perPage = Math.max(1, parseInt(limit));
+//     const skip = (pageNum - 1) * perPage;
+
+//     // --------------------- FOLLOWUP FILTER ---------------------
+//     const followupFilters = {};
+//     if (status) followupFilters.StatusType = status;
+
+//     // --------------------- CONTACT FILTERS ----------------------
+//     const contactFilters = {};
+//     if (campaign) contactFilters.Campaign = { $regex: campaign, $options: "i" };
+//     if (propertyType)
+//       contactFilters.ContactType = { $regex: propertyType, $options: "i" };
+//     if (city) contactFilters.City = { $regex: city, $options: "i" };
+//     if (location) contactFilters.Location = { $regex: location, $options: "i" };
+//     if (user) contactFilters.User = { $regex: user, $options: "i" };
+
+//     // --------------------- KEYWORD FILTER -----------------------
+//     const keywordFilters = keyword
+//       ? {
+//           $or: [
+//             { Name: { $regex: keyword, $options: "i" } },
+//             { Email: { $regex: keyword, $options: "i" } },
+//             { CompanyName: { $regex: keyword, $options: "i" } },
+//             { City: { $regex: keyword, $options: "i" } },
+//             { Location: { $regex: keyword, $options: "i" } },
+//           ],
+//         }
+//       : {};
+
+//     // --------------------- PIPELINE START -----------------------
+//     const pipeline = [];
+
+//     if (Object.keys(followupFilters).length > 0) {
+//       pipeline.push({ $match: followupFilters });
+//     }
+
+//     // ------------------- LOOKUP CONTACT + ADMIN -----------------
+//     pipeline.push({
+//       $lookup: {
+//         from: "contacts",
+//         localField: "contact",
+//         foreignField: "_id",
+//         as: "contact",
+//         pipeline: [
+//           {
+//             $lookup: {
+//               from: "admins",
+//               localField: "AssignTo",
+//               foreignField: "_id",
+//               as: "AssignTo",
+//               pipeline: [
+//                 {
+//                   $project: {
+//                     _id: 1,
+//                     name: 1,
+//                     email: 1,
+//                     role: 1,
+//                     city: 1,
+//                     status: 1,
+//                   },
+//                 },
+//               ],
+//             },
+//           },
+//           { $unwind: { path: "$AssignTo", preserveNullAndEmptyArrays: true } },
+//         ],
+//       },
+//     });
+
+//     pipeline.push({
+//       $unwind: { path: "$contact", preserveNullAndEmptyArrays: false },
+//     });
+
+//     // --------------------- FLATTEN FIELDS -----------------------
+//     pipeline.push({
+//       $addFields: {
+//         Campaign: "$contact.Campaign",
+//         ContactType: "$contact.ContactType",
+//         City: "$contact.City",
+//         Location: "$contact.Location",
+//         User: "$contact.User",
+//         Name: "$contact.Name",
+//         Email: "$contact.Email",
+//         CompanyName: "$contact.CompanyName",
+//         AssignTo: "$contact.AssignTo",
+//         ContactId: "$contact._id",
+//       },
+//     });
+
+//     // --------------------- APPLY FILTERS ------------------------
+//     const finalFilters = { ...contactFilters };
+//     if (keyword) Object.assign(finalFilters, keywordFilters);
+
+//     if (Object.keys(finalFilters).length > 0) {
+//       pipeline.push({ $match: finalFilters });
+//     }
+
+//     // --------------------- PROJECT (FIXED) ----------------------
+//     pipeline.push({
+//       $project: {
+//         contact: 1,
+//         StartDate: 1,
+//         StatusType: 1,
+//         FollowupNextDate: 1,
+//         Description: 1,
+//         createdAt: 1,
+//         updatedAt: 1,
+
+//         // KEEP all fields that filters use
+//         Campaign: 1,
+//         ContactType: 1,
+//         City: 1,
+//         Location: 1,
+//         User: 1,
+//         CompanyName: 1,
+
+//         // keyword fields
+//         Name: 1,
+//         Email: 1,
+
+//         // keep admin assigned
+//         AssignTo: 1,
+//         ContactId: 1,
+//       },
+//     });
+
+//     // --------------------- SORT + PAGINATION ---------------------
+//     pipeline.push({ $sort: { createdAt: -1 } });
+
+//     pipeline.push({
+//       $facet: {
+//         metadata: [{ $count: "total" }],
+//         data: [{ $skip: skip }, { $limit: perPage }],
+//       },
+//     });
+
+//     // --------------------- EXECUTE -------------------------------
+//     const aggResult = await ConFollowup.aggregate(pipeline);
+
+//     const metadata = aggResult[0]?.metadata?.[0] || { total: 0 };
+//     const total = metadata.total || 0;
+//     const data = aggResult[0]?.data || [];
+
+//     res.status(200).json({
+//       success: true,
+//       total,
+//       currentPage: pageNum,
+//       totalPages: Math.ceil(total / perPage),
+//       data,
+//     });
+//   } catch (error) {
+//     next(new ApiError(500, error.message));
+//   }
+// };
 
 // ✅ Get all follow-ups for a specific contact
 export const getConFollowupByContact = async (req, res, next) => {
@@ -253,12 +471,21 @@ export const deleteConFollowup = async (req, res, next) => {
 };
 
 // ✅ Delete all contact follow-ups
-export const deleteAllConFollowups = async (req, res, next) => {
+export const deleteConFollowupsByContact = async (req, res, next) => {
   try {
-    await ConFollowup.deleteMany({});
+    const { contactId } = req.params;
+
+    if (!contactId) {
+      return next(new ApiError(400, "Contact ID is required"));
+    }
+
+    // Delete all followups linked to this contact
+    const result = await ConFollowup.deleteMany({ contact: contactId });
+
     res.status(200).json({
       success: true,
-      message: "All Contact Follow-ups deleted successfully",
+      message: "All followups for this contact have been deleted successfully",
+      deletedCount: result.deletedCount,
     });
   } catch (error) {
     next(new ApiError(500, error.message));

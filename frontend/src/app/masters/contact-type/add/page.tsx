@@ -14,6 +14,7 @@ import { handleFieldOptionsObject } from "@/app/utils/handleFieldOptionsObject";
 import { getCampaign } from "@/store/masters/campaign/campaign";
 import ObjectSelect from "@/app/component/ObjectSelect";
 import MasterProtectedRoute from "@/app/component/MasterProtectedRoutes";
+import { getContactCampaign } from "@/store/masters/contactcampaign/contactcampaign";
 
 interface ErrorInterface {
   [key: string]: string;
@@ -79,7 +80,7 @@ export default function ContactTypeAdd() {
     await handleFieldOptionsObject(
       [
         { key: "Status", staticData: ["Active", "Inactive"] },
-        { key: "Campaign", fetchFn: getCampaign },
+        { key: "Campaign", fetchFn: getContactCampaign },
       ],
       setFieldOptions
     );

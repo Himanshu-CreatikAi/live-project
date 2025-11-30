@@ -10,64 +10,96 @@ import City from "../models/model.city.js";
 import Location from "../models/model.location.js";
 
 // ✅ GET CUSTOMERS (Role-based + Filter)
+
 export const getCustomer = async (req, res, next) => {
   try {
     const admin = req.admin;
+
     const filter = {};
 
+    // Role-based filtering
     if (admin.role === "city_admin") filter.City = admin.city;
     else if (admin.role === "user") filter.AssignTo = admin._id;
 
     const {
-      Campaign: qCampaign,
-      CustomerType: qCustomerType,
-      CustomerSubType: qCustomerSubType,
+      Campaign,
+      CustomerType,
+      CustomerSubType,
       StatusType,
-      City: qCity,
-      Location: qLocation,
+      City,
+      Location,
       Keyword,
       StartDate,
       EndDate,
       Limit,
       sort,
+      User,
     } = req.query;
 
-    if (qCampaign)
-      filter.Campaign = { $regex: qCampaign.trim(), $options: "i" };
-    if (qCustomerSubType)
-      filter.CustomerSubType = {
-        $regex: qCustomerSubType.trim(),
-        $options: "i",
-      };
-    if (qCustomerType)
-      filter.CustomerType = { $regex: qCustomerType.trim(), $options: "i" };
-    if (StatusType)
-      filter.Verified = { $regex: StatusType.trim(), $options: "i" };
-    if (qCity) filter.City = { $regex: qCity.trim(), $options: "i" };
-    if (qLocation)
-      filter.Location = { $regex: qLocation.trim(), $options: "i" };
+    // Dynamic regex builder
+    const makeRegex = (val) => ({ $regex: val.trim(), $options: "i" });
+
+    // Apply filters
+    if (Campaign) filter.Campaign = makeRegex(Campaign);
+    if (CustomerSubType) filter.CustomerSubType = makeRegex(CustomerSubType);
+    if (CustomerType) filter.CustomerType = makeRegex(CustomerType);
+    if (StatusType) filter.Verified = makeRegex(StatusType);
+    if (City) filter.City = makeRegex(City);
+    if (Location) filter.Location = makeRegex(Location);
+
+    // Keyword search
     if (Keyword) {
       filter.$or = [
-        { customerName: { $regex: Keyword.trim(), $options: "i" } },
-        { Email: { $regex: Keyword.trim(), $options: "i" } },
-        { Description: { $regex: Keyword.trim(), $options: "i" } },
-        { Other: { $regex: Keyword.trim(), $options: "i" } },
+        { customerName: makeRegex(Keyword) },
+        { Email: makeRegex(Keyword) },
+        { Description: makeRegex(Keyword) },
+        { Other: makeRegex(Keyword) },
       ];
     }
+
+    // Date filter
     if (StartDate && EndDate) {
-      filter.createdAt = { $gte: new Date(StartDate), $lte: new Date(EndDate) };
+      filter.createdAt = {
+        $gte: new Date(StartDate),
+        $lte: new Date(EndDate),
+      };
     }
 
-    const sortField = "createdAt";
+    // Sort setup
     const sortOrder = sort?.toLowerCase() === "asc" ? 1 : -1;
 
+    // Populate match for user filtering
+    let populateMatch = {};
+
+    if (User) {
+      populateMatch = {
+        $or: [
+          { name: makeRegex(User) },
+          { email: makeRegex(User) },
+          { role: makeRegex(User) },
+          { city: makeRegex(User) },
+        ],
+      };
+    }
+
+    // Main query
     let query = Customer.find(filter)
-      .populate("AssignTo", "name email role city")
-      .sort({ [sortField]: sortOrder });
+      .populate({
+        path: "AssignTo",
+        select: "name email role city",
+        match: populateMatch,
+      })
+      .sort({ createdAt: sortOrder });
 
     if (Limit) query = query.limit(Number(Limit));
 
-    const customers = await query;
+    let customers = await query;
+
+    // Only filter out null AssignTo if User filter is applied
+    if (User) {
+      customers = customers.filter((c) => c.AssignTo !== null);
+    }
+
     res.status(200).json(customers);
   } catch (error) {
     next(new ApiError(500, error.message));

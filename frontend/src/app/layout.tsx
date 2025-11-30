@@ -16,6 +16,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import { Poppins,Manrope,Schibsted_Grotesk } from 'next/font/google'
 import { CustomerImportProvider } from "@/context/CustomerImportContext";
 import { ContactImportProvider } from "@/context/ContactImportContext";
+import MobileHamburger from "./component/HamburgerMenu";
  
 const poppins = Schibsted_Grotesk({
   weight:'400',
@@ -43,14 +44,21 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 
                   {/* Main Area */}
                   <SidebarInset className="flex flex-col flex-1 min-h-screen overflow-hidden">
+                    
                     {/* Navbar */}
-                    <header className="flex items-center gap-2 shrink-0 bg-white text-gray-800 px-4 shadow-sm z-10">
-                      <div className="flex items-center gap-2 ">
-                        <SidebarTrigger className="-ml-1 cursor-pointer" />
+                    <header className="flex items-center gap-2 shrink-0 bg-white max-sm:fixed max-sm:top-0 max-sm:left-0 max-sm:w-full max-sm:bg-[var(--color-primary)] text-gray-800 px-4 pl-0 shadow-sm z-10">
+                      <div className="flex items-center gap-2 ml-2 max-sm:hidden ">
+                        <SidebarTrigger className="ml-1 cursor-pointer" />
                         <Separator
                           orientation="vertical"
                           className="mr-2 data-[orientation=vertical]:h-4"
                         />
+                      </div>
+                      
+                        <MobileHamburger />
+            
+                      <div className=" text-white font-extrabold text-shadow-2xs text-shadow-black text-xl py-1 sm:hidden">
+                         Dashboard
                       </div>
 
                       <div className="ml-auto w-full">
@@ -61,8 +69,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                     {/* Page Content */}
                     <main className="flex-1 overflow-y-auto bg-violet-100">
                       {/* Mobile Sidebar Trigger */}
-                      <div className="flex items-center gap-2 max-w-[100px] max-md:hidden md:hidden mt-4 ml-2">
-                        <SidebarTrigger className="-ml-1" />
+                      <div className="flex items-center gap-2 max-w-[100px] max-md:hidden md:hidden mt-4 ml-4">
+                        <SidebarTrigger className="ml-1" />
                         <Separator
                           orientation="vertical"
                           className="mr-2 data-[orientation=vertical]:h-4"
@@ -70,7 +78,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                       </div>
 
                       {/* Actual Page */}
-                      <div className="p-8 max-md:p-2">{children}</div>
+                      <div className="p-8 max-md:px-2 max-md:py-2 max-sm:mt-[52px]">{children}</div>
                     </main>
                   </SidebarInset>
                 </div>

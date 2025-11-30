@@ -6,13 +6,14 @@ import { MdEdit, MdDelete, MdAdd } from "react-icons/md";
 import Button from '@mui/material/Button';
 import SingleSelect from "@/app/component/SingleSelect";
 import DateSelector from "@/app/component/DateSelector";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { PlusSquare } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 import ProtectedRoute from "@/app/component/ProtectedRoutes";
 import PopupMenu from "@/app/component/popups/PopupMenu";
 import DeleteDialog from "@/app/component/popups/DeleteDialog";
+import { IoMdClose } from "react-icons/io";
 
 import {
     getAllCustomerFollowups,
@@ -36,6 +37,10 @@ import { getLocation } from "@/store/masters/location/location";
 import { getAllAdmins } from "@/store/auth";
 import PageHeader from "@/app/component/labels/PageHeader";
 import { getTypes } from "@/store/masters/types/types";
+import { getStatusType } from "@/store/masters/statustype/statustype";
+import LeadsSection from "@/app/phonescreens/DashboardScreens/LeadsSection";
+import FollowupTable from "@/app/phonescreens/DashboardScreens/tables/FollowupTable";
+import DynamicAdvance from "@/app/phonescreens/DashboardScreens/DynamicAdvance";
 
 export default function CustomerFollowups() {
     const router = useRouter();
@@ -51,6 +56,7 @@ export default function CustomerFollowups() {
     const [isfollowupDialogOpen, setIsFollowupDialogOpen] = useState(false);
     const [followupDialogData, setFollowupDialogData] = useState<customerFollowupAllDataInterface[] | null>([]);
     const [fieldOptions, setFieldOptions] = useState<Record<string, any[]>>({});
+    const searchParams = useSearchParams();
 
     const [rowsPerTablePage, setRowsPerTablePage] = useState(10);
 
@@ -73,7 +79,20 @@ export default function CustomerFollowups() {
         fetchFields();
     }, []);
 
+    useEffect(() => {
+        const status = searchParams.get("StatusType");
 
+        if (status) {
+            // Auto set filter
+            setFilters((prev) => ({
+                ...prev,
+                StatusAssign: [status],
+            }));
+
+            // Fetch filtered data
+            handleSelectChange("StatusType", status);
+        }
+    }, [searchParams, followupData]);
     const getFollowups = async () => {
         const data = await getAllCustomerFollowups();
         // console.log(" data of luffy , ", data)
@@ -153,6 +172,7 @@ export default function CustomerFollowups() {
 
         const queryParams = new URLSearchParams();
         Object.entries(updatedFilters).forEach(([key, value]) => {
+            if (key === "Limit") return;
             if (Array.isArray(value) && value.length > 0) value.forEach(v => queryParams.append(key, v));
             else if (typeof value === "string" && value) queryParams.append(key, value);
         });
@@ -187,7 +207,7 @@ export default function CustomerFollowups() {
             Keyword: "",
             StartDate: "",
             EndDate: "",
-            Limit: [],
+            Limit: ["10"],
         });
         await getFollowups();
     };
@@ -228,7 +248,7 @@ export default function CustomerFollowups() {
 
     const getCustomerName = (id: string) => {
         const data = followupData.find(item => item.customerid === id);
-        console.log("Customer Name Data", data)
+        // console.log("Customer Name Data", data)
         return data ? data.Name : "";
     }
 
@@ -238,7 +258,7 @@ export default function CustomerFollowups() {
     const fetchFields = async () => {
         await handleFieldOptions(
             [
-                { key: "StatusTypes", staticData: ["Active", "Inactive"] },
+                { key: "StatusTypes", fetchFn: getStatusType },
                 { key: "Campaign", fetchFn: getCampaign },
                 { key: "PropertyTypes", fetchFn: getTypes },
                 { key: "City", fetchFn: getCity },
@@ -255,96 +275,149 @@ export default function CustomerFollowups() {
     const cities = ['Mumbai', 'Delhi', 'Bangalore'];
     const locations = ['Andheri', 'Borivali', 'Powai'];
     const users = ['Admin', 'Agent1', 'Agent2'];
-
+    const phonetableheader = [{
+        key: "Name", label: "Name"
+    },
+    {
+        key: "ContactNumber", label: "Contact No"
+    },
+    {
+        key: "User", label: "User"
+    },
+    {
+        key: "Date", label: "Date"
+    },]
     // 🔹 UI
     return (
         <ProtectedRoute>
-            <div className="min-h-[calc(100vh-56px)] overflow-auto max-md:py-10">
-                <Toaster position="top-right" />
+            <Toaster position="top-right" />
 
-                {/* DELETE POPUP */}
-                <DeleteDialog<DeleteDialogDataInterface>
-                    isOpen={isDeleteDialogOpen}
-                    title="Are you sure you want to delete this followup?"
-                    data={deleteDialogData}
-                    onClose={() => {
-                        setIsDeleteDialogOpen(false);
-                        setDeleteDialogData(null);
-                    }}
-                    onDelete={handleDelete}
-                />
-
-                <DeleteDialog<FollowupDeleteDialogDataInterface>
-                    isOpen={isFollowupDeleteDialogOpen}
-                    title={`Are you sure you want delete the followup for customer ${getCustomerName(followupdeleteDialogData?.id || "")}?`}
-                    data={followupdeleteDialogData}
-                    onClose={() => {
-                        setFollowupDeleteDialogData(null)
-                        setIsFollowupDeleteDialogOpen(false);
-                    }}
-                    onDelete={deleteThisFollowup}
-                />
-
-
-                {
-                    isfollowupDialogOpen && Array.isArray(followupDialogData) && followupDialogData.length > 0 && (
-                        <PopupMenu onClose={() => { setIsFollowupDialogOpen(false); setFollowupDialogData([]); }}>
-                            <div className="flex flex-col border border-gray-300/30 overflow-y-auto  bg-gray-100 text-gray-900 rounded-xl shadow-lg p-6 max-w-[800px] gap-6 m-2 w-full  max-h-[80vh] overflow-auto">
-                                <h2 className="text-2xl text-[var(--color-secondary-darker)] font-extrabold">Customer <span className=" text-[var(--color-primary)]">Followups</span></h2>
-                                <div className=" overflow-y-auto max-h-[100vh]">
-                                    {
-                                        followupDialogData.map((item, index) => (
-                                            <div key={item._id ?? +index} className=" flex justify-between border border-gray-300 rounded-md p-4">
-                                                <div className=" flex flex-col gap-2">
-                                                    <p><span className="font-semibold">Followup Date:</span> {item.FollowupNextDate}</p>
-                                                    <p><span className="font-semibold">Status Type:</span> {item.StatusType}</p>
-                                                    <p><span className="font-semibold">Next Followup Date:</span> {item.FollowupNextDate}</p>
-                                                    <p><span className="font-semibold">Description:</span> {item.Description}</p>
-                                                </div>
-                                                <div className=" flex flex-wrap gap-2 justify-center items-center-safe ">
-                                                    <Button
-                                                        sx={{
-                                                            backgroundColor: "#E8F5E9",
-                                                            color: "var(--color-primary)",
-                                                            minWidth: "32px",
-                                                            height: "32px",
-                                                            borderRadius: "8px",
-                                                        }}
-                                                        onClick={() => editThisFollowup(item._id ?? "")}
-                                                    >
-                                                        <MdEdit />
-                                                    </Button>
-
-                                                    <Button
-                                                        sx={{
-                                                            backgroundColor: "#FDECEA",
-                                                            color: "#C62828",
-                                                            minWidth: "32px",
-                                                            height: "32px",
-                                                            borderRadius: "8px",
-                                                        }}
-                                                        onClick={() => {
-                                                            setIsFollowupDialogOpen(false);
-                                                            setIsFollowupDeleteDialogOpen(true);
-                                                            setFollowupDeleteDialogData({
-                                                                id: item._id ?? "",
-                                                                Name: getCustomerName(item.customer)
-                                                            });
-                                                        }}
-                                                    >
-                                                        <MdDelete />
-                                                    </Button>
-                                                </div>
-
+            {/* DELETE POPUP */}
+            <DeleteDialog<DeleteDialogDataInterface>
+                isOpen={isDeleteDialogOpen}
+                title="Are you sure you want to delete this followup?"
+                data={deleteDialogData}
+                onClose={() => {
+                    setIsDeleteDialogOpen(false);
+                    setDeleteDialogData(null);
+                }}
+                onDelete={handleDelete}
+            />
+            <DeleteDialog<FollowupDeleteDialogDataInterface>
+                isOpen={isFollowupDeleteDialogOpen}
+                title={`Are you sure you want delete the followup for customer ${getCustomerName(followupdeleteDialogData?.id || "")}?`}
+                data={followupdeleteDialogData}
+                onClose={() => {
+                    setFollowupDeleteDialogData(null)
+                    setIsFollowupDeleteDialogOpen(false);
+                }}
+                onDelete={deleteThisFollowup}
+            />
+            {
+                isfollowupDialogOpen && Array.isArray(followupDialogData) && followupDialogData.length > 0 && (
+                    <PopupMenu onClose={() => { setIsFollowupDialogOpen(false); setFollowupDialogData([]); }}>
+                        <div className="flex flex-col border border-gray-300/30 overflow-y-auto  bg-gray-100 text-[var(--color-secondary-darker)] rounded-xl shadow-lg p-6 max-w-[800px] gap-6 m-2 w-full  max-h-[80vh] overflow-auto">
+                            <h2 className="text-2xl text-[var(--color-secondary-darker)] font-extrabold flex justify-between items-center"><div>Customer <span className=" text-[var(--color-primary)]">Followups</span> </div> <button className=" cursor-pointer" onClick={() => {
+                                setFollowupDialogData(null)
+                                setIsFollowupDialogOpen(false);
+                            }}><IoMdClose /></button></h2>
+                            <div className=" overflow-y-auto max-h-[100vh]">
+                                {
+                                    followupDialogData.map((item, index) => (
+                                        <div key={item._id ?? +index} className=" flex justify-between border border-gray-300 rounded-md p-4">
+                                            <div className=" flex flex-col gap-2">
+                                                <p><span className="font-semibold">Followup Date:</span> {item.StartDate}</p>
+                                                <p><span className="font-semibold">Status Type:</span> {item.StatusType}</p>
+                                                <p><span className="font-semibold">Next Followup Date:</span> {item.FollowupNextDate}</p>
+                                                <p><span className="font-semibold">Description:</span> {item.Description}</p>
                                             </div>
-                                        ))
-                                    }
-                                </div>
+                                            <div className=" flex flex-wrap gap-2 justify-center items-center-safe ">
+                                                <Button
+                                                    sx={{
+                                                        backgroundColor: "#E8F5E9",
+                                                        color: "var(--color-primary)",
+                                                        minWidth: "32px",
+                                                        height: "32px",
+                                                        borderRadius: "8px",
+                                                    }}
+                                                    onClick={() => editThisFollowup(item._id ?? "")}
+                                                >
+                                                    <MdEdit />
+                                                </Button>
 
+                                                <Button
+                                                    sx={{
+                                                        backgroundColor: "#FDECEA",
+                                                        color: "#C62828",
+                                                        minWidth: "32px",
+                                                        height: "32px",
+                                                        borderRadius: "8px",
+                                                    }}
+                                                    onClick={() => {
+                                                        setIsFollowupDialogOpen(false);
+                                                        setIsFollowupDeleteDialogOpen(true);
+                                                        setFollowupDeleteDialogData({
+                                                            id: item._id ?? "",
+                                                            Name: getCustomerName(item.customer)
+                                                        });
+                                                    }}
+                                                >
+                                                    <MdDelete />
+                                                </Button>
+                                            </div>
+
+                                        </div>
+                                    ))
+                                }
                             </div>
-                        </PopupMenu>
-                    )
-                }
+
+                        </div>
+                    </PopupMenu>
+                )
+            }
+
+            <div className=" sm:hidden min-h-[calc(100vh-56px)] overflow-auto max-sm:py-5">
+                <h1 className=" text-[var(--color-primary)] font-bold text-2xl px-2 py-2 mb-4">Followups</h1>
+                <div>
+                    <DynamicAdvance>
+                        <SingleSelect options={Array.isArray(fieldOptions?.Campaign) ? fieldOptions.Campaign : []} value={filters.Campaign[0]} label="Campaign" onChange={(val) => handleSelectChange("Campaign", val)} />
+                        <SingleSelect options={Array.isArray(fieldOptions?.PropertyTypes) ? fieldOptions.PropertyTypes : []} value={filters.PropertyType[0]} label="Property Type" onChange={(val) => handleSelectChange("PropertyType", val)} />
+                        <SingleSelect options={Array.isArray(fieldOptions?.StatusTypes) ? fieldOptions.StatusTypes : []} value={filters.StatusType[0]} label="Status Type" onChange={(val) => handleSelectChange("StatusType", val)} />
+                        <SingleSelect options={Array.isArray(fieldOptions?.City) ? fieldOptions.City : []} value={filters.City[0]} label="City" onChange={(val) => handleSelectChange("City", val)} />
+                        <SingleSelect options={Array.isArray(fieldOptions?.Location) ? fieldOptions.Location : []} value={filters.Location[0]} label="Location" onChange={(val) => handleSelectChange("Location", val)} />
+                        <div className=" w-full flex justify-end">
+                            <button type="reset" onClick={clearFilter} className="text-red-500 cursor-pointer hover:underline text-sm px-5 py-2 rounded-md">
+                                Clear Search
+                            </button>
+                        </div>
+                    </DynamicAdvance>
+                </div>
+                <FollowupTable
+                    leads={followupData}
+                    labelLeads={phonetableheader}
+                    onFollowup={(lead) => {
+                        setIsFollowupDialogOpen(true);
+                        handleFollowups(lead.customerid);
+                    }}
+                    onAdd={(id) => addFollowup(id)}
+                    onEdit={(id) => editFollowup(id)}
+                    onDelete={(lead) => {
+                        setIsDeleteDialogOpen(true);
+                        setDeleteDialogData({
+                            id: lead.customerid,
+                            ContactNumber: lead.ContactNumber
+                        });
+                    }}
+                />
+
+            </div>
+            <div className="min-h-[calc(100vh-56px)] max-sm:hidden overflow-auto max-md:py-10">
+
+
+
+
+
+
 
                 <div className="p-4 bg-white rounded-md max-md:p-3 w-full">
                     <div className="flex justify-between items-center">
@@ -374,14 +447,14 @@ export default function CustomerFollowups() {
                                         <SingleSelect options={Array.isArray(fieldOptions?.StatusTypes) ? fieldOptions.StatusTypes : []} value={filters.StatusType[0]} label="Status Type" onChange={(val) => handleSelectChange("StatusType", val)} />
                                         <SingleSelect options={Array.isArray(fieldOptions?.City) ? fieldOptions.City : []} value={filters.City[0]} label="City" onChange={(val) => handleSelectChange("City", val)} />
                                         <SingleSelect options={Array.isArray(fieldOptions?.Location) ? fieldOptions.Location : []} value={filters.Location[0]} label="Location" onChange={(val) => handleSelectChange("Location", val)} />
-                                        <SingleSelect options={Array.isArray(fieldOptions?.Users) ? fieldOptions.Users : []} value={filters.User[0]} label="User" onChange={(val) => handleSelectChange("User", val)} />
+                                        {/* <SingleSelect options={Array.isArray(fieldOptions?.Users) ? fieldOptions.Users : []} value={filters.User[0]} label="User" onChange={(val) => handleSelectChange("User", val)} /> */}
                                         <SingleSelect options={["10", "25", "50", "100"]} value={filters.Limit[0]} label="Limit" onChange={(val) => handleSelectChange("Limit", val)} />
                                     </div>
                                 </div>
 
                                 <form className="flex flex-wrap max-md:flex-col justify-between items-center mb-5">
                                     <div className="min-w-[80%]">
-                                        <label className="block mb-2 text-sm font-medium text-gray-900">AI Genie</label>
+                                        <label className="block mb-2 text-sm font-medium text-[var(--color-secondary-darker)]">AI Genie</label>
                                         <input
                                             type="text"
                                             placeholder="type text here.."
@@ -391,10 +464,10 @@ export default function CustomerFollowups() {
                                         />
                                     </div>
                                     <div className="flex justify-center items-center">
-                                        <button type="submit" className="border border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white transition-all duration-300 cursor-pointer px-3 py-2 mt-6 rounded-md">
+                                        <button type="submit" className="border border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-white transition-all duration-300 cursor-pointer px-3 py-2 mt-6 rounded-md">
                                             Explore
                                         </button>
-                                        <button type="reset" onClick={clearFilter} className="text-red-500 text-sm px-5 py-2 mt-6 rounded-md ml-3">
+                                        <button type="reset" onClick={clearFilter} className="text-red-500 text-sm px-5 py-2 mt-6 hover:underline cursor-pointer rounded-md ml-3">
                                             Clear Search
                                         </button>
                                     </div>
@@ -480,7 +553,7 @@ export default function CustomerFollowups() {
                                                             onClick={() => {
                                                                 setIsDeleteDialogOpen(true);
                                                                 setDeleteDialogData({
-                                                                    id: item._id,
+                                                                    id: item.customerid,
                                                                     ContactNumber: item.ContactNumber
                                                                 });
                                                             }}

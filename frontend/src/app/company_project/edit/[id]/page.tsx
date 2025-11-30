@@ -154,6 +154,9 @@ export default function CompanyProjectEdit() {
     try {
       const formData = new FormData();
       Object.entries(projectData).forEach(([key, value]) => {
+        if(key==="City" || key==="Location"){
+          return;
+        }
         if (key === "CustomerImage" && Array.isArray(value)) {
           value.forEach(file => {
             if (file instanceof File) formData.append("CustomerImage", file);

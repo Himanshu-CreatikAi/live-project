@@ -42,6 +42,10 @@ import { mailAllContactInterface, mailGetDataInterface } from "@/store/masters/m
 import { getWhatsapp, whatsappAllContact } from "@/store/masters/whatsapp/whatsapp";
 import { whatsappAllContactInterface, whatsappGetDataInterface } from "@/store/masters/whatsapp/whatsapp.interface";
 import ListPopup from "../component/popups/ListPopup";
+import { getContactCampaign } from "@/store/masters/contactcampaign/contactcampaign";
+import LeadsSection from "../phonescreens/DashboardScreens/LeadsSection";
+import ContactTable from "../phonescreens/DashboardScreens/tables/ContactTable";
+import DynamicAdvance from "../phonescreens/DashboardScreens/DynamicAdvance";
 
 interface DeleteAllDialogDataInterface { }
 
@@ -444,7 +448,7 @@ export default function Contacts() {
     await handleFieldOptions(
       [
         { key: "StatusAssign", staticData: ["Assigned", "Unassigned"] },
-        { key: "Campaign", fetchFn: getCampaign },
+        { key: "Campaign", fetchFn: getContactCampaign },
         { key: "ContactType", fetchFn: getContactType },
         { key: "City", fetchFn: getCity },
         { key: "Location", fetchFn: getLocation },
@@ -464,15 +468,97 @@ export default function Contacts() {
       Location: [],
       User: [],
       Keyword: "",
-      Limit: [],
+      Limit: ["10"],
     });
     await getContacts();
   };
 
+  const phonetableheader = [{
+    key: "Campaign", label: "Campaign"
+  },
+  {
+    key: "Name", label: "Name"
+  },
+  {
+    key: "Location", label: "Location"
+  },
+  {
+    key: "ContactNo", label: "Contact No"
+  }]
+
   return (
     <ProtectedRoute>
-      <div className=" min-h-[calc(100vh-56px)] overflow-auto bg-gray-200 max-md:py-10">
-        <Toaster position="top-right" />
+      <Toaster position="top-right" />
+      {/* mail all popup */}
+      {isMailAllOpen && selectedContacts.length > 0 && (
+        <ListPopup
+          title="Mail to All Contacts"
+          list={mailTemplates}
+          selected={selectedMailtemplate}
+          onSelect={handleSelectMailtemplate}
+          onSubmit={handleMailAll}
+          submitLabel="Mail All"
+          onClose={() => setIsMailAllOpen(false)}
+        />
+      )}
+
+
+      {/* whatsapp all popup */}
+      {isWhatsappAllOpen && selectedContacts.length > 0 && (
+        <ListPopup
+          title="Whatsapp to All Contacts"
+          list={whatsappTemplates}
+          selected={selectedWhatsapptemplate}
+          onSelect={handleSelectWhatsapptemplate}
+          onSubmit={handleWhatsappAll}
+          submitLabel="Whatsapp All"
+          onClose={() => setIsWhatsappAllOpen(false)}
+        />
+      )}
+      <div className=" sm:hidden min-h-[calc(100vh-56px)] overflow-auto max-sm:py-5">
+
+        <div className=" flex justify-between items-center px-2 py-2  mb-4">
+          <h1 className=" text-[var(--color-primary)] font-extrabold text-2xl ">Contacts</h1>
+          <AddButton url="/contact/add" text="Add" icon={<PlusSquare size={18} />} />
+        </div>
+        <div className=" w-full">
+          <DynamicAdvance>
+            <SingleSelect options={Array.isArray(fieldOptions.StatusAssign) ? fieldOptions.StatusAssign : []} value={filters.StatusAssign[0]} label="Status Assign" onChange={(v) => handleSelectChange("StatusAssign", v)} />
+
+            <SingleSelect options={Array.isArray(fieldOptions.Campaign) ? fieldOptions.Campaign : []} value={filters.Campaign[0]} label="Campaign" onChange={(v) => handleSelectChange("Campaign", v)} />
+
+            <SingleSelect options={Array.isArray(fieldOptions.ContactType) ? fieldOptions.ContactType : []} value={filters.ContactType[0]} label="Contact Type" onChange={(v) => handleSelectChange("ContactType", v)} />
+
+            <SingleSelect options={Array.isArray(fieldOptions.City) ? fieldOptions.City : []} value={filters.City[0]} label="City" onChange={(v) => handleSelectChange("City", v)} />
+
+            <SingleSelect options={Array.isArray(fieldOptions.Location) ? fieldOptions.Location : []} value={filters.Location[0]} label="Location" onChange={(v) => handleSelectChange("Location", v)} />
+
+            <SingleSelect options={Array.isArray(fieldOptions.User) ? fieldOptions.User : []} value={filters.User[0]} label="User" onChange={(v) => handleSelectChange("User", v)} />
+            <div className=" w-full flex justify-end">
+              <button type="reset" onClick={clearFilter} className="text-red-500 cursor-pointer hover:underline text-sm px-5 py-2 rounded-md">
+                Clear Search
+              </button>
+            </div>
+          </DynamicAdvance>
+        </div>
+        <ContactTable
+          leads={contactData}
+          labelLeads={phonetableheader}
+          onEdit={(id)=>router.push(`/contact/edit/${id}`)}
+          onWhatsappClick={(lead) => {
+            setSelectedContacts([lead._id]);
+            setIsWhatsappAllOpen(true);
+            fetchWhatsappTemplates();
+          }}
+          onMailClick={(lead) => {
+            setSelectedContacts([lead._id]);
+            setIsMailAllOpen(true);
+            fetchEmailTemplates();
+          }}
+        />
+      </div>
+      <div className=" min-h-[calc(100vh-56px)] max-sm:hidden overflow-auto bg-gray-200 max-md:py-10">
+
 
         {/*DELETE SINGLE POPUP */}
         <DeleteDialog<DeleteDialogDataInterface>
@@ -511,32 +597,7 @@ export default function Contacts() {
           />
         )}
 
-        {/* mail all popup */}
-        {isMailAllOpen && selectedContacts.length > 0 && (
-          <ListPopup
-            title="Mail to All Contacts"
-            list={mailTemplates}
-            selected={selectedMailtemplate}
-            onSelect={handleSelectMailtemplate}
-            onSubmit={handleMailAll}
-            submitLabel="Mail All"
-            onClose={() => setIsMailAllOpen(false)}
-          />
-        )}
 
-
-        {/* whatsapp all popup */}
-        {isWhatsappAllOpen && selectedContacts.length > 0 && (
-          <ListPopup
-            title="Whatsapp to All Contacts"
-            list={whatsappTemplates}
-            selected={selectedWhatsapptemplate}
-            onSelect={handleSelectWhatsapptemplate}
-            onSubmit={handleWhatsappAll}
-            submitLabel="Whatsapp All"
-            onClose={() => setIsWhatsappAllOpen(false)}
-          />
-        )}
 
         {/* ✅ TABLE */}
         <div className="p-4 max-md:p-3 bg-white rounded-md w-full">
@@ -601,7 +662,7 @@ export default function Contacts() {
                   </div>
 
                   <div className="flex justify-center items-center">
-                    <button type="submit" className="border border-gray-900 text-[var(--color-secondary-darker)] hover:bg-gray-900 hover:text-white transition-all duration-300 cursor-pointer px-3 py-2 mt-6 rounded-md">
+                    <button type="submit" className="border border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-white transition-all duration-300 cursor-pointer px-3 py-2 mt-6 rounded-md">
                       Explore
                     </button>
                     <button type="reset" onClick={clearFilter} className="text-red-500 cursor-pointer hover:underline text-sm px-5 py-2 mt-6 rounded-md ml-3">
@@ -661,7 +722,7 @@ export default function Contacts() {
               <table className="table-auto w-full border-collapse text-sm border border-gray-200">
                 <thead className="bg-[var(--color-primary)] rounmd text-white">
                   <tr>
-                    {/* ✅ SELECT ALL */}
+                    {/* SELECT ALL */}
                     <th className="px-2 py-3 text-left">
                       <input
                         id="selectall"
@@ -713,7 +774,7 @@ export default function Contacts() {
                         <td className="px-4 py-3 border border-gray-200">{item.AssignTo ? item.AssignTo : "N/A"}</td>
                         <td className="px-4 py-3 border border-gray-200">{item.date}</td>
 
-                        <td className="px-4 py-2 border border-gray-200 flex gap-2 items-center">
+                        <td className="px-4 py-2 flex gap-2 items-center">
                           <Button
                             sx={{
                               backgroundColor: "#E8F5E9",

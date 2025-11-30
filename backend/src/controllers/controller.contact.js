@@ -1,5 +1,5 @@
 import Contact from "../models/model.contact.js";
-import Campaign from "../models/model.campaign.js";
+import ContactCampaign from "../models/model.campaign.js";
 import ContactType from "../models/model.contacttype.js";
 
 import Admin from "../models/model.admin.js";
@@ -8,63 +8,153 @@ import City from "../models/model.city.js";
 import Location from "../models/model.location.js";
 
 // ✅ GET CONTACTS (Role-based + Filters)
+// export const getContact = async (req, res, next) => {
+//   try {
+//     const admin = req.admin;
+//     const filter = {};
+
+//     // 🧩 Role-based filtering
+//     if (admin.role === "city_admin") {
+//       filter.City = admin.city;
+//     } else if (admin.role === "user") {
+//       filter.AssignTo = admin._id;
+//     }
+
+//     // 🧠 Query filters
+//     const {
+//       Campaign: qCampaign,
+//       ContactType: qContactType,
+//       City: qCity,
+//       Location: qLocation,
+//       Keyword,
+//       StartDate,
+//       EndDate,
+//       Limit,
+//       sort,
+//     } = req.query;
+
+//     if (qCampaign)
+//       filter.Campaign = { $regex: qCampaign.trim(), $options: "i" };
+//     if (qContactType)
+//       filter.ContactType = { $regex: qContactType.trim(), $options: "i" };
+//     if (qCity) filter.City = { $regex: qCity.trim(), $options: "i" };
+//     if (qLocation)
+//       filter.Location = { $regex: qLocation.trim(), $options: "i" };
+
+//     if (Keyword) {
+//       filter.$or = [
+//         { Name: { $regex: Keyword.trim(), $options: "i" } },
+//         { CompanyName: { $regex: Keyword.trim(), $options: "i" } },
+//         { Notes: { $regex: Keyword.trim(), $options: "i" } },
+//         { Email: { $regex: Keyword.trim(), $options: "i" } },
+//       ];
+//     }
+
+//     if (StartDate && EndDate) {
+//       filter.createdAt = { $gte: new Date(StartDate), $lte: new Date(EndDate) };
+//     }
+
+//     // Sorting
+//     let sortField = "createdAt";
+//     let sortOrder = sort?.toLowerCase() === "asc" ? 1 : -1;
+
+//     let query = Contact.find(filter)
+//       .populate("AssignTo", "name email role city")
+//       .sort({ [sortField]: sortOrder });
+
+//     if (Limit) query = query.limit(Number(Limit));
+
+//     const contacts = await query;
+//     res.status(200).json(contacts);
+//   } catch (error) {
+//     next(new ApiError(500, error.message));
+//   }
+// };
+
 export const getContact = async (req, res, next) => {
   try {
     const admin = req.admin;
     const filter = {};
 
-    // 🧩 Role-based filtering
-    if (admin.role === "city_admin") {
-      filter.City = admin.city;
-    } else if (admin.role === "user") {
-      filter.AssignTo = admin._id;
-    }
+    // Role-based filtering
+    if (admin.role === "city_admin") filter.City = admin.city;
+    else if (admin.role === "user") filter.AssignTo = admin._id;
 
-    // 🧠 Query filters
     const {
-      Campaign: qCampaign,
-      ContactType: qContactType,
-      City: qCity,
-      Location: qLocation,
+      Campaign,
+      ContactType,
+      City,
+      Location,
       Keyword,
       StartDate,
       EndDate,
       Limit,
       sort,
+      User,
     } = req.query;
 
-    if (qCampaign)
-      filter.Campaign = { $regex: qCampaign.trim(), $options: "i" };
-    if (qContactType)
-      filter.ContactType = { $regex: qContactType.trim(), $options: "i" };
-    if (qCity) filter.City = { $regex: qCity.trim(), $options: "i" };
-    if (qLocation)
-      filter.Location = { $regex: qLocation.trim(), $options: "i" };
+    // Helper for regex building
+    const makeRegex = (val) => ({ $regex: val.trim(), $options: "i" });
 
+    // Apply filters
+    if (Campaign) filter.Campaign = makeRegex(Campaign);
+    if (ContactType) filter.ContactType = makeRegex(ContactType);
+    if (City) filter.City = makeRegex(City);
+    if (Location) filter.Location = makeRegex(Location);
+
+    // Keyword search
     if (Keyword) {
       filter.$or = [
-        { Name: { $regex: Keyword.trim(), $options: "i" } },
-        { CompanyName: { $regex: Keyword.trim(), $options: "i" } },
-        { Notes: { $regex: Keyword.trim(), $options: "i" } },
-        { Email: { $regex: Keyword.trim(), $options: "i" } },
+        { Name: makeRegex(Keyword) },
+        { CompanyName: makeRegex(Keyword) },
+        { Notes: makeRegex(Keyword) },
+        { Email: makeRegex(Keyword) },
       ];
     }
 
+    // Date filter
     if (StartDate && EndDate) {
-      filter.createdAt = { $gte: new Date(StartDate), $lte: new Date(EndDate) };
+      filter.createdAt = {
+        $gte: new Date(StartDate),
+        $lte: new Date(EndDate),
+      };
     }
 
-    // Sorting
-    let sortField = "createdAt";
-    let sortOrder = sort?.toLowerCase() === "asc" ? 1 : -1;
+    // Sort setup
+    const sortOrder = sort?.toLowerCase() === "asc" ? 1 : -1;
 
+    // User filter inside populate
+    let populateMatch = {};
+
+    if (User) {
+      populateMatch = {
+        $or: [
+          { name: makeRegex(User) },
+          { email: makeRegex(User) },
+          { role: makeRegex(User) },
+          { city: makeRegex(User) },
+        ],
+      };
+    }
+
+    // Main query
     let query = Contact.find(filter)
-      .populate("AssignTo", "name email role city")
-      .sort({ [sortField]: sortOrder });
+      .populate({
+        path: "AssignTo",
+        select: "name email role city",
+        match: populateMatch,
+      })
+      .sort({ createdAt: sortOrder });
 
     if (Limit) query = query.limit(Number(Limit));
 
-    const contacts = await query;
+    let contacts = await query;
+
+    // Apply AssignTo !== null ONLY when User filter is applied
+    if (User) {
+      contacts = contacts.filter((c) => c.AssignTo !== null);
+    }
+
     res.status(200).json(contacts);
   } catch (error) {
     next(new ApiError(500, error.message));
@@ -194,7 +284,7 @@ export const getContactById = async (req, res, next) => {
       return next(new ApiError(403, "Access denied"));
 
     // 🧩 Look up Campaign and ContactType using their names
-    const campaignDoc = await Campaign.findOne({
+    const campaignDoc = await ContactCampaign.findOne({
       Name: contact.Campaign,
     }).select("_id Name");
     const contactTypeDoc = await ContactType.findOne({

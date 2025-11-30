@@ -21,6 +21,7 @@ import SaveButton from "@/app/component/buttons/SaveButton";
 import { handleFieldOptionsObject } from "@/app/utils/handleFieldOptionsObject";
 import ObjectSelect from "@/app/component/ObjectSelect";
 import { InputField } from "@/app/component/InputField";
+import TextareaField from "@/app/component/datafields/TextareaField";
 
 interface ErrorInterface {
   [key: string]: string;
@@ -227,7 +228,7 @@ export default function CustomerEdit() {
       return;
     }
 
-    try {
+
       const formData = new FormData();
 
       // Append normal fields
@@ -286,10 +287,7 @@ export default function CustomerEdit() {
       } else {
         toast.error("Update failed");
       }
-    } catch (error) {
-      toast.error("Error updating customer");
-      console.error("Update Error:", error);
-    }
+    
   };
 
   const dropdownOptions = ["Option1", "Option2", "Option3"];
@@ -418,7 +416,7 @@ export default function CustomerEdit() {
               <ObjectSelect
                 options={Array.isArray(fieldOptions?.CustomerType) ? fieldOptions.CustomerType : []}
                 label="Customer Type"
-                value={customerData.CustomerType.id}
+                value={customerData.CustomerType.name}
                 getLabel={(item) => item?.Name || ""}
                 getId={(item) => item?._id || ""}
                 onChange={(selectedId) => {
@@ -437,7 +435,7 @@ export default function CustomerEdit() {
               <ObjectSelect
                 options={Array.isArray(fieldOptions?.CustomerSubtype) ? fieldOptions.CustomerSubtype : []}
                 label="Customer Subtype"
-                value={customerData.CustomerSubtype?.id}
+                value={customerData.CustomerSubtype?.name}
                 getLabel={(item) => item?.Name || ""}
                 getId={(item) => item?._id || ""}
                 onChange={(selectedId) => {
@@ -489,21 +487,25 @@ export default function CustomerEdit() {
                 }}
                 error={errors.Location}
               />
-              <InputField label="Area" name="Area" value={customerData.Area} onChange={handleInputChange} />
-              <InputField label="Address" name="Address" value={customerData.Address} onChange={handleInputChange} />
-              <InputField label="Email" name="Email" value={customerData.Email} onChange={handleInputChange} error={errors.Email} />
-              <SingleSelect options={Array.isArray(fieldOptions?.Facilities) ? fieldOptions.Facilities : []} label="Facilities" value={customerData.Facilities} onChange={(v) => handleSelectChange("Facilities", v)} />
-              <InputField label="Reference ID" name="ReferenceId" value={customerData.ReferenceId} onChange={handleInputChange} />
-              <InputField label="Customer ID" name="CustomerId" value={customerData.CustomerId} onChange={handleInputChange} />
-              <DateSelector label="Customer Date" value={customerData.CustomerDate} onChange={(val) => handleSelectChange("CustomerDate", val)} />
-              <InputField label="Customer Year" name="CustomerYear" value={customerData.CustomerYear} onChange={handleInputChange} />
-              <InputField label="Others" name="Others" value={customerData.Others} onChange={handleInputChange} />
-              <InputField label="Description" name="Description" value={customerData.Description} onChange={handleInputChange} />
-              <InputField label="Video" name="Video" value={customerData.Video} onChange={handleInputChange} />
-              <InputField label="Google Map" name="GoogleMap" value={customerData.GoogleMap} onChange={handleInputChange} />
-              <SingleSelect options={Array.isArray(fieldOptions?.Verified) ? fieldOptions.Verified : []} label="Verified" value={customerData.Verified} onChange={(v) => handleSelectChange("Verified", v)} />
-              <FileUpload label="Customer Images" multiple onChange={(e) => handleFileChange(e, "CustomerImage")} previews={imagePreviews} onRemove={handleRemoveImage} />
+              <InputField className=" max-sm:hidden" label="Area" name="Area" value={customerData.Area} onChange={handleInputChange} />
+              <InputField className=" max-sm:hidden" label="Address" name="Address" value={customerData.Address} onChange={handleInputChange} />
+              <InputField className=" max-sm:hidden" label="Email" name="Email" value={customerData.Email} onChange={handleInputChange} error={errors.Email} />
+              <SingleSelect className=" max-sm:hidden" options={Array.isArray(fieldOptions?.Facilities) ? fieldOptions.Facilities : []} label="Facilities" value={customerData.Facilities} onChange={(v) => handleSelectChange("Facilities", v)} />
+              <InputField className=" max-sm:hidden" label="Reference ID" name="ReferenceId" value={customerData.ReferenceId} onChange={handleInputChange} />
+              <InputField className=" max-sm:hidden" label="Customer ID" name="CustomerId" value={customerData.CustomerId} onChange={handleInputChange} />
+              <div className=" max-sm:hidden">
+                <DateSelector label="Customer Date" value={customerData.CustomerDate} onChange={(val) => handleSelectChange("CustomerDate", val)} />
+              </div>
+              <InputField className=" max-sm:hidden" label="Customer Year" name="CustomerYear" value={customerData.CustomerYear} onChange={handleInputChange} />
+              <InputField className=" max-sm:hidden" label="Others" name="Others" value={customerData.Others} onChange={handleInputChange} />
+              <TextareaField label="Description" name="Description" value={customerData.Description} onChange={handleInputChange} />
+              <InputField className=" max-sm:hidden" label="Video" name="Video" value={customerData.Video} onChange={handleInputChange} />
+              <InputField className=" max-sm:hidden" label="Google Map" name="GoogleMap" value={customerData.GoogleMap} onChange={handleInputChange} />
+              <SingleSelect className=" max-sm:hidden" options={Array.isArray(fieldOptions?.Verified) ? fieldOptions.Verified : []} label="Verified" value={customerData.Verified} onChange={(v) => handleSelectChange("Verified", v)} />
+              <div className=" max-sm:hidden">
+                <FileUpload label="Customer Images" multiple onChange={(e) => handleFileChange(e, "CustomerImage")} previews={imagePreviews} onRemove={handleRemoveImage} />
               <FileUpload label="Site Plan" onChange={(e) => handleFileChange(e, "SitePlan")} previews={sitePlanPreview ? [sitePlanPreview] : []} onRemove={() => handleRemoveSitePlan()} />
+              </div>
             </div>
 
             <div className="flex justify-end mt-4">
@@ -524,27 +526,7 @@ export default function CustomerEdit() {
 // Input field component
 
 
-// Textarea field
-const TextareaField: React.FC<{
-  label: string;
-  name: string;
-  value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-}> = ({ label, name, value, onChange }) => (
-  <label className="relative block w-full">
-    <textarea
-      name={name}
-      value={value}
-      onChange={onChange}
-      placeholder=" "
-      className="peer w-full border rounded-sm border-gray-400 bg-transparent py-3 px-4 outline-none focus:border-blue-500 min-h-[100px]"
-    ></textarea>
-    <p className={`absolute left-2 bg-white px-1 text-gray-500 text-sm transition-all duration-300
-      ${value ? "-top-2 text-xs text-blue-500" : "peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-500"}`}>
-      {label}
-    </p>
-  </label>
-);
+
 
 // File upload with preview and remove
 const FileUpload: React.FC<{

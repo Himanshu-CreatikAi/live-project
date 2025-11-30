@@ -33,75 +33,77 @@ export const createFollowup = async (req, res, next) => {
 };
 
 // ✅ Get all follow-ups with pagination and customer data
+
 export const getFollowups = async (req, res, next) => {
   try {
     const {
       page = 1,
       limit = 10,
       keyword = "",
-      status,
-      campaign,
-      customerSubType,
-      propertyType,
-      city,
-      location,
-      user,
+      StatusType,
+      Campaign,
+      CustomerSubType,
+      PropertyType,
+      City,
+      Location,
+      User,
     } = req.query;
 
     const pageNum = Math.max(1, parseInt(page));
     const perPage = Math.max(1, parseInt(limit));
     const skip = (pageNum - 1) * perPage;
 
+    // -----------------------------------------------------
+    // 1️⃣ FOLLOW-UP FILTER
+    // -----------------------------------------------------
     const followupFilters = {};
-    if (status) followupFilters.StatusType = status;
+    if (StatusType) followupFilters.StatusType = StatusType;
 
+    // -----------------------------------------------------
+    // 2️⃣ CUSTOMER FILTERS (Flattened)
+    // -----------------------------------------------------
     const customerFilters = {};
+    if (Campaign)
+      customerFilters.Campaign = { $regex: Campaign, $options: "i" };
+    if (PropertyType)
+      customerFilters.CustomerType = { $regex: PropertyType, $options: "i" };
+    if (CustomerSubType)
+      customerFilters.CustomerSubType = {
+        $regex: CustomerSubType,
+        $options: "i",
+      };
+    if (City) customerFilters.City = { $regex: City, $options: "i" };
+    if (Location)
+      customerFilters.Location = { $regex: Location, $options: "i" };
+    if (User) customerFilters.AssignTo = { $regex: User, $options: "i" };
 
-    if (campaign)
-      customerFilters["customer.Campaign"] = {
-        $regex: campaign,
-        $options: "i",
-      };
-    if (propertyType)
-      customerFilters["customer.CustomerType"] = {
-        $regex: propertyType,
-        $options: "i",
-      };
-    if (customerSubType)
-      customerFilters["customer.CustomerSubType"] = {
-        $regex: customerSubType,
-        $options: "i",
-      };
-    if (city)
-      customerFilters["customer.City"] = { $regex: city, $options: "i" };
-    if (location)
-      customerFilters["customer.Location"] = {
-        $regex: location,
-        $options: "i",
-      };
-    if (user)
-      customerFilters["customer.ReferenceId"] = { $regex: user, $options: "i" };
-
-    const keywordRegex = keyword ? { $regex: keyword, $options: "i" } : null;
-    const keywordMatch = keyword
+    // -----------------------------------------------------
+    // 3️⃣ KEYWORD FILTERS
+    // -----------------------------------------------------
+    const keywordFilters = keyword
       ? {
           $or: [
-            { "customer.customerName": keywordRegex },
-            { "customer.ContactNumber": keywordRegex },
-            { "customer.Email": keywordRegex },
-            { "customer.City": keywordRegex },
-            { "customer.Location": keywordRegex },
+            { customerName: { $regex: keyword, $options: "i" } },
+            { ContactNumber: { $regex: keyword, $options: "i" } },
+            { Email: { $regex: keyword, $options: "i" } },
+            { City: { $regex: keyword, $options: "i" } },
+            { Location: { $regex: keyword, $options: "i" } },
           ],
         }
-      : null;
+      : {};
 
+    // -----------------------------------------------------
+    // 4️⃣ PIPELINE START
+    // -----------------------------------------------------
     const pipeline = [];
 
-    // ✅ Match followup-level filters
-    if (Object.keys(followupFilters).length)
+    if (Object.keys(followupFilters).length > 0) {
       pipeline.push({ $match: followupFilters });
+    }
 
-    // ✅ Lookup customer data with nested AssignTo admin details
+    // -----------------------------------------------------
+    // 🔍 Lookup Customer + AssignTo Admin
+    // -----------------------------------------------------
     pipeline.push({
       $lookup: {
         from: "customers",
@@ -129,12 +131,7 @@ export const getFollowups = async (req, res, next) => {
               ],
             },
           },
-          {
-            $unwind: {
-              path: "$AssignTo",
-              preserveNullAndEmptyArrays: true,
-            },
-          },
+          { $unwind: { path: "$AssignTo", preserveNullAndEmptyArrays: true } },
         ],
       },
     });
@@ -143,17 +140,64 @@ export const getFollowups = async (req, res, next) => {
       $unwind: { path: "$customer", preserveNullAndEmptyArrays: false },
     });
 
-    // ✅ Apply customer and keyword filters
-    const combinedCustomerAndKeywordMatch = {
-      ...(Object.keys(customerFilters).length ? customerFilters : {}),
-      ...(keywordMatch ? keywordMatch : {}),
-    };
+    // -----------------------------------------------------
+    // 5️⃣ FLATTEN CUSTOMER FIELDS
+    // -----------------------------------------------------
+    pipeline.push({
+      $addFields: {
+        Campaign: "$customer.Campaign",
+        CustomerType: "$customer.CustomerType",
+        CustomerSubType: "$customer.CustomerSubType",
+        City: "$customer.City",
+        Location: "$customer.Location",
+        ReferenceId: "$customer.ReferenceId",
+        customerName: "$customer.customerName",
+        ContactNumber: "$customer.ContactNumber",
+        Email: "$customer.Email",
+        AssignTo: "$customer.AssignTo",
+        CustomerId: "$customer._id",
+      },
+    });
 
-    if (Object.keys(combinedCustomerAndKeywordMatch).length) {
-      pipeline.push({ $match: combinedCustomerAndKeywordMatch });
+    // -----------------------------------------------------
+    // 6️⃣ APPLY ALL FILTERS
+    // -----------------------------------------------------
+    const finalFilters = { ...customerFilters };
+    if (keyword) Object.assign(finalFilters, keywordFilters);
+
+    if (Object.keys(finalFilters).length > 0) {
+      pipeline.push({ $match: finalFilters });
     }
 
-    // ✅ Sort & paginate
+    // -----------------------------------------------------
+    // 7️⃣ CLEAN FINAL OUTPUT
+    // -----------------------------------------------------
+    pipeline.push({
+      $project: {
+        customer: 1,
+        StartDate: 1,
+        StatusType: 1,
+        FollowupNextDate: 1,
+        Description: 1,
+        createdAt: 1,
+        updatedAt: 1,
+
+        customerName: 1,
+        ContactNumber: 1,
+        Email: 1,
+        Campaign: 1,
+        CustomerType: 1,
+        CustomerSubType: 1,
+        City: 1,
+        Location: 1,
+        ReferenceId: 1,
+        AssignTo: 1,
+      },
+    });
+
+    // -----------------------------------------------------
+    // 8️⃣ SORT + PAGINATION
+    // -----------------------------------------------------
     pipeline.push({ $sort: { createdAt: -1 } });
 
     pipeline.push({
@@ -163,6 +207,9 @@ export const getFollowups = async (req, res, next) => {
       },
     });
 
+    // -----------------------------------------------------
+    // 9️⃣ EXECUTE
+    // -----------------------------------------------------
     const aggResult = await Followup.aggregate(pipeline);
 
     const metadata = aggResult[0]?.metadata?.[0] || { total: 0 };
@@ -214,13 +261,23 @@ export const deleteFollowup = async (req, res, next) => {
   }
 };
 
-// ✅ Delete all follow-ups
-export const deleteAllFollowups = async (req, res, next) => {
+export const deleteFollowupsByCustomer = async (req, res, next) => {
   try {
-    await Followup.deleteMany({});
-    res
-      .status(200)
-      .json({ success: true, message: "All follow-ups deleted successfully" });
+    const { customerId } = req.params;
+
+    // Check if customerId is provided
+    if (!customerId) {
+      return next(new ApiError(400, "Customer ID is required"));
+    }
+
+    // Delete all followups linked to this customer
+    const result = await Followup.deleteMany({ customer: customerId });
+
+    res.status(200).json({
+      success: true,
+      message: "All followups for this customer have been deleted",
+      deletedCount: result.deletedCount,
+    });
   } catch (error) {
     next(new ApiError(500, error.message));
   }

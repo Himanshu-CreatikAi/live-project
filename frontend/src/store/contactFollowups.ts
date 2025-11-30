@@ -59,7 +59,7 @@ export const getFilteredContactFollowups = async (params: string): Promise<conta
     });
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
-    return data;
+    return data.data;
   } catch (error) {
     console.log("SERVER ERROR (getFilteredContactFollowups):", error);
     return null;

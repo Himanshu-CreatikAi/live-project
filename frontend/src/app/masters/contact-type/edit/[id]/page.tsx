@@ -14,6 +14,7 @@ import { handleFieldOptionsObject } from "@/app/utils/handleFieldOptionsObject";
 import { getCampaign } from "@/store/masters/campaign/campaign";
 import ObjectSelect from "@/app/component/ObjectSelect";
 import MasterProtectedRoute from "@/app/component/MasterProtectedRoutes";
+import { getContactCampaign } from "@/store/masters/contactcampaign/contactcampaign";
 
 interface ErrorInterface {
   [key: string]: string;
@@ -33,9 +34,9 @@ export default function ContactTypeEdit() {
   const { id } = useParams();
 
   useEffect(() => {
-   
+
     const fetchData = async () => {
-      const data= await getContactTypeById(id as string);
+      const data = await getContactTypeById(id as string);
       if (data) {
         setContactTypeData({
           Campaign: data?.Campaign,
@@ -44,11 +45,11 @@ export default function ContactTypeEdit() {
         });
       }
     };
-    if(id){
+    if (id) {
       fetchData();
-    fetchFields();
+      fetchFields();
     }
-    
+
   }, [id]);
 
   const handleInputChange = useCallback(
@@ -95,7 +96,7 @@ export default function ContactTypeEdit() {
     await handleFieldOptionsObject(
       [
         { key: "Status", staticData: ["Active", "Inactive"] },
-        { key: "Campaign", fetchFn: getCampaign },
+        { key: "Campaign", fetchFn: getContactCampaign },
       ],
       setFieldOptions
     );
@@ -105,72 +106,72 @@ export default function ContactTypeEdit() {
 
   return (
     <MasterProtectedRoute>
-    <div className=" min-h-screen flex justify-center">
-      <Toaster position="top-right" />
-      <div className="w-full">
-        {/* Back Button */}
-        <div className="flex justify-end mb-4">
+      <div className=" min-h-screen flex justify-center">
+        <Toaster position="top-right" />
+        <div className="w-full">
+          {/* Back Button */}
+          <div className="flex justify-end mb-4">
 
-          <BackButton
-            url="/masters/contact-type"
-            text="Back"
-            icon={<ArrowLeft size={18} />}
-          />
-        </div>
+            <BackButton
+              url="/masters/contact-type"
+              text="Back"
+              icon={<ArrowLeft size={18} />}
+            />
+          </div>
 
-        {/* Form Card */}
-        <div className="bg-white/90 backdrop-blur-lg p-10 w-full rounded-3xl shadow-2xl">
-          <form onSubmit={(e) => e.preventDefault()} className="w-full">
-            <div className="mb-8 text-left border-b pb-4 border-gray-200">
-              <h1 className="text-3xl font-extrabold text-[var(--color-secondary-darker)] leading-tight tracking-tight">
-                Edit <span className="text-[var(--color-primary)]">Contact Type</span>
-              </h1>
-            </div>
-
-            <div className="flex flex-col space-y-6">
-              <div className="grid grid-cols-2 gap-6 max-lg:grid-cols-1">
-                {/* Campaign Options */}
-                <ObjectSelect
-                  options={Array.isArray(fieldOptions?.Campaign) ? fieldOptions.Campaign : []}
-                  label="Campaign"
-                  value={contactTypeData.Campaign}
-                  getLabel={(item) => item?.Name || ""}
-                  getId={(item) => item?._id || ""}
-                  onChange={(selected) => {
-                    setContactTypeData((prev) => ({ ...prev, Campaign: selected }));
-                    setErrors((prev) => ({ ...prev, Campaign: "" }));
-                  }}
-                  error={errors.Campaign}
-                />
-
-                {/* Contact Type Name */}
-                <InputField
-                  label="Contact Type Name"
-                  name="Name"
-                  value={contactTypeData.Name}
-                  onChange={handleInputChange}
-                  error={errors.Name}
-                />
-
-                {/* Status Dropdown */}
-                <SingleSelect
-                  options={statusOptions}
-                  label="Status"
-                  value={contactTypeData.Status}
-                  onChange={(v) => handleSelectChange("Status", v)}
-                />
+          {/* Form Card */}
+          <div className="bg-white/90 backdrop-blur-lg p-10 w-full rounded-3xl shadow-2xl">
+            <form onSubmit={(e) => e.preventDefault()} className="w-full">
+              <div className="mb-8 text-left border-b pb-4 border-gray-200">
+                <h1 className="text-3xl font-extrabold text-[var(--color-secondary-darker)] leading-tight tracking-tight">
+                  Edit <span className="text-[var(--color-primary)]">Contact Type</span>
+                </h1>
               </div>
 
-              {/* Save Button */}
-              <div className="flex justify-end mt-4">
+              <div className="flex flex-col space-y-6">
+                <div className="grid grid-cols-2 gap-6 max-lg:grid-cols-1">
+                  {/* Campaign Options */}
+                  <ObjectSelect
+                    options={Array.isArray(fieldOptions?.Campaign) ? fieldOptions.Campaign : []}
+                    label="Campaign"
+                    value={contactTypeData.Campaign}
+                    getLabel={(item) => item?.Name || ""}
+                    getId={(item) => item?._id || ""}
+                    onChange={(selected) => {
+                      setContactTypeData((prev) => ({ ...prev, Campaign: selected }));
+                      setErrors((prev) => ({ ...prev, Campaign: "" }));
+                    }}
+                    error={errors.Campaign}
+                  />
 
-                <SaveButton text="Update" onClick={handleSubmit} />
+                  {/* Contact Type Name */}
+                  <InputField
+                    label="Contact Type Name"
+                    name="Name"
+                    value={contactTypeData.Name}
+                    onChange={handleInputChange}
+                    error={errors.Name}
+                  />
+
+                  {/* Status Dropdown */}
+                  <SingleSelect
+                    options={statusOptions}
+                    label="Status"
+                    value={contactTypeData.Status}
+                    onChange={(v) => handleSelectChange("Status", v)}
+                  />
+                </div>
+
+                {/* Save Button */}
+                <div className="flex justify-end mt-4">
+
+                  <SaveButton text="Update" onClick={handleSubmit} />
+                </div>
               </div>
-            </div>
-          </form>
+            </form>
+          </div>
         </div>
       </div>
-    </div>
     </MasterProtectedRoute>
   );
 }

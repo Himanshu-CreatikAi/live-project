@@ -10,78 +10,54 @@ const SmallScreenData = () => {
     {
       pTag: "Campigns",
       icon: <BrickWallFire />,
-      color: "bg-red-500/50",
+      color: " backdrop-blur-[2px] bg-red-600/50",
       url:"/masters/campaign"
     
     },
     {
-      pTag: "Follow Up",
+      pTag: "Customer",
       icon: <Podcast />,
-      color: "bg-purple-500/50",
-      url:"/followups/customer"
+      color: "backdrop-blur-[2px] bg-purple-600/50",
+      url:"/customer"
      
     },
        {
-        pTag:"Schedule",
+        pTag:"Followups",
         icon:<School/>,
-        color:"bg-teal-500/50",
-        url:"/schedules"
+        color:"backdrop-blur-[2px] bg-teal-600/50",
+        url:"/followups/customer"
 
     }, {
-        pTag:"Task",
+        pTag:"Contact",
         icon: <Cable/>,
-        color:"bg-green-500/50",
-        url:"/task"
+        color:" backdrop-blur-[2px] bg-green-600/50",
+        url:"/contact"
        
     },
        {
-        pTag:"Customers",
+        pTag:"Task",
         icon:<ShieldUser/>,
-        color:"bg-blue-500/50",
-        url:"/customer"
+        color:" backdrop-blur-[2px] bg-blue-600/50",
+        url:"/task"
        
     }, {
-        pTag:"Contacts",
+        pTag:"Status Type",
         icon: <NotebookTabs/>,
-        color:"bg-gray-500/50",
-        url:"/contact"
+        color:"backdrop-blur-[2px] bg-gray-600/50",
+        url:"/masters/status-type"
     },
   ];
+
+  
 
  
   return (
     <>
     <></>
     <ImageSlider/>
-    <div className="bg-gray-200 flex flex-col">
+    <div className=" flex flex-col mb-4">
         
       <div className="px-4">
-        {/* ✅ Infinite Smooth Slider */}
-        {/* <div className="relative w-full overflow-hidden bg-gray-900 py-4">
-          <div
-            ref={sliderRef}
-            className={`flex ${
-              isTransitioning ? "transition-transform duration-2000 ease-in-out" : ""
-            }`}
-            style={{
-              transform: `translateX(-${imageIndex * 100}%)`,
-            }}
-          >
-            {[...images, images[0]].map((src, i) => (
-              <div key={i} className="shrink-0 w-full flex justify-center px-2">
-                <div className="w-[300px] sm:w-[400px] md:w-[500px]">
-                  <img
-                    src={src}
-                    alt={`slide-${i}`}
-                    width={500}
-                    height={300}
-                    className="rounded-xl object-cover w-full h-auto"
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div> */}
     
         {/* ✅ Button Grid */}
         <div className="grid grid-cols-2 gap-4 mt-4 w-full ">
@@ -95,8 +71,8 @@ const SmallScreenData = () => {
               <div
                 className={`${data.color} py-9 px-4 rounded-md flex flex-col h-full items-center justify-center`}
               >
-                <div className="text-white text-4xl">{data.icon}</div>
-                <p className="text-white mt-2 text-center">{data.pTag}</p>
+                <div className="text-white text-6xl">{data.icon}</div>
+                <p className="text-white mt-2 text-lg text-center">{data.pTag}</p>
               </div>
             </Link>
           ))}

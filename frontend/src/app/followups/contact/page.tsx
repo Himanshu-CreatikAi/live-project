@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from "react";
 import { CiSearch } from "react-icons/ci";
-import { IoIosArrowUp, IoIosArrowDown } from "react-icons/io";
+import { IoIosArrowUp, IoIosArrowDown, IoMdClose } from "react-icons/io";
 import { MdEdit, MdDelete, MdAdd } from "react-icons/md";
 import Button from '@mui/material/Button';
 import SingleSelect from "@/app/component/SingleSelect";
@@ -33,6 +33,8 @@ import { getLocation } from "@/store/masters/location/location";
 import { getAllAdmins } from "@/store/auth";
 import PageHeader from "@/app/component/labels/PageHeader";
 import { getContactType } from "@/store/masters/contacttype/contacttype";
+import { getContactCampaign } from "@/store/masters/contactcampaign/contactcampaign";
+import { getContactStatusType } from "@/store/masters/contactstatustype/contactstatustype";
 
 export default function ContactFollowups() {
     const router = useRouter();
@@ -132,11 +134,11 @@ export default function ContactFollowups() {
     const nexttablePage = () => { if (currentTablePage !== totalTablePages) setCurrentTablePage(currentTablePage + 1); };
     const prevtablePage = () => { if (currentTablePage !== 1) setCurrentTablePage(currentTablePage - 1); };
 
-      useEffect(() => {
+    useEffect(() => {
         const safeLimit = Number(filters.Limit?.[0]);
         setRowsPerTablePage(safeLimit);
         setCurrentTablePage(1);
-      }, [filters.Limit]);
+    }, [filters.Limit]);
 
     // 🔹 Filters
     const handleSelectChange = async (field: keyof typeof filters, selected: string | string[]) => {
@@ -148,26 +150,27 @@ export default function ContactFollowups() {
 
         const queryParams = new URLSearchParams();
         Object.entries(updatedFilters).forEach(([key, value]) => {
+            if (key === "Limit") return;
             if (Array.isArray(value) && value.length > 0) value.forEach(v => queryParams.append(key, v));
             else if (typeof value === "string" && value) queryParams.append(key, value);
         });
 
         const data = await getFilteredContactFollowups(queryParams.toString());
         if (data) setFollowupData(data.map((item: any) => {
-                const date = new Date(item.updatedAt);
-                const formattedDate =
-                    date.getDate().toString().padStart(2, "0") + "-" +
-                    (date.getMonth() + 1).toString().padStart(2, "0") + "-" +
-                    date.getFullYear();
-                return {
-                    _id: item._id,
-                    contactid: item.contact._id,
-                    Name: item.contact.Name,
-                    ContactNumber: item.contact.ContactNo,
-                    User: item.contact.AssignTo?.name ?? "",
-                    Date: formattedDate,
-                }
-            }));
+            const date = new Date(item.updatedAt);
+            const formattedDate =
+                date.getDate().toString().padStart(2, "0") + "-" +
+                (date.getMonth() + 1).toString().padStart(2, "0") + "-" +
+                date.getFullYear();
+            return {
+                _id: item._id,
+                contactid: item.contact._id,
+                Name: item.contact.Name,
+                ContactNumber: item.contact.ContactNo,
+                User: item.contact.AssignTo?.name ?? "",
+                Date: formattedDate,
+            }
+        }));
     };
 
     const clearFilter = async () => {
@@ -181,7 +184,7 @@ export default function ContactFollowups() {
             Keyword: "",
             StartDate: "",
             EndDate: "",
-            Limit: [],
+            Limit: ["10"],
         });
         await getFollowups();
     };
@@ -226,9 +229,9 @@ export default function ContactFollowups() {
     const fetchFields = async () => {
         await handleFieldOptions(
             [
-                { key: "StatusTypes", staticData: ["Active", "Inactive"] },
-                { key: "Campaign", fetchFn: getCampaign },
-                { key: "PropertyTypes", fetchFn:getContactType },
+                { key: "StatusTypes", fetchFn:getContactStatusType},
+                { key: "Campaign", fetchFn: getContactCampaign },
+                { key: "PropertyTypes", fetchFn: getContactType },
                 { key: "City", fetchFn: getCity },
                 { key: "Location", fetchFn: getLocation },
                 { key: "Users", fetchFn: getAllAdmins },
@@ -276,12 +279,15 @@ export default function ContactFollowups() {
                 {isfollowupDialogOpen && Array.isArray(followupDialogData) && followupDialogData.length > 0 && (
                     <PopupMenu onClose={() => { setIsFollowupDialogOpen(false); setFollowupDialogData([]); }}>
                         <div className="flex flex-col border border-gray-300/30 overflow-y-auto bg-gray-100 text-[var(--color-secondary-darker)] rounded-xl shadow-lg p-6 max-w-[800px] gap-6 m-2 w-full max-h-[80vh]">
-                            <h2 className="text-2xl text-[var(--color-secondary-darker)] font-extrabold">Contact <span className="text-[var(--color-primary)]">Followups</span></h2>
+                            <h2 className="text-2xl text-[var(--color-secondary-darker)] font-extrabold flex justify-between items-center"><div>Contact <span className="text-[var(--color-primary)]">Followups</span></div><button className=" cursor-pointer" onClick={() => {
+                                                    setFollowupDialogData(null)
+                                                    setIsFollowupDialogOpen(false);
+                                                }}><IoMdClose /></button></h2>
                             <div className="overflow-y-auto max-h-[100vh]">
                                 {followupDialogData.map((item, index) => (
                                     <div key={item._id ?? +index} className="flex justify-between border border-gray-300 rounded-md p-4">
                                         <div className=" flex flex-col gap-2">
-                                            <p><span className="font-semibold">Followup Date:</span> {item.FollowupNextDate}</p>
+                                            <p><span className="font-semibold">Followup Date:</span> {item.StartDate}</p>
                                             <p><span className="font-semibold">Status Type:</span> {item.StatusType}</p>
                                             <p><span className="font-semibold">Next Followup Date:</span> {item.FollowupNextDate}</p>
                                             <p><span className="font-semibold">Description:</span> {item.Description}</p>
@@ -323,7 +329,7 @@ export default function ContactFollowups() {
                         <div className="m-5 relative">
                             <div className="flex justify-between items-center py-1 px-2 border border-gray-800 rounded-md cursor-pointer" onClick={() => setToggleSearchDropdown(!toggleSearchDropdown)}>
                                 <h3 className="flex items-center gap-1"><CiSearch />Advance Search</h3>
-                                <button type="button"  className="p-2 hover:bg-gray-200 rounded-md cursor-pointer">
+                                <button type="button" className="p-2 hover:bg-gray-200 rounded-md cursor-pointer">
                                     {toggleSearchDropdown ? <IoIosArrowUp /> : <IoIosArrowDown />}
                                 </button>
                             </div>
@@ -336,7 +342,7 @@ export default function ContactFollowups() {
                                         <SingleSelect options={Array.isArray(fieldOptions?.StatusTypes) ? fieldOptions.StatusTypes : []} value={filters.StatusType[0]} label="Status Type" onChange={(val) => handleSelectChange("StatusType", val)} />
                                         <SingleSelect options={Array.isArray(fieldOptions?.City) ? fieldOptions.City : []} value={filters.City[0]} label="City" onChange={(val) => handleSelectChange("City", val)} />
                                         <SingleSelect options={Array.isArray(fieldOptions?.Location) ? fieldOptions.Location : []} value={filters.Location[0]} label="Location" onChange={(val) => handleSelectChange("Location", val)} />
-                                        <SingleSelect options={Array.isArray(fieldOptions?.Users) ? fieldOptions.Users : []} value={filters.User[0]} label="User" onChange={(val) => handleSelectChange("User", val)} />
+                                        {/* <SingleSelect options={Array.isArray(fieldOptions?.Users) ? fieldOptions.Users : []} value={filters.User[0]} label="User" onChange={(val) => handleSelectChange("User", val)} /> */}
                                         <SingleSelect options={["10", "25", "50", "100"]} value={filters.Limit[0]} label="Limit" onChange={(val) => handleSelectChange("Limit", val)} />
                                     </div>
                                 </div>
@@ -353,10 +359,10 @@ export default function ContactFollowups() {
                                         />
                                     </div>
                                     <div className="flex justify-center items-center">
-                                        <button type="submit" className="border border-gray-900 text-[var(--color-secondary-darker)] hover:bg-gray-900 hover:text-white transition-all duration-300 cursor-pointer px-3 py-2 mt-6 rounded-md">
+                                        <button type="submit" className="border border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-white transition-all duration-300 cursor-pointer px-3 py-2 mt-6 rounded-md">
                                             Explore
                                         </button>
-                                        <button type="reset" onClick={clearFilter} className="text-red-500 text-sm px-5 py-2 mt-6 rounded-md ml-3">
+                                        <button type="reset" onClick={clearFilter} className="text-red-500 cursor-pointer hover:underline text-sm px-5 py-2 mt-6 rounded-md ml-3">
                                             Clear Search
                                         </button>
                                     </div>
@@ -442,7 +448,7 @@ export default function ContactFollowups() {
                                                             onClick={() => {
                                                                 setIsDeleteDialogOpen(true);
                                                                 setDeleteDialogData({
-                                                                    id: item._id,
+                                                                    id: item.contactid,
                                                                     ContactNumber: item.ContactNumber
                                                                 });
                                                             }}

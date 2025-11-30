@@ -3,6 +3,7 @@
 import { API_ROUTES } from "@/constants/ApiRoute"
 import { contactAllDataInterface } from "./contact.interface";
 import { customerAllDataInterface, customerAssignInterface, customerDeletePayloadInterface } from "./customer.interface";
+import toast from "react-hot-toast";
 
 export const getCustomer = async () => {
   try {
@@ -73,11 +74,12 @@ export const addCustomer = async (formData: FormData) => {
       credentials: "include"
     });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
 
     const result = await response.json();
+    if (!result.success) {
+      toast.error(result.message ?? "Something went wrong")
+      throw new Error(result.message ?? "Something went wrong")
+    }
     return result;
   } catch (error) {
     console.error("SERVER ERROR: ", error);
@@ -85,14 +87,14 @@ export const addCustomer = async (formData: FormData) => {
   }
 };
 
-export const importCustomer = async (formData:FormData) => {
+export const importCustomer = async (formData: FormData) => {
   try {
 
     /* for (let [key, value] of formData.entries()) {
       console.log(`${key}:`, value);
     } */
 
-   
+
     const response = await fetch(API_ROUTES.CUSTOMER.CUSTOMERIMPORT, {
       method: "POST",
       body: formData,
@@ -151,6 +153,7 @@ export const assignCustomer = async (data: customerAssignInterface) => {
     }
 
     const result = await response.json();
+    console.log(" assign customer api , response ", result)
     return result;
   } catch (error) {
     console.error("SERVER ERROR: ", error);
@@ -173,11 +176,11 @@ export const updateCustomer = async (id: string, formData: FormData) => {
       credentials: "include"
     });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
     const result = await response.json();
+    if (!result.success) {
+      toast.error(result.message ?? "Something went wrong")
+      throw new Error(result.message ?? "Something went wrong")
+    }
     return result;
   } catch (error) {
     console.error("SERVER ERROR: ", error);
@@ -205,7 +208,7 @@ export const deleteCustomer = async (id: string) => {
   }
 }
 
-export const deleteAllCustomer = async (payload:customerDeletePayloadInterface) => {
+export const deleteAllCustomer = async (payload: customerDeletePayloadInterface) => {
   try {
     const response = await fetch(API_ROUTES.CUSTOMER.DELETEALL,
       {

@@ -286,7 +286,7 @@ export default function SchedulePage() {
                       <td className="px-4 py-2 flex gap-2 items-center">
                         <Button
                           sx={{
-                            backgroundColor: "#C8E6C9",
+                            backgroundColor: "#E8F5E9",
                             color: "var(--color-primary)",
                             minWidth: "32px",
                             height: "32px",

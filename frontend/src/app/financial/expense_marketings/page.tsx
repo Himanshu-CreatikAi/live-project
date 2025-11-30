@@ -94,7 +94,7 @@ export default function FinanceExpense() {
       Expense: [],
       PaymentMethode: [],
       Keyword: "",
-      Limit: [],
+      Limit: ["10"],
     });
     await getExpenseList();
   };

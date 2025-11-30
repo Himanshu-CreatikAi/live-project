@@ -153,6 +153,10 @@ const data = {
           url: "/masters/status-type",
         },
         {
+          title: "Contact Status Type",
+          url: "/masters/contact-statustype",
+        },
+        {
           title: "Payment Methods",
           url: "/masters/payment-methods",
         },

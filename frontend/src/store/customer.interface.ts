@@ -54,6 +54,7 @@ export interface customerGetDataInterface {
   Type: string;
   SubType: string;
   Name: string;
+  Description?:string;
   Email: string;
   City: string;
   Location: string;

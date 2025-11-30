@@ -14,6 +14,8 @@ import DeleteDialog from "@/app/component/popups/DeleteDialog";
 import AddButton from "@/app/component/buttons/AddButton";
 import PageHeader from "@/app/component/labels/PageHeader";
 import MasterProtectedRoute from "@/app/component/MasterProtectedRoutes";
+import LeadStatus from "@/app/phonescreens/DashboardScreens/LeadStatus";
+import CampaignFilter from "@/app/phonescreens/DashboardScreens/CampaignFilter";
 
 /* import { getCampaigns, deleteCampaign } from "@/store/campaigns"; */ // you'll create these API helpers
 
@@ -99,7 +101,11 @@ export default function CampaignPage() {
     return (
         <MasterProtectedRoute>
             <Toaster position="top-right" />
-            <div className="min-h-[calc(100vh-56px)] overflow-auto max-md:py-10">
+            <div className=" sm:hidden py-5">
+                <h1 className=" text-[var(--color-primary)] font-bold text-2xl px-2 py-2">Campaign</h1>
+                <CampaignFilter leadStatuses={campaigns.map((item) => ({ name: item.Name }))} />
+            </div>
+            <div className="min-h-[calc(100vh-56px)] overflow-auto max-md:py-10 max-sm:hidden">
                 {/* Header */}
 
                 {/* DELETE POPUP */}
@@ -210,7 +216,7 @@ export default function CampaignPage() {
                                                 <div className="w-[120px]">
                                                     <span
                                                         className={`px-3 py-1 rounded-[2px] text-xs font-semibold ${c.Status === "Active"
-                                                            ? "bg-[#C8E6C9] text-green-700"
+                                                            ? "bg-[#E8F5E9] text-green-700"
                                                             : "bg-red-100 text-red-700"
                                                             }`}
                                                     >
@@ -221,7 +227,7 @@ export default function CampaignPage() {
                                                 <div className="w-[120px] flex gap-2 items-center justify-start">
                                                     <Button
                                                         sx={{
-                                                            backgroundColor: "#C8E6C9",
+                                                            backgroundColor: "#E8F5E9",
                                                             color: "var(--color-primary)",
                                                             minWidth: "32px",
                                                             height: "32px",
@@ -234,7 +240,7 @@ export default function CampaignPage() {
 
                                                     <Button
                                                         sx={{
-                                                            backgroundColor: "#F9D0C4",
+                                                            backgroundColor: "#FDECEA",
                                                             color: "#C62828",
                                                             minWidth: "32px",
                                                             height: "32px",

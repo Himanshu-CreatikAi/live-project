@@ -230,7 +230,7 @@ export default function BuilderSlidersPage() {
                         <div className="w-[120px] flex gap-2 items-center">
                           <Button
                             sx={{
-                              backgroundColor: "#C8E6C9",
+                              backgroundColor: "#E8F5E9",
                               color: "var(--color-primary)",
                               minWidth: "32px",
                               height: "32px",
@@ -243,7 +243,7 @@ export default function BuilderSlidersPage() {
 
                           <Button
                             sx={{
-                              backgroundColor: "#F9D0C4",
+                              backgroundColor: "#FDECEA",
                               color: "#C62828",
                               minWidth: "32px",
                               height: "32px",

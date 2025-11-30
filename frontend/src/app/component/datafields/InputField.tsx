@@ -1,11 +1,12 @@
 const InputField: React.FC<{
+   className?:string;
   label: string;
   name: string;
   value: string;
   error?: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-}> = ({ label, name, value, onChange, error }) => (
-  <label className="relative block w-full">
+}> = ({className, label, name, value, onChange, error }) => (
+  <label className={`relative block w-full ${className}`}>
     <input
       type="text"
       name={name}

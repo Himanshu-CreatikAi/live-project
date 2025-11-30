@@ -88,7 +88,7 @@ export default function FinanceIncome() {
       Income: [],
       PaymentMethode: [],
       Keyword: "",
-      Limit: [],
+      Limit: ["10"],
     });
     await getIncomeList();
   };
