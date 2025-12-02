@@ -1,6 +1,6 @@
 "use client";
 
-import { BrickWallFire, Podcast, School, Cable,ShieldUser,NotebookTabs } from "lucide-react";
+import { BrickWallFire, Podcast, School, Cable, ShieldUser, NotebookTabs } from "lucide-react";
 import ImageSlider from "./ImageSlider";
 import Link from "next/link";
 const SmallScreenData = () => {
@@ -9,76 +9,77 @@ const SmallScreenData = () => {
   const boxeButtons = [
     {
       pTag: "Campigns",
-      icon: <BrickWallFire />,
-      color: " backdrop-blur-[2px] bg-red-600/50",
-      url:"/masters/campaign"
-    
+      icon: <BrickWallFire size={34} />,
+      color: " backdrop-blur-[2px] bg-red-600",
+      url: "/masters/campaign"
+
     },
     {
       pTag: "Customer",
-      icon: <Podcast />,
-      color: "backdrop-blur-[2px] bg-purple-600/50",
-      url:"/customer"
-     
+      icon: <Podcast size={34} />,
+      color: "backdrop-blur-[2px] bg-purple-600",
+      url: "/customer"
+
     },
-       {
-        pTag:"Followups",
-        icon:<School/>,
-        color:"backdrop-blur-[2px] bg-teal-600/50",
-        url:"/followups/customer"
+    {
+      pTag: "Followups",
+      icon: <School size={34} />,
+      color: "backdrop-blur-[2px] bg-teal-600",
+      url: "/followups/customer"
+
+    },
+    {
+      pTag: "Favorites",
+      icon: <ShieldUser size={34} />,
+      color: " backdrop-blur-[2px] bg-blue-600",
+      url: "/favourites"
+
+    },
+    {
+      pTag: "Report",
+      icon: <Cable size={34} />,
+      color: " backdrop-blur-[2px] bg-green-600",
+      url: "/reports/customer"
 
     }, {
-        pTag:"Contact",
-        icon: <Cable/>,
-        color:" backdrop-blur-[2px] bg-green-600/50",
-        url:"/contact"
-       
-    },
-       {
-        pTag:"Task",
-        icon:<ShieldUser/>,
-        color:" backdrop-blur-[2px] bg-blue-600/50",
-        url:"/task"
-       
-    }, {
-        pTag:"Status Type",
-        icon: <NotebookTabs/>,
-        color:"backdrop-blur-[2px] bg-gray-600/50",
-        url:"/masters/status-type"
+      pTag: "Status Type",
+      icon: <NotebookTabs size={34} />,
+      color: "backdrop-blur-[2px] bg-gray-600",
+      url: "/masters/status-type"
     },
   ];
 
-  
 
- 
+  //bg-[url(https://i.rtings.com/assets/pages/OICDg5Ss/best-video-editing-laptops-20241015-medium.jpg?format=auto)]
+
   return (
     <>
-    <></>
-    <ImageSlider/>
-    <div className=" flex flex-col mb-4">
-        
-      <div className="px-4">
-    
-        {/* ✅ Button Grid */}
-        <div className="grid grid-cols-2 gap-4 mt-4 w-full ">
-          {boxeButtons.map((data, index) => (
-            <Link
-              key={index}
-              href={data?.url??""}
-             
-              className="rounded-sm bg-cover bg-center bg-no-repeat min-h-[152px] bg-[url(https://i.rtings.com/assets/pages/OICDg5Ss/best-video-editing-laptops-20241015-medium.jpg?format=auto)]"
-            >
-              <div
-                className={`${data.color} py-9 px-4 rounded-md flex flex-col h-full items-center justify-center`}
+      <></>
+      <ImageSlider />
+      <div className=" flex flex-col mb-2 px-1">
+
+        <div className="">
+
+          {/* ✅ Button Grid */}
+          <div className="grid grid-cols-2 gap-2 mt-2 w-full ">
+            {boxeButtons.map((data, index) => (
+              <Link
+                key={index}
+                href={data?.url ?? ""}
+
+                className="rounded-sm bg-cover bg-center bg-no-repeat min-h-[152px] "
               >
-                <div className="text-white text-6xl">{data.icon}</div>
-                <p className="text-white mt-2 text-lg text-center">{data.pTag}</p>
-              </div>
-            </Link>
-          ))}
+                <div
+                  className={`${data.color} py-9 px-4 rounded-md flex flex-col h-full items-center justify-center`}
+                >
+                  <div className="text-white">{data.icon}</div>
+                  <p className="text-white mt-2 font-semibold text-lg text-center">{data.pTag}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
-    </div>
     </>
   );
 };

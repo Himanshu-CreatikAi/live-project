@@ -17,10 +17,22 @@ interface User {
   id: string;
   name: string;
   customers: number;
+  percentage?: number;
 }
 
 export interface UserFollowupsInterface {
   users: User[];
+}
+
+interface LocationData {
+  location: string;
+  customers: number;
+}
+
+export interface FeedbackData {
+  name: string;
+  value: number;
+  [key: string]: any;
 }
 
 export function useDashboardData() {
@@ -40,7 +52,7 @@ export function useDashboardData() {
       footerlineColor: "from-red-800 to-red-500",
     },
     {
-      name: "Active FollowUps",
+      name: "Total Contacts",
       value: 0,
       bg: "bg-gradient-to-r from-teal-500 to-teal-800",
       icon: <LuCalendar />,
@@ -62,10 +74,17 @@ export function useDashboardData() {
       users: [],
     });
 
+  const [locationStats, setLocationStats] = useState<LocationData[]>([]);
+   const [feedbackStats, setFeedbackStats] = useState<FeedbackData[]>([]);
+
   return {
     dashboardSectionOneCardData,
     setDashboardSectionOneCardData,
     userCustomers,
-    setUserCustomers
+    setUserCustomers,
+    locationStats,
+    setLocationStats,
+    feedbackStats,
+    setFeedbackStats,
   };
 }

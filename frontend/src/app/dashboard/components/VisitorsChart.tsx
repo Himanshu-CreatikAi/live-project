@@ -263,7 +263,7 @@ export default function VisitorsChart() {
                   {activeIndicators.oldVisitor && (
                     <Bar
                       dataKey="oldVisitor"
-                      fill="#fecaca"
+                      fill="#f87171"
                       barSize={24}
                       name="Old Visitor"
                     />

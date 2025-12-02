@@ -78,7 +78,6 @@ export default function FollowupTable<T extends Record<string, any>>({
                         <div className="flex justify-between items-start p-4">
                             <div>
 
-
                                 {labelLeads.map((item, j, arr) => {
 
                                     return <div

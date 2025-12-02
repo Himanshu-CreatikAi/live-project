@@ -1,33 +1,62 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import { useDashboardData } from '../data/useDashboardSectionOne';
+import { getLocation } from '@/store/masters/location/location';
+import { getCustomer } from '@/store/customer';
 
-const countryData = [
-  {
-    img: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Flag_of_Germany.svg/1280px-Flag_of_Germany.svg.png",
-    countryName: "Gopalpura",
-    salesName: "100",
-    avgValue: "21.1%"
-  },
-  {
-    img: "https://upload.wikimedia.org/wikipedia/en/thumb/a/a4/Flag_of_the_United_States.svg/1280px-Flag_of_the_United_States.svg.png",
-    countryName: "Durgapura",
-    salesName: "95",
-    avgValue: "34.2%"
-  },
-/*   {
-    img: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Flag_of_Australia.svg/2560px-Flag_of_Australia.svg.png",
-    countryName: "Australia",
-    salesName: "40",
-    avgValue: "12.45%"
-  },
-  {
-    img: "https://img.freepik.com/free-vector/illustration-uk-flag_53876-18166.jpg?semt=ais_hybrid&w=740&q=80",
-    countryName: "United Kingdom",
-    salesName: "10",
-    avgValue: "8.65%"
-  } */
-]
+
+
 
 function TableComponent() {
+  const { locationStats, setLocationStats } = useDashboardData();
+  const [loading, setLoading] = useState(true);
+
+  const fetchLocationStats = async () => {
+    try {
+      setLoading(true);
+      // Step 1: Get all locations from API
+      const locations = await getLocation();
+      console.log("location data", locations);
+
+      // Step 2: Get all customers
+      const customers = await getCustomer();
+      console.log("customer data", customers);
+
+      // Step 3: Count customers per location
+      const locationMap: Record<string, number> = {};
+      locations.forEach((loc: any) => {
+        locationMap[loc.Name] = 0; // initialize with 0
+      });
+
+      customers.forEach((customer: any) => {
+        const loc = customer.Location || "Unknown";
+        if (locationMap[loc] !== undefined) {
+          locationMap[loc] += 1;
+        }
+      });
+
+      // Step 4: Convert map to array
+      const locationArray = Object.entries(locationMap).map(([location, count]) => ({
+        location,
+        customers: count
+      }));
+      locationArray.sort((a, b) => b.customers - a.customers);
+
+      // Step 5: Update state
+      setLocationStats(locationArray);
+
+    } catch (error) {
+      console.error("Error fetching location stats:", error);
+    }
+    finally {
+      setLoading(false); // stop loading
+    }
+  }
+
+  useEffect(() => {
+    fetchLocationStats();
+  }, []);
+
+
   return (
     <div className="w-full max-w-full sm:max-w-[500px] bg-white  shadow-md p-3 sm:p-5 mx-auto">
       <h2 className="text-base sm:text-lg font-semibold text-gray-700 mb-4 text-center sm:text-left">
@@ -36,7 +65,7 @@ function TableComponent() {
 
       {/* Header */}
       <div className="hidden sm:flex flex-row items-center justify-between text-gray-500 font-semibold text-xs  border-b border-gray-200 pb-2 mb-2">
-       {/*  <div className="">Flag</div> */}
+        {/*  <div className="">Flag</div> */}
         <div>Locations</div>
         <div>Customers</div>
         {/* <div>Average</div> */}
@@ -44,14 +73,16 @@ function TableComponent() {
 
       {/* Rows */}
       <div className="flex flex-col gap-3">
-        {countryData.map((data, index) => (
+        {loading ? <div className="w-full max-w-full sm:max-w-[500px] bg-white text-xs shadow-md p-3 sm:p-5 mx-auto text-center text-gray-500">
+          Fetching locations...
+        </div> : locationStats.map((data, index) => (
           <div
             key={index}
             className="grid grid-cols-2 sm:grid-cols-2 items-center bg-gray-50 sm:bg-transparent 
-              p-2 sm:p-0 rounded-lg sm:rounded-none shadow-sm sm:shadow-none"
+              p-2 sm:p-0 rounded-lg max-h-[300px] overflow-y-auto sm:rounded-none shadow-sm sm:shadow-none"
           >
             {/* Flag */}
-           {/*  <div className="flex justify-center sm:justify-start">
+            {/*  <div className="flex justify-center sm:justify-start">
               <img
                 src={data.img}
                 alt={`${data.countryName} flag`}
@@ -61,16 +92,16 @@ function TableComponent() {
 
             {/* Country */}
             <div className="text-center sm:text-left text-xs sm:text-sm font-medium text-gray-700 truncate">
-              {data.countryName}
+              {data.location}
             </div>
 
             {/* Sales */}
             <div className=" text-xs text-right sm:text-sm text-gray-600">
-              {data.salesName}
+              {data.customers}
             </div>
 
             {/* Avg (hidden on mobile) */}
-          {/*   <div className="hidden sm:block text-center sm:text-right text-xs sm:text-sm text-gray-600">
+            {/*   <div className="hidden sm:block text-center sm:text-right text-xs sm:text-sm text-gray-600">
               {data.avgValue}
             </div> */}
           </div>

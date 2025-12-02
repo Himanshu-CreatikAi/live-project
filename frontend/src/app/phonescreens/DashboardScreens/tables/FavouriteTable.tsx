@@ -13,6 +13,7 @@ import { AiOutlineBackward, AiOutlineForward } from "react-icons/ai"
 import { IoIosHeart } from "react-icons/io";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Button from "@mui/material/Button";
 export interface LabelConfig {
     key: string;
     label: string;
@@ -21,23 +22,16 @@ export interface LabelConfig {
 interface LeadsSectionProps<T extends Record<string, any>> {
     leads: T[];
     labelLeads: LabelConfig[];
-    isCustomerPage?: boolean
-    onAdd?: (id: string) => void;
     onEdit?: (id: string) => void;
-    onWhatsappClick?: (lead: T) => void;
-    onMailClick?: (lead: T) => void;
-    onFavourite?: (lead: T) => void;
+    onDelete?: (lead: T) => void;
 
 }
 
-export default function CustomerTable<T extends Record<string, any>>({
+export default function FavouriteTable<T extends Record<string, any>>({
     leads,
     labelLeads,
-    onAdd,
     onEdit,
-    onWhatsappClick,
-    onMailClick,
-    onFavourite,
+    onDelete,
 }: LeadsSectionProps<T>) {
     const [toggleSearchDropdown, setToggleSearchDropdown] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
@@ -131,13 +125,7 @@ export default function CustomerTable<T extends Record<string, any>>({
                                     <MdEdit size={20} />
 
                                 </button>
-                                <button
-                                    onClick={() => onFavourite?.(lead)}
-                                    className="p-2 bg-gray-100 rounded-full shadow"
-                                >
-
-                                    {lead.isFavourite ? <IoIosHeart size={20} className="text-[var(--color-primary)]" /> : <AiOutlineHeart size={20} className="text-[var(--color-primary)]" />}
-                                </button>
+                                
                             </div>
 
 
@@ -146,35 +134,30 @@ export default function CustomerTable<T extends Record<string, any>>({
 
                         <div className="bg-[var(--color-primary)] p-3 flex justify-between">
                             { }
-                            <button onClick={() => onAdd?.(lead._id)} className="text-white border border-white px-3 text-sm py-1 rounded-full">
-                                FOLLOW UP
-                            </button>
-
+                           
+<div></div>
 
                             <div className="flex items-center gap-5">
-                                <a href={`tel:+91${String(lead["ContactNumber"]) ?? String(lead["ContactNo"]) ?? ""}`} onClick={() => onAdd?.(lead._id)}>
-                                    <MdPhone size={20} className="text-white" />
-                                </a>
+                                
 
-
-                                {/* <MdEmail size={20} className="text-white" /> */}
-                                <button
-                                    onClick={() => onMailClick?.(lead)}
-                                    className="text-white p-2"
-                                >
-                                    <MdEmail size={20} />
-                                </button>
+                               
+                               
 
 
                                 {/* <a href={`https://wa.me/+91${String(lead["ContactNumber"]) ?? String(lead["ContactNo"]) ?? ""}`} target="_blank">
                   <FaWhatsapp size={20} className="text-white" />
                 </a> */}
-                                <button
-                                    onClick={() => onWhatsappClick?.(lead)}
-                                    className="text-white p-2"
-                                >
-                                    <FaWhatsapp size={20} />
-                                </button>
+                                <Button
+                                    sx={{
+                                        backgroundColor: "var(--color-primary)",
+                                        color: "white",
+                                        minWidth: "32px",
+                                        height: "32px",
+                                        borderRadius: "8px",
+                                    }}
+                                    onClick={() => onDelete?.(lead)}
+
+                                ><MdDelete size={20} /></Button>
 
 
 

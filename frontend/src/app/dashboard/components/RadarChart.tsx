@@ -55,6 +55,7 @@ export default function RadarChart() {
   const [selectedUser, setSelectedUser] = useState(userCustomers.users[0]);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const dropdownButtonRef = useRef<HTMLButtonElement>(null);
+  const [customerCount,setCustomerCount]=useState(0);
 
   useEffect(() => {
     const updateDimensions = () => {
@@ -137,7 +138,7 @@ export default function RadarChart() {
   // Animate needle when user changes
   useEffect(() => {
     setAnimatedSpeed(0);
-    const targetSpeed = selectedUser?.customers;
+    const targetSpeed = selectedUser?.customers || 0;
     const duration = 1500; // 1.5 seconds
     const steps = 60;
     const increment = targetSpeed / steps;
@@ -246,50 +247,61 @@ export default function RadarChart() {
 
   const getUsers = async () => {
     const response = await getCustomer();
-      const users = response.filter((item: any) => {
-    return item.AssignTo && item.AssignTo !== "";
-  });
+    setCustomerCount(response.length);
+    const users = response.filter((item: any) => {
+      return item.AssignTo && item.AssignTo !== "";
+    });
     console.log("users are ", users);
     return users
   }
-const RedarChartDataFetch = async () => {
-  try {
-    const allCustomers = await getUsers(); // all customers with AssignTo
 
-    if (!allCustomers || allCustomers.length === 0) {
-      console.log("No customers found");
-      setUserCustomers({ users: [] });
-      return;
-    }
+  const RedarChartDataFetch = async () => {
+    try {
+      const allCustomers = await getUsers(); // all customers with AssignTo
 
-    // Step 1: Create a map of unique users
-    const userMap: Record<string, { id: string; name: string; customers: number }> = {};
-
-    allCustomers.forEach((customer: any) => {
-      const userName = customer.AssignTo?.name;
-      const userId = customer.AssignTo?._id;
-
-      if (!userName || !userId) return;
-
-      if (!userMap[userId]) {
-        userMap[userId] = { id: userId, name: userName, customers: 0 };
+      if (!allCustomers || allCustomers.length === 0) {
+        console.log("No customers found");
+        setUserCustomers({ users: [] });
+        return;
       }
 
-      // Increment customer count
-      userMap[userId].customers += 1;
-    });
+      // Step 1: Create a map of unique users
+      const userMap: Record<string, { id: string; name: string; customers: number }> = {};
 
-    // Step 2: Convert map to array
-    const result = Object.values(userMap);
+      allCustomers.forEach((customer: any) => {
+        const userName = customer.AssignTo?.name;
+        const userId = customer.AssignTo?._id;
 
-    setUserCustomers({ users: result });
-    setSelectedUser(result[0] || null);
+        if (!userName || !userId) return;
 
-    console.log("Final Users With Filtered Customer Count:", result);
-  } catch (error) {
-    console.error("Error fetching radar chart data:", error);
-  }
-};
+        if (!userMap[userId]) {
+          userMap[userId] = { id: userId, name: userName, customers: 0 };
+        }
+
+        // Increment customer count
+        userMap[userId].customers += 1;
+      });
+
+      // Step 2: Convert map to array
+    /*   const result = Object.values(userMap); */
+    const customerLength=await getCustomer();
+    const totalCustomers = customerLength.length;
+
+const result = Object.values(userMap).map(user => ({
+  ...user,
+  percentage: totalCustomers > 0 
+    ? Math.round((user.customers / totalCustomers) * 100)
+    : 0
+}));
+
+      setUserCustomers({ users: result });
+      setSelectedUser(result[0] || null);
+
+      console.log("Final Users With Filtered Customer Count:", result);
+    } catch (error) {
+      console.error("Error fetching radar chart data:", error);
+    }
+  };
 
 
 
@@ -301,9 +313,9 @@ const RedarChartDataFetch = async () => {
 
   return (
     <div className="flex flex-col w-full h-auto min-h-[350px]">
-      <div className="w-full h-full bg-white shadow-lg p-4 py-6 sm:p-6 flex flex-col min-h-0">
+      <div className="w-full h-full bg-white shadow-lg p-4  sm:p-6 flex flex-col min-h-0">
         <div id="chart-container" className="w-full h-full flex flex-col min-h-0 flex-1">
-          <div className="flex-1 py-0 min-h-0">
+          <div className="flex-1 py-0 pt-6 min-h-0">
             <svg
               width="100%"
               height="100%"
@@ -434,11 +446,16 @@ const RedarChartDataFetch = async () => {
 
                   return (
                     <>
-                      <polygon
-                        points={`${needleEnd.x},${needleEnd.y} ${needleBase1.x},${needleBase1.y} ${needleBase2.x},${needleBase2.y}`}
-                        fill="#3b82f6"
-                        filter="url(#shadow)"
-                      />
+                      {Number.isFinite(needleEnd.x) && Number.isFinite(needleEnd.y) &&
+                        Number.isFinite(needleBase1.x) && Number.isFinite(needleBase1.y) &&
+                        Number.isFinite(needleBase2.x) && Number.isFinite(needleBase2.y) && (
+                          <polygon
+                            points={`${needleEnd.x},${needleEnd.y} ${needleBase1.x},${needleBase1.y} ${needleBase2.x},${needleBase2.y}`}
+                            fill="#3b82f6"
+                            filter="url(#shadow)"
+                          />
+                        )}
+
                       <circle
                         cx={centerX}
                         cy={centerY}
@@ -452,15 +469,18 @@ const RedarChartDataFetch = async () => {
               </g>
 
               {/* Current speed value */}
-              <text
-                x={centerX}
-                y={centerY + outerRadius + 30}
-                textAnchor="middle"
-                className="text-xl sm:text-2xl font-bold"
-                fill={getZoneColor(animatedSpeed)}
-              >
-                {animatedSpeed}
-              </text>
+              {Number.isFinite(animatedSpeed) && (
+                <text
+                  x={centerX}
+                  y={centerY + outerRadius + 30}
+                  textAnchor="middle"
+                  className="text-xl sm:text-2xl font-bold"
+                  fill={getZoneColor(animatedSpeed)}
+                >
+                  {animatedSpeed}
+                </text>
+              )}
+
 
               {/* Tooltip */}
               {tooltip.show && (
@@ -487,7 +507,7 @@ const RedarChartDataFetch = async () => {
                     textAnchor="middle"
                     className="text-sm font-medium fill-white"
                   >
-                    Total: {getZoneLabel(animatedSpeed)}
+                    Total: {customerCount}
                   </text>
                   <polygon
                     points={`${tooltip.x - 10},${tooltip.y - 5} ${tooltip.x + 10},${tooltip.y - 5} ${tooltip.x},${tooltip.y + 10}`}

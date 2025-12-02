@@ -301,7 +301,7 @@ export default function Customer() {
     if (response) {
       console.log("response ", response);
 
-      const admins = response?.admins?.filter((e) => e.role === "user") ?? []; //ensure only user roles are fetched
+      const admins = response?.admins?.filter((e) => e.role === "user" || e.role==="city_admin") ?? []; //ensure only user and city_admin roles are fetched
 
       setUsers(
         admins.map((item: any): usersGetDataInterface => ({

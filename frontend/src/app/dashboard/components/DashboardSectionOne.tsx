@@ -8,6 +8,7 @@ import { getCustomer } from "@/store/customer";
 import { useDashboardData } from "../data/useDashboardSectionOne";
 import { getAllCustomerFollowups } from "@/store/customerFollowups";
 import { getIncomeMarketing } from "@/store/financial/incomemarketing/incomemarketing";
+import { getContact } from "@/store/contact";
 
 // ✅ Interface for card data
 
@@ -53,6 +54,7 @@ export default function DashboardSectionOne() {
   const DashboardSectionOneDataFetch = async () => {
     const LeadsResponse = await getCustomer();
     const FollowupResponseRaw = await getAllCustomerFollowups();
+    const ContactResponse= await getContact();
 
     const FollowupResponse = FollowupResponseRaw?.map((item: any) => ({
       customerid: item.customer._id,
@@ -66,8 +68,9 @@ export default function DashboardSectionOne() {
 
     const IncomeResponse = await getIncomeMarketing();
 
-    if (LeadsResponse && FollowupResponse && IncomeResponse) {
+    if (LeadsResponse && FollowupResponse && IncomeResponse && ContactResponse) {
       const totalCustomer = LeadsResponse.length;
+      const totalContacts = ContactResponse.length;
       const convertedLeads = FollowupResponse.filter(
         (item, index, arr) =>
           arr.findIndex((row) => row.customerid === item.customerid) === index //keeps only first occurrence
@@ -93,7 +96,7 @@ export default function DashboardSectionOne() {
 
         newData[2] = {
           ...newData[2], // keep other properties
-          value: activeFollowups || 0, // update value
+          value: totalContacts || 0, // update value
         };
         newData[3] = {
           ...newData[3], // keep other properties

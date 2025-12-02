@@ -18,6 +18,7 @@ import {
 } from "@/store/customer";
 import FavouriteDialog from "../component/popups/FavouriteDialog";
 import PageHeader from "../component/labels/PageHeader";
+import FavouriteTable from "../phonescreens/DashboardScreens/tables/FavouriteTable";
 
 interface FavouriteDialogDataInterface {
   id: string;
@@ -42,21 +43,29 @@ export default function FavouritePage() {
 
   const getFavouriteData = async () => {
     const data = await getFavoutiteCustomer();
+
     console.log(data)
-    if (data) setFavouriteData(data.map((item: any) => ({
-      _id: item._id,
-      Campaign: item.Campaign,
-      Type: item.CustomerType,
-      SubType: item.CustomerSubType,
-      Name: item.customerName,
-      Email: item.Email,
-      City: item.City,
-      Location: item.Location,
-      ContactNumber: item.ContactNumber,
-      AssignTo: item.AssignTo?.name,
-      isFavourite: item.isFavourite,
-      Date: item.Date,
-    })));
+    if (data) setFavouriteData(data.map((item: any) => {
+      const date = new Date(item.createdAt);
+      const formattedDate =
+        date.getDate().toString().padStart(2, "0") + "-" +
+        (date.getMonth() + 1).toString().padStart(2, "0") + "-" +
+        date.getFullYear();
+      return {
+        _id: item._id,
+        Campaign: item.Campaign,
+        Type: item.CustomerType,
+        SubType: item.CustomerSubType,
+        Name: item.customerName,
+        Email: item.Email,
+        City: item.City,
+        Location: item.Location,
+        ContactNumber: item.ContactNumber,
+        AssignTo: item.AssignTo?.name,
+        isFavourite: item.isFavourite,
+        Date: formattedDate,
+      }
+    }));
   };
 
   const handleDelete = async (data: DeleteDialogDataInterface | null) => {
@@ -93,7 +102,7 @@ export default function FavouritePage() {
   const indexOfLastRow = currentTablePage * rowsPerTablePage;
   const indexOfFirstRow = indexOfLastRow - rowsPerTablePage;
   const currentRows = favouriteData.slice(indexOfFirstRow, indexOfLastRow);
-  
+
 
   const nexttablePage = () => {
     if (currentTablePage !== totalTablePages) setCurrentTablePage(currentTablePage + 1);
@@ -102,34 +111,68 @@ export default function FavouritePage() {
     if (currentTablePage !== 1) setCurrentTablePage(currentTablePage - 1);
   };
 
+  const phonetableheader = [{
+    key: "Campaign", label: "Campaign"
+  },
+  {
+    key: "Name", label: "Name"
+  },
+  {
+    key: "Date", label: "Date"
+  },
+  {
+    key: "Location", label: "Location"
+  },
+  {
+    key: "ContactNumber", label: "Contact No"
+  }]
+
   return (
     <ProtectedRoute>
-      <div className=" min-h-[calc(100vh-56px)] overflow-automax-md:py-10">
+
+      {/* DELETE POPUP */}
+      <FavouriteDialog<DeleteDialogDataInterface>
+        isOpen={isDeleteDialogOpen}
+        title="Are you sure you want to delete this favourite?"
+        data={deleteDialogData}
+        onClose={() => {
+          setIsDeleteDialogOpen(false);
+          setDeleteDialogData(null);
+        }}
+        onDelete={handleDelete}
+      />
+
+      {/* FAVOURITE CONFIRMATION POPUP */}
+      <DeleteDialog<FavouriteDialogDataInterface>
+        isOpen={isFavouriteDialogOpen}
+        title="Are you sure you want to favourite/unfavourite this customer?"
+        data={favouriteDialogData}
+        onClose={() => {
+          setIsFavouriteDialogOpen(false);
+          setFavouriteDialogData(null);
+        }}
+        onDelete={handleFavouriteConfirm}
+      />
+      <div className=" sm:hidden min-h-[calc(100vh-56px)] overflow-auto max-sm:py-5">
+        <h1 className=" text-[var(--color-primary)] font-extrabold text-2xl px-2 py-2  mb-4">Favourites</h1>
+        <FavouriteTable
+          leads={favouriteData}
+          labelLeads={phonetableheader}
+          onEdit={(id) => handleEdit(id)}
+          onDelete={(lead) => {
+            setIsFavouriteDialogOpen(true);
+            setFavouriteDialogData({
+              id: lead._id,
+              name: lead.Name,
+              ContactNumber: lead.ContactNumber,
+              isFavourite: lead.isFavourite,
+            });
+          }}
+        />
+      </div>
+      <div className=" min-h-[calc(100vh-56px)] overflow-automax-md:py-10 max-sm:hidden">
         <Toaster position="top-right" />
 
-        {/* DELETE POPUP */}
-        <FavouriteDialog<DeleteDialogDataInterface>
-          isOpen={isDeleteDialogOpen}
-          title="Are you sure you want to delete this favourite?"
-          data={deleteDialogData}
-          onClose={() => {
-            setIsDeleteDialogOpen(false);
-            setDeleteDialogData(null);
-          }}
-          onDelete={handleDelete}
-        />
-
-        {/* FAVOURITE CONFIRMATION POPUP */}
-        <DeleteDialog<FavouriteDialogDataInterface>
-          isOpen={isFavouriteDialogOpen}
-          title="Are you sure you want to favourite/unfavourite this customer?"
-          data={favouriteDialogData}
-          onClose={() => {
-            setIsFavouriteDialogOpen(false);
-            setFavouriteDialogData(null);
-          }}
-          onDelete={handleFavouriteConfirm}
-        />
 
         <div className="p-4 bg-white rounded-md max-md:p-3 w-full">
           <div className="flex justify-between items-center">
