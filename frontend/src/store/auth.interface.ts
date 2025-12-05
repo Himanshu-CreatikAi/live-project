@@ -30,6 +30,7 @@ export interface CreateAdminData {
   role: string;
   city?: string;
   phone?: string;
+  status?:String;
   AddressLine1?: string;
   AddressLine2?: string;
 }

@@ -11,6 +11,7 @@ import { addMail } from "@/store/masters/mail/mail";
 import BackButton from "@/app/component/buttons/BackButton";
 import SaveButton from "@/app/component/buttons/SaveButton";
 import MasterProtectedRoute from "@/app/component/MasterProtectedRoutes";
+import JoditEditorClient from "@/app/component/editors/JoditEditorClient";
 
 interface ErrorInterface {
   [key: string]: string;
@@ -128,14 +129,23 @@ export default function MailAdd() {
                 error={errors.subject}
               />
 
-              {/* Body Textarea */}
-              <TextAreaField
-                label="Body"
-                name="body"
-                value={mailData.body}
-                onChange={handleInputChange}
-                error={errors.body}
-              />
+                {/* Body Textarea */}
+                <div className="flex flex-col">
+                  <label className="text-gray-700 mb-2 font-medium">Body</label>
+
+                  <JoditEditorClient
+                    value={mailData.body} // this is string
+                    onChange={(html: string) => {
+                      setMailData((prev) => ({ ...prev, body: html })); // perfectly fine
+                      setErrors((prev) => ({ ...prev, body: "" }));
+                    }}
+                  />
+
+                  {errors.body && (
+                    <span className="text-red-500 text-sm mt-1">{errors.body}</span>
+                  )}
+                </div>
+
 
               {/* Save Button */}
               <div className="flex justify-end mt-4">

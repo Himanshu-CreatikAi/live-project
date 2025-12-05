@@ -377,7 +377,7 @@ export default function CustomerFollowups() {
             }
 
             <div className=" sm:hidden min-h-[calc(100vh-56px)] overflow-auto max-sm:py-5">
-                <h1 className=" text-[var(--color-primary)] font-bold text-2xl px-2 py-2 mb-4">Report</h1>
+                <h1 className=" text-[var(--color-primary)] font-bold text-2xl px-0 py-2 mb-4">Report</h1>
                 <div>
                     <DynamicAdvance>
                         <SingleSelect options={Array.isArray(fieldOptions?.Campaign) ? fieldOptions.Campaign : []} value={filters.Campaign[0]} label="Campaign" onChange={(val) => handleSelectChange("Campaign", val)} />

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import toast, { Toaster } from "react-hot-toast";
 import { ArrowLeft, X } from "lucide-react";
@@ -24,6 +24,7 @@ export default function BuilderSliderAdd() {
 
   const [errors, setErrors] = useState<ErrorInterface>({});
   const [preview, setPreview] = useState<string>("");
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const router = useRouter();
 
@@ -41,6 +42,9 @@ export default function BuilderSliderAdd() {
   const handleRemoveImage = () => {
     setSliderData((prev) => ({ ...prev, Image: {} as File }));
     setPreview("");
+      if (fileInputRef.current) {
+    fileInputRef.current.value = "";
+  }
   };
 
   // ✅ Handle Dropdown Change
@@ -130,6 +134,7 @@ export default function BuilderSliderAdd() {
                 <label className="font-semibold text-gray-700 mb-2">Slider Image</label>
                 <input
                   type="file"
+                  ref={fileInputRef}
                   onChange={handleFileChange}
                   className="border border-gray-300 rounded-md p-2"
                 />

@@ -66,7 +66,7 @@ export default function ImageSlider() {
   const currentCard = cards[currentIndex];
 
   return (
-    <section className="relative  px-1 pt-1 md:px-10   text-white flex flex-col  ">
+    <section className="relative  px-0 pt-1 md:px-10   text-white flex flex-col  ">
       <div className="relative flex flex-col items-center justify-center w-full max-w-[1200px] mx-auto">
         {/* Image Card */}
         <div

@@ -90,7 +90,7 @@ export default function LeadsSection<T extends Record<string, any>>({
 
                     <span className="text-gray-500">-</span>
 
-                    <span className="text-gray-700  break-words">
+                    <span className="text-gray-700  break-words ">
                       {String(lead[item.key])}
                     </span>
                   </div>
@@ -111,13 +111,10 @@ export default function LeadsSection<T extends Record<string, any>>({
             </div>
 
             <div className="bg-[var(--color-primary)] p-3 flex justify-between">
-              {
-                (isCustomerPage && isFollowupButton) && <Link href={"/followups/customer/add"} className="text-white border border-white px-3 text-sm py-1 rounded-full">
+              {}
+              <Link href={"/followups/customer/add"} className="text-white border border-white px-3 text-sm py-1 rounded-full">
                 FOLLOW UP
               </Link>
-              }
-              
-              
               
 
               <div className="flex items-center gap-5">

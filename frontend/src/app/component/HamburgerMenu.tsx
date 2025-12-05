@@ -23,7 +23,7 @@ const data = [
   },
   {
     title: "FollowUp",
-    url: "/followUps/customer",
+    url: "/followups/customer",
     icon: <School size={22} />,
   },
   {
@@ -90,7 +90,7 @@ export default function MobileHamburger() {
         <button
           ref={buttonRef}
           onClick={() => setOpen(!open)}
-          className="ml-2 relative z-[2001] outline-0 w-6 h-6 flex items-center justify-center"
+          className=" mx-4 relative z-[2001] outline-0 w-6 h-6 flex items-center justify-center"
         >
           <motion.div
             initial={false}
@@ -179,7 +179,7 @@ export default function MobileHamburger() {
                   <Link
                     key={index}
                     href={item.url}
-                    className="flex items-center gap-3 text-white text-xl py-2 px-2 rounded hover:bg-white/20 transition"
+                    className="flex items-center gap-3 text-white text-lg py-2 px-2 rounded hover:bg-white/20 transition"
                     onClick={() => setOpen(false)}
                   >
                     <span>{item.icon}</span>

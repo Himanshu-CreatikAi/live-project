@@ -56,7 +56,7 @@ const SmallScreenData = () => {
     <>
       <></>
       <ImageSlider />
-      <div className=" flex flex-col mb-2 px-1">
+      <div className=" flex flex-col mb-2 px-0">
 
         <div className="">
 

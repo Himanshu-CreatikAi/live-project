@@ -91,21 +91,12 @@ export const updateWhatsapp = async (id: string, data: whatsappAllDataInterface)
       body: JSON.stringify(data),
       credentials: "include"
     });
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => null);
-
-      const message =
-        errorData?.message ||
-        errorData?.error ||
-        `HTTP error! status: ${response.status}`;
-
-      throw new Error(message);
-    }
-    response = await response.json();
-    return data;
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+   
+    return await response.json();
   } catch (error) {
     console.log("SERVER ERROR: ", error);
-    return error;
+    return null;
   }
 };
 

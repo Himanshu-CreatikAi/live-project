@@ -83,6 +83,7 @@ export default function WhatsappEdit() {
       if (result) {
         toast.success("WhatsApp Template updated successfully!");
         router.push("/masters/whatsapp-templates");
+        return;
       } else {
         toast.error("Failed to update WhatsApp template");
       }

@@ -12,7 +12,7 @@ export default function SaveButton({ text,icon, onClick }: SaveButtonProps) {
       className="flex items-center float-right gap-2 bg-gradient-to-r cursor-pointer 
         from-[var(--color-primary-dark)] to-[var(--color-secondary)] 
         hover:from-[var(--color-primary-darker)] hover:to-[var(--color-secondary-dark)] 
-        text-white px-4 py-2 rounded-md font-semibold"
+        text-white px-4 py-2 rounded-md font-semibold max-sm:text-lg"
     >
       {icon}
       {text}

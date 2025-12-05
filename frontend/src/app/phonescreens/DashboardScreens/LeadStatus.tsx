@@ -30,7 +30,7 @@ export default function LeadStatus({ leadStatuses }: LeadStatusProps) {
 
   return (
     <div className="min-h-screen">
-      <div className=" px-2 py-4 flex flex-col gap-4">
+      <div className=" px-0 py-4 flex flex-col gap-4">
         {leadStatuses.map((status, index) => {
           const colorIndex = index % objectcolor.length;
 

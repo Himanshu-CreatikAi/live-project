@@ -64,7 +64,7 @@ export default function ContactEdit() {
             console.log(data)
             if (data) {
                 setContactData({
-                    Campaign: { id: data.Campaign?._id, name: data.Campaign?.Name },
+                    Campaign: { id: data.Campaign?._id, name: data.Campaign?.Name},
                     Name: data.Name,
                     City: { id: data.City?._id, name: data.City?.Name },
                     ContactType: { id: data.ContactType?._id, name: data.ContactType?.Name },
@@ -116,9 +116,7 @@ export default function ContactEdit() {
     const validateForm = () => {
         const newErrors: ErrorInterface = {};
         if (!contactData.Name.trim()) newErrors.Name = "Name is required";
-        if (!contactData.Email?.trim()) {
-            newErrors.Email = "Email is required";
-        } else if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(contactData.Email)) {
+        if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(contactData.Email)) {
             newErrors.Email = "Invalid email format";
         }
         return newErrors;

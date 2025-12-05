@@ -39,7 +39,7 @@ export default function ContactTypeEdit() {
       const data = await getContactTypeById(id as string);
       if (data) {
         setContactTypeData({
-          Campaign: data?.Campaign,
+          Campaign: data?.Campaign?.Name,
           Name: data.Name,
           Status: data.Status
         });

@@ -1,4 +1,5 @@
-export const BASE_URL = "https://live-project-backend-1.onrender.com/api";
+export const BASE_URL = "http://localhost:5000/api";
+//https://live-project-backend-1.onrender.com
 
 export const API_ROUTES = {
   CONTACT: {

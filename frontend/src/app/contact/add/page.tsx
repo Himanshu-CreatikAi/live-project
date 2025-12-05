@@ -76,8 +76,7 @@ export default function ContactAdd() {
     const newErrors: ErrorInterface = {};
 
     if (!contactData.Name.trim()) newErrors.Name = "Name is required";
-    if (!contactData.Email.trim()) newErrors.Email = "Email is required";
-    else if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(contactData.Email)) newErrors.Email = "Invalid email format";
+   if (contactData.Email.trim() && !/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(contactData.Email)) newErrors.Email = "Invalid email format";
 
     return newErrors;
   };
@@ -93,8 +92,8 @@ export default function ContactAdd() {
       ...contactData,
       Campaign: contactData.Campaign?.name,
       ContactType: contactData.ContactType?.name,
-      City:contactData.City?.name,
-      Location:contactData.Location?.name
+      City: contactData.City?.name,
+      Location: contactData.Location?.name
     };
     if (contactData.date === "") delete (payload as any).date;
 
@@ -166,7 +165,7 @@ export default function ContactAdd() {
     }
 
 
-  }, [contactData.Campaign.id,contactData.City.id]);
+  }, [contactData.Campaign.id, contactData.City.id]);
 
   const fetchContactType = async (campaignId: string) => {
     try {
@@ -301,10 +300,10 @@ export default function ContactAdd() {
                 <InputField className=" max-sm:hidden" label="Company Name" name="CompanyName" value={contactData.CompanyName} onChange={handleInputChange} />
                 <InputField className=" max-sm:hidden" label="Website" name="Website" value={contactData.Website} onChange={handleInputChange} />
                 <SingleSelect className=" max-sm:hidden" options={Array.isArray(fieldOptions?.Status) ? fieldOptions.Status : []} label="Status" value={contactData.Status} onChange={(s) => handleSelectChange("Status", s)} />
-                <InputField className=" max-sm:hidden" label="Address" name="Address" value={contactData.Address} onChange={handleInputChange} /> 
-                  <div className=" max-sm:hidden">
-                    <DateSelector label="Date" value={contactData.date} onChange={(val) => handleSelectChange("date", val)} />
-                  </div>
+                <InputField className=" max-sm:hidden" label="Address" name="Address" value={contactData.Address} onChange={handleInputChange} />
+                <div className=" max-sm:hidden">
+                  <DateSelector label="Date" value={contactData.date} onChange={(val) => handleSelectChange("date", val)} />
+                </div>
                 <SingleSelect className=" max-sm:hidden" options={Array.isArray(fieldOptions?.ContactIndustry) ? fieldOptions.ContactIndustry : []} label="Contact Industry" value={contactData.ContactIndustry} onChange={(s) => handleSelectChange("ContactIndustry", s)} />
                 <SingleSelect className=" max-sm:hidden" options={Array.isArray(fieldOptions?.ContactFunctionalArea) ? fieldOptions.ContactFunctionalArea : []} label="Contact Functional Area" value={contactData.ContactFunctionalArea} onChange={(s) => handleSelectChange("ContactFunctionalArea", s)} />
                 <SingleSelect className=" max-sm:hidden" options={Array.isArray(fieldOptions?.ReferenceId) ? fieldOptions.ReferenceId : []} label="Reference Id" value={contactData.ReferenceId} onChange={(s) => handleSelectChange("ReferenceId", s)} />

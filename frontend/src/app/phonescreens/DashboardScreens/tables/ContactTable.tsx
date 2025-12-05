@@ -65,7 +65,7 @@ export default function ContactTable<T extends Record<string, any>>({
     return (
         <>
             {/* LEAD CARDS */}
-            <div className="px-2 pb-4">
+            <div className="px-0 pb-4">
                 {paginatedLeads.length === 0 && (
                     <div className="w-full flex justify-center items-center py-10 text-lg text-gray-500">
                         No contact available
@@ -112,18 +112,18 @@ export default function ContactTable<T extends Record<string, any>>({
                             <div></div>
 
 
-                            <div className="flex items-center gap-5">
-                                <a href={`tel:+91${String(lead["ContactNumber"]) ?? String(lead["ContactNo"]) ?? ""}`}>
-                                    <MdPhone size={20} className="text-white" />
+                            <div className="flex items-center gap-10">
+                                <a href={`tel:+91${String(lead["ContactNumber"]) ?? String(lead["ContactNo"]) ?? ""}`} className="">
+                                    <MdPhone size={25} className="text-white" />
                                 </a>
 
 
                                 {/* <MdEmail size={20} className="text-white" /> */}
                                 <button
                                     onClick={() => onMailClick?.(lead)}
-                                    className="text-white p-2"
+                                    className="text-white"
                                 >
-                                    <MdEmail size={20} />
+                                    <MdEmail size={25} />
                                 </button>
 
 
@@ -132,9 +132,9 @@ export default function ContactTable<T extends Record<string, any>>({
                 </a> */}
                                 <button
                                     onClick={() => onWhatsappClick?.(lead)}
-                                    className="text-white p-2"
+                                    className="text-white"
                                 >
-                                    <FaWhatsapp size={20} />
+                                    <FaWhatsapp size={25} />
                                 </button>
 
 

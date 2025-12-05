@@ -11,7 +11,7 @@ const DynamicAdvance = ({ children }: { children: React.ReactNode }) => {
       {/* 🔽 Toggle Button */}
       <div
         onClick={() => setOpen(!open)}
-        className="bg-[var(--color-primary)] px-3 py-1.5 w-fit rounded-2xl my-4 mb-2 ml-2 flex items-center gap-2 cursor-pointer select-none"
+        className="bg-[var(--color-primary)] px-3 py-1.5 w-fit rounded-2xl my-4 mb-2 ml-0 flex items-center gap-2 cursor-pointer select-none"
       >
         <button className="text-white text-xs font-semibold">
           ADVANCED SEARCH

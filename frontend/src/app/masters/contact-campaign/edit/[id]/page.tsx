@@ -81,7 +81,7 @@ export default function ContactCampaignEdit() {
       const result = await updateContactCampaign(id as string, contactCampaignData);
       if (result) {
         toast.success("Contact Campaign updated successfully!");
-        router.push("/masters/contactcampaign");
+        router.push("/masters/contact-campaign");
       } else {
         toast.error("Failed to update contact campaign");
       }

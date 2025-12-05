@@ -61,7 +61,7 @@ export default function TaskTable<T extends Record<string, any>>({
     return (
         <>
             {/* LEAD CARDS */}
-            <div className="px-2 pb-4">
+            <div className="px-0 pb-4">
                 {paginatedLeads.length === 0 && (
                     <div className="w-full flex justify-center items-center py-10 text-lg text-gray-500">
                         No task available
@@ -99,7 +99,7 @@ export default function TaskTable<T extends Record<string, any>>({
                         <div className="bg-[var(--color-primary)] p-3 flex justify-between">
                             <div></div>
 
-                            <div className="flex items-center gap-5">
+                            <div className="flex items-center gap-10">
 
                                 {/* <a href={`https://wa.me/+91${String(lead["ContactNumber"]) ?? String(lead["ContactNo"]) ?? ""}`} target="_blank">
                   <FaWhatsapp size={20} className="text-white" />
@@ -114,7 +114,7 @@ export default function TaskTable<T extends Record<string, any>>({
                                     }}
                                     onClick={() => onEdit?.(lead._id)}   // ⬅ SEND ID HERE
                                 >
-                                    <MdEdit size={20} />
+                                    <MdEdit size={25} />
                                 </Button>
                                 <Button
                                     sx={{
@@ -126,7 +126,7 @@ export default function TaskTable<T extends Record<string, any>>({
                                     }}
                                     onClick={() => onDelete?.(lead)}
 
-                                ><MdDelete size={20} /></Button>
+                                ><MdDelete size={25} /></Button>
 
                             </div>
                         </div>

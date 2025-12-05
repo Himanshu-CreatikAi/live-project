@@ -108,6 +108,12 @@ export default function Customer() {
     }
   }, [searchParams, customerData]);
 
+  function getPlainTextFromHTML(htmlString: string) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(htmlString, "text/html");
+  return doc.body.textContent || "";
+}
+
   const getCustomers = async () => {
     const data = await getCustomer();
     if (data) {
@@ -326,7 +332,7 @@ export default function Customer() {
         mailtemplates.map((item: any): mailGetDataInterface => ({
           _id: item?._id ?? "",
           name: item?.name ?? "",
-          body: item?.body ?? ""
+          body: getPlainTextFromHTML(item?.body) ?? ""
         }))
       );
 
@@ -551,7 +557,7 @@ export default function Customer() {
       {/* Mobile Customer Page */}
       <div className=" sm:hidden min-h-[calc(100vh-56px)] overflow-auto max-sm:py-5">
 
-        <div className=" flex justify-between items-center px-2 py-2  mb-4">
+        <div className=" flex justify-between items-center px-0 py-2  mb-4">
           <h1 className=" text-[var(--color-primary)] font-extrabold text-2xl ">Leads</h1>
           <AddButton url="/customer/add" text="Add" icon={<PlusSquare size={18} />} />
         </div>

@@ -58,13 +58,13 @@ function TableComponent() {
 
 
   return (
-    <div className="w-full max-w-full sm:max-w-[500px] bg-white  shadow-md p-3 sm:p-5 mx-auto">
-      <h2 className="text-base sm:text-lg font-semibold text-gray-700 mb-4 text-center sm:text-left">
+    <div className="w-full max-w-full sm:max-w-[500px] bg-white  shadow-md py-3 sm:py-5 mx-auto">
+      <h2 className="text-base sm:text-lg font-semibold px-3 sm:px-5 text-gray-700 mb-4 text-center sm:text-left">
         Global Sales by Top Locations
       </h2>
 
       {/* Header */}
-      <div className="hidden sm:flex flex-row items-center justify-between text-gray-500 font-semibold text-xs  border-b border-gray-200 pb-2 mb-2">
+      <div className="hidden sm:flex flex-row items-center justify-between px-3 sm:px-5 text-gray-500 font-semibold text-xs  border-b border-gray-200 pb-2 mb-2">
         {/*  <div className="">Flag</div> */}
         <div>Locations</div>
         <div>Customers</div>
@@ -72,14 +72,14 @@ function TableComponent() {
       </div>
 
       {/* Rows */}
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col max-h-[200px] overflow-y-auto px-3 sm:px-5 gap-3">
         {loading ? <div className="w-full max-w-full sm:max-w-[500px] bg-white text-xs shadow-md p-3 sm:p-5 mx-auto text-center text-gray-500">
           Fetching locations...
         </div> : locationStats.map((data, index) => (
           <div
             key={index}
             className="grid grid-cols-2 sm:grid-cols-2 items-center bg-gray-50 sm:bg-transparent 
-              p-2 sm:p-0 rounded-lg max-h-[300px] overflow-y-auto sm:rounded-none shadow-sm sm:shadow-none"
+              p-2 sm:p-0 rounded-lg  sm:rounded-none shadow-sm sm:shadow-none"
           >
             {/* Flag */}
             {/*  <div className="flex justify-center sm:justify-start">

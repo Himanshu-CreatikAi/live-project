@@ -145,7 +145,7 @@ export default function FavouritePage() {
       {/* FAVOURITE CONFIRMATION POPUP */}
       <DeleteDialog<FavouriteDialogDataInterface>
         isOpen={isFavouriteDialogOpen}
-        title="Are you sure you want to favourite/unfavourite this customer?"
+        title="Are you sure you want to delete this favourite?"
         data={favouriteDialogData}
         onClose={() => {
           setIsFavouriteDialogOpen(false);
@@ -154,7 +154,7 @@ export default function FavouritePage() {
         onDelete={handleFavouriteConfirm}
       />
       <div className=" sm:hidden min-h-[calc(100vh-56px)] overflow-auto max-sm:py-5">
-        <h1 className=" text-[var(--color-primary)] font-extrabold text-2xl px-2 py-2  mb-4">Favourites</h1>
+        <h1 className=" text-[var(--color-primary)] font-extrabold text-2xl px-0 py-2  mb-4">Favourites</h1>
         <FavouriteTable
           leads={favouriteData}
           labelLeads={phonetableheader}

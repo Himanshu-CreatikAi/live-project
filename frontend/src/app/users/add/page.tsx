@@ -62,6 +62,7 @@ export default function AdminCreatePage() {
     else if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(userData.Email))
       newErrors.Email = "Invalid email format";
     if (!userData.Password.trim()) newErrors.Password = "Password is required";
+    if (userData.Password.trim() && userData.Password.trim().length<6) newErrors.Password = "Password is must be 6 characters";
     if (!userData.Role.trim()) newErrors.Role = "Role is required";
     if (!userData.AddressLine1.trim()) newErrors.AddressLine1 = "AddressLine1 is required";
     return newErrors;
@@ -125,7 +126,7 @@ export default function AdminCreatePage() {
 
   // ✅ Dropdown data
   const roles = ["administrator", "city_admin", "user"];
-  const statusOptions = ["active", "inactive"];
+  const statusOptions = ["Active", "Inactive"];
   const cities = ["Jaipur", "Ajmer", "Udaipur"];
 
   const fetchFields = async () => {

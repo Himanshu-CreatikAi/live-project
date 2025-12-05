@@ -27,6 +27,7 @@ export default function AdminEditPage() {
     Email: "",
     MobileNumber: "",
     City: "",
+    Status: "",
     AddressLine1: "",
     AddressLine2: "",
   });
@@ -58,6 +59,7 @@ export default function AdminEditPage() {
       Email: data.email || "",
       MobileNumber: data.phone || "",
       City: data.city || "",
+      Status:data.status || "",
       AddressLine1: data.AddressLine1 || "",
       AddressLine2: data.AddressLine2 || "",
     });
@@ -123,6 +125,7 @@ export default function AdminEditPage() {
       [
 
         { key: "City", fetchFn: getCity },
+         { key:" Status", staticData:["Adctive", "Inactive"] }
       ],
       setFieldOptions
     );
@@ -210,6 +213,14 @@ export default function AdminEditPage() {
                     value={userData.City}
                     onChange={(selected) =>
                       handleSelectChange("City", selected)
+                    }
+                  />
+                  <SingleSelect
+                    options={Array.isArray(fieldOptions?.Status) ? fieldOptions.Status : []}
+                    label="Status"
+                    value={userData.Status}
+                    onChange={(selected) =>
+                      handleSelectChange("Status", selected)
                     }
                   />
                 </div>

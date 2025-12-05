@@ -102,7 +102,7 @@ export default function CampaignPage() {
         <MasterProtectedRoute>
             <Toaster position="top-right" />
             <div className=" sm:hidden py-5">
-                <h1 className=" text-[var(--color-primary)] font-bold text-2xl px-2 py-2">Campaign</h1>
+                <h1 className=" text-[var(--color-primary)] font-bold text-2xl px-0 py-2">Campaign</h1>
                 <CampaignFilter leadStatuses={campaigns.map((item) => ({ name: item.Name }))} />
             </div>
             <div className="min-h-[calc(100vh-56px)] overflow-auto max-md:py-10 max-sm:hidden">

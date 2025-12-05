@@ -31,7 +31,7 @@ export default function CampaignFilter({ leadStatuses }: LeadStatusProps) {
 
   return (
     <div className="min-h-screen">
-      <div className=" px-2 py-4 grid grid-cols-2 gap-3">
+      <div className=" px-0 py-4 grid grid-cols-2 gap-3">
         {leadStatuses.map((status, index) => {
           const colorIndex = index % objectcolor.length;
 
@@ -53,7 +53,7 @@ export default function CampaignFilter({ leadStatuses }: LeadStatusProps) {
                 fontSize: "16px",
                 fontWeight: 700,
               }}
-              className="text-white text-center text-shadow-md  "
+              className="text-white text-center  px-1 break-all whitespace-normal max-w-[200px] text-shadow-md   "
 
 
             >
